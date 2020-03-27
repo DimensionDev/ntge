@@ -4,8 +4,8 @@ use ntge_core::*;
 use std::env;
 use std::fs;
 use std::fs::File;
-use std::io::Write;
-use std::path::Path;
+use std::io::{Result, Write};
+use std::path::{Path, PathBuf};
 
 const DEFAULT_SAVE_PATH: &str = ".cube";
 const DEFAULT_FILE_NAME: &str = "id_tessercube";
@@ -30,6 +30,23 @@ struct NtgeOptions {
     console: bool,
 }
 
+fn create_file_and_write(p: PathBuf, content: String) -> Result<()> {
+    let mut file = match File::create(&p) {
+        Ok(file) => file,
+        Err(e) => {
+            eprintln!("Error: can not create file {}", p.display());
+            eprintln!("{}", e);
+            return Err(e);
+        }
+    };
+    if let Err(e) = writeln!(file, "{}", content) {
+        eprintln!("Error: can not write file {}", p.display());
+        eprintln!("{}", e);
+        return Err(e);
+    }
+    Ok(())
+}
+
 fn main() {
     let opts = NtgeOptions::parse_args_default_or_exit();
     if opts.version {
@@ -49,7 +66,7 @@ fn main() {
     let output_folder = if let Some(path) = opts.path {
         Path::new(&path).to_path_buf()
     } else {
-       let home = match home_dir() {
+        let home = match home_dir() {
             Some(dir) => dir,
             None => {
                 println!("Warning: can not find home dir, use local dir");
@@ -60,7 +77,10 @@ fn main() {
     };
     if !output_folder.exists() {
         if let Err(e) = fs::create_dir_all(&output_folder) {
-            eprintln!("Error: can not create folder at {}", output_folder.display());
+            eprintln!(
+                "Error: can not create folder at {}",
+                output_folder.display()
+            );
             eprintln!("{}", e);
             return;
         }
@@ -74,43 +94,13 @@ fn main() {
         eprintln!("Error: file {} already exists!", output_file.display());
         return;
     }
-    let public_key_path = output_file.with_extension(DEFAULT_PUBLIC_KEY_SUFFIX);
-    let private_key_path = output_file.with_extension(DEFAULT_PRIVATE_KEY_SUFFIX);
-    let mut output_public_key = match File::create(&public_key_path) {
-        Ok(file) => file,
-        Err(e) => {
-            eprintln!(
-                "Error: can not create file {} for public key",
-                public_key_path.display()
-            );
-            eprintln!("{}", e);
-            return;
-        }
-    };
-    let mut output_private_key = match File::create(&private_key_path) {
-        Ok(file) => file,
-        Err(e) => {
-            eprintln!(
-                "Error: can not create file {} for private key",
-                private_key_path.display()
-            );
-            eprintln!("{}", e);
-            return;
-        }
-    };
-    if let Err(e) = writeln!(output_public_key, "{}", public_key_content) {
-        eprintln!(
-            "Error: can not write file {} for public key",
-            public_key_path.display()
-        );
-        eprintln!("{}", e);
+    let public_key_file = output_file.with_extension(DEFAULT_PUBLIC_KEY_SUFFIX);
+    let private_key_file = output_file.with_extension(DEFAULT_PRIVATE_KEY_SUFFIX);
+    if let Err(_) = create_file_and_write(public_key_file, public_key_content) {
+        return;
     }
-    if let Err(e) = writeln!(output_private_key, "{}", private_key_content) {
-        eprintln!(
-            "Error: can not write file {} for private key",
-            private_key_path.display()
-        );
-        eprintln!("{}", e);
+    if let Err(_) = create_file_and_write(private_key_file, private_key_content) {
+        return;
     }
     println!("Successfully create ntge key at {}", output_file.display());
 }
