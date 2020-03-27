@@ -1,6 +1,6 @@
 use dirs::home_dir;
 use gumdrop::Options;
-use ntge_core::*;
+use ntge_core::ed25519;
 use std::env;
 use std::fs;
 use std::fs::File;
@@ -53,9 +53,9 @@ fn main() {
         println!("ntge-keygen {}", env!("CARGO_PKG_VERSION"));
         return;
     }
-    let keypair = create_ed25519_keypair();
-    let public_key_content = serialize_public_key(&keypair);
-    let private_key_content = serialize_private_key(&keypair);
+    let keypair = ed25519::create_keypair();
+    let public_key_content = ed25519::serialize_public_key(&keypair);
+    let private_key_content = ed25519::serialize_private_key(&keypair);
     if opts.console {
         println!("Your public key is");
         println!("{}", public_key_content);
