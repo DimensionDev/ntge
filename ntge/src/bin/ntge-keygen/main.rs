@@ -7,8 +7,8 @@ use std::fs::File;
 use std::io::{Result, Write};
 use std::path::{Path, PathBuf};
 
-const DEFAULT_SAVE_PATH: &str = ".cube";
-const DEFAULT_FILE_NAME: &str = "id_tessercube";
+const DEFAULT_SAVE_PATH: &str = ".ntge";
+const DEFAULT_FILE_NAME: &str = "id_ntge";
 const DEFAULT_PUBLIC_KEY_SUFFIX: &str = "pub";
 const DEFAULT_PRIVATE_KEY_SUFFIX: &str = "";
 
@@ -20,10 +20,10 @@ struct NtgeOptions {
     #[options(help = "Print version info and exit.", short = "V")]
     version: bool,
 
-    #[options(help = "Key's file name, default to id_tessercube")]
+    #[options(help = "Key's file name, default to id_ntge")]
     filename: Option<String>,
 
-    #[options(help = "Save path, default to ~/.cube/")]
+    #[options(help = "Save path, default to ~/.ntge/")]
     path: Option<String>,
 
     #[options(help = "Print key to console only")]
