@@ -8,4 +8,5 @@ edition = "2018"
 
 [dependencies]
 gumdrop = "0.7"
+dirs = "2.0.2"
 ntge-core = { path = "../ntge-core" }
