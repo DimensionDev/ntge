@@ -14,8 +14,6 @@ struct NtgeOptions {
 
 fn main() {
     let opts = NtgeOptions::parse_args_default_or_exit();
-    let x = 1;
-    if (x & 1 == 2) { }
 
     if opts.version {
         println!("ntge-keygen {}", env!("CARGO_PKG_VERSION"));
