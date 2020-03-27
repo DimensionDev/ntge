@@ -60,7 +60,7 @@ fn main() {
     };
     if !output_folder.exists() {
         if let Err(e) = fs::create_dir_all(&output_folder) {
-            eprintln!("Error: can not create .cube folder");
+            eprintln!("Error: can not create folder at {}", output_folder.display());
             eprintln!("{}", e);
             return;
         }
