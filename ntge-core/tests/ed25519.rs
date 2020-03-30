@@ -13,10 +13,10 @@ mod tests {
     fn it_create_keypair() {
         let keypair = ed25519::create_keypair();
 
-        let serialized_private_key = ed25519::serialize_private_key(&keypair);
+        let serialized_private_key = ed25519::serialize_private_key(&(keypair.secret));
         println!("{}", serialized_private_key);
 
-        let serialized_public_key = ed25519::serialize_public_key(&keypair);
+        let serialized_public_key = ed25519::serialize_public_key(&(keypair.public));
         println!("{}", serialized_public_key);
 
         let deserialized_private_key = ed25519::deserialize_private_key(&serialized_private_key);
