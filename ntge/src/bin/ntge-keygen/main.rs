@@ -54,8 +54,8 @@ fn main() {
         return;
     }
     let keypair = ed25519::create_keypair();
-    let public_key_content = ed25519::serialize_public_key(&keypair);
-    let private_key_content = ed25519::serialize_private_key(&keypair);
+    let public_key_content = ed25519::serialize_public_key(&(keypair.public));
+    let private_key_content = ed25519::serialize_private_key(&(keypair.secret));
     if opts.console {
         println!("Your public key is");
         println!("{}", public_key_content);
