@@ -11,12 +11,16 @@ pub const CURVE_NAME_ED25519: &'static str = "Ed25519";
 
 pub fn keypair_validation(private_key: &SecretKey, public_key: &PublicKey) -> bool {
     let keypair: Keypair = from_private_key(private_key);
-    assert_eq!( keypair.public.to_bytes(), (*public_key).to_bytes() );
+    if  keypair.public.to_bytes() != (*public_key).to_bytes() {
+        return false;
+    }
 
     let expanded_private: ExpandedSecretKey = ExpandedSecretKey::from(private_key);
     let message: &[u8] = "Test".as_bytes();
     let signature: Signature = expanded_private.sign(message, public_key);
-    assert!(public_key.verify(message, &signature).is_ok());
 
-    true
+    match public_key.verify(message, &signature) {
+        Ok(()) => true,
+        Err(err) => false
+    }
 }
