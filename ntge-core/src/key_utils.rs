@@ -10,7 +10,7 @@ use super::error;
 pub const CURVE_NAME_ED25519: &'static str = "Ed25519";
 
 pub fn keypair_validation(private_key: &SecretKey, public_key: &PublicKey) -> bool {
-    let keypair: Keypair = from_private_key(private_key);
+    let keypair: Keypair = construct_from_private_key(private_key);
     if  keypair.public.to_bytes() != (*public_key).to_bytes() {
         return false;
     }

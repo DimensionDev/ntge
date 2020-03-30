@@ -13,7 +13,7 @@ pub fn create_keypair() -> Keypair {
     Keypair::generate(&mut csprng)
 }
 
-pub fn from_private_key(private_key: &SecretKey) -> Keypair {
+pub fn construct_from_private_key(private_key: &SecretKey) -> Keypair {
     let sk: SecretKey = (SecretKey::from_bytes(&(private_key.to_bytes())).unwrap());
     let pk: PublicKey = (&sk).into();
 
