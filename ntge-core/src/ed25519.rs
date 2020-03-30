@@ -13,14 +13,21 @@ pub fn create_keypair() -> Keypair {
     Keypair::generate(&mut csprng)
 }
 
-pub fn serialize_private_key(keypair: &Keypair) -> String {
-    let data = keypair.secret.to_bytes().to_base32();
+pub fn construct_from_private_key(private_key: &SecretKey) -> Keypair {
+    let sk: SecretKey = (SecretKey::from_bytes(&(private_key.to_bytes())).unwrap());
+    let pk: PublicKey = (&sk).into();
+
+    Keypair{ public: pk, secret: sk }
+}
+
+pub fn serialize_private_key(private_key: &SecretKey) -> String {
+    let data = private_key.to_bytes().to_base32();
     let encoded = bech32::encode("pri", data).unwrap();
     encoded + "-" + CURVE_NAME_ED25519
 }
 
-pub fn serialize_public_key(keypair: &Keypair) -> String {
-    let data = keypair.public.to_bytes().to_base32();
+pub fn serialize_public_key(public_key: &PublicKey) -> String {
+    let data = public_key.to_bytes().to_base32();
     let encoded = bech32::encode("pub", data).unwrap();
     encoded + "-" + CURVE_NAME_ED25519
 }
@@ -168,3 +175,4 @@ pub fn deserialize_public_key(encoded: &str) -> Result<PublicKey, error::CoreErr
         Ok(public_key)
     }
 }
+
