@@ -14,7 +14,7 @@ pub fn create_keypair() -> Keypair {
 }
 
 pub fn construct_from_private_key(private_key: &SecretKey) -> Keypair {
-    let sk: SecretKey = (SecretKey::from_bytes(&(private_key.to_bytes())).unwrap());
+    let sk: SecretKey = SecretKey::from_bytes(&(private_key.to_bytes())).unwrap();
     let pk: PublicKey = (&sk).into();
 
     Keypair{ public: pk, secret: sk }
