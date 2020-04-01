@@ -13,7 +13,7 @@ mod tests {
     #[test]
     fn it_validates_a_valid_keypair() {
         let keypair = ed25519::create_keypair();
-        assert!(key_utils::keypair_validation(&keypair.secret, &keypair.public));
+        assert!(key_utils::keypair_validation(&keypair.secret, &keypair.public).is_ok());
     }
 
     #[test]
@@ -21,7 +21,7 @@ mod tests {
         let keypair1 = ed25519::create_keypair();
         let keypair2 = ed25519::create_keypair();
 
-        assert!(!(key_utils::keypair_validation(&keypair1.secret, &keypair2.public)));
+        assert!(!(key_utils::keypair_validation(&keypair1.secret, &keypair2.public).is_ok()));
     }
     
     #[test]
