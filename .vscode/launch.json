@@ -1,0 +1,120 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in library 'ntge-core'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--lib",
+                    "--package=ntge-core"
+                ],
+                "filter": {
+                    "name": "ntge-core",
+                    "kind": "lib"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug integration test 'ed25519'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--test=ed25519",
+                    "--package=ntge-core"
+                ],
+                "filter": {
+                    "name": "ed25519",
+                    "kind": "test"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug executable 'ntge-keygen'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--bin=ntge-keygen",
+                    "--package=ntge"
+                ],
+                "filter": {
+                    "name": "ntge-keygen",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in executable 'ntge-keygen'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bin=ntge-keygen",
+                    "--package=ntge"
+                ],
+                "filter": {
+                    "name": "ntge-keygen",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug executable 'ntge'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--bin=ntge",
+                    "--package=ntge"
+                ],
+                "filter": {
+                    "name": "ntge",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in executable 'ntge'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bin=ntge",
+                    "--package=ntge"
+                ],
+                "filter": {
+                    "name": "ntge",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        }
+    ]
+}
