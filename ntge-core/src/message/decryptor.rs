@@ -27,7 +27,8 @@ impl<'a> Decryptor<'a> {
             &self.message.meta,
             &file_key,
         );
-        calculated_mac == self.message.mac
+        let calculated_mac = calculated_mac.to_vec();
+        calculated_mac == self.message.mac.mac
     }
 
     pub fn decrypt_file_key(&self, secret_key: &StaticSecret) -> Option<FileKey> {
@@ -45,7 +46,7 @@ impl<'a> Decryptor<'a> {
     }
 
     pub fn decrypt_payload(&self, file_key: &FileKey) -> Option<Vec<u8>> {
-        let nonce = self.message.payload.nonce;
+        let nonce = &self.message.payload.nonce;
         // create payload key
         let mut payload_key = [0; 32];
         Hkdf::<Sha256>::new(Some(&nonce), file_key.0.expose_secret())

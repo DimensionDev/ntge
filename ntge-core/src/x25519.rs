@@ -52,8 +52,10 @@ impl FileKey {
             key
         };
         // 6. create MessageRecipient
+        let ephemeral_public_key = ephemeral_public_key.as_bytes().to_vec();
+        let encrypted_file_key = encrypted_file_key.to_vec();
         MessageRecipientHeader {
-            key_type: CURVE_NAME_X25519,
+            key_type: String::from(CURVE_NAME_X25519),
             ephemeral_public_key,
             encrypted_file_key,
         }
@@ -64,12 +66,13 @@ impl FileKey {
         secret_key: &StaticSecret,
     ) -> Result<Self, CoreError> {
         // 1. calculate ECDH shared_secret
-        let shared_secret = secret_key.diffie_hellman(&message_recipient.ephemeral_public_key);
+        let shared_secret =
+            secret_key.diffie_hellman(&message_recipient.get_ephemeral_public_key());
         // 2. create public key from private key
         let public_key = PublicKey::from(secret_key);
         // 3. calculate same salt in wrap method
         let mut salt = vec![];
-        salt.extend_from_slice(message_recipient.ephemeral_public_key.as_bytes());
+        salt.extend_from_slice(message_recipient.get_ephemeral_public_key().as_bytes());
         salt.extend_from_slice(public_key.as_bytes());
         // 4. calculate same encryption key in wrap method
         let mut encryption_key = [0; 32];

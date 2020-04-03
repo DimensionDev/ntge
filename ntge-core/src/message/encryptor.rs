@@ -48,8 +48,10 @@ impl Encryptor {
             .expand(message::PAYLOAD_KEY_LABEL, &mut payload_key)
             .expect("payload_key is the correct length");
         let ciphertext = aead::aead_encrypt(&payload_key, &plaintext);
+        let nonce = nonce.to_vec();
         let payload = message::MessagePayload { nonce, ciphertext };
         // 5. construct message
+        let mac = message::MessageMac { mac: mac.to_vec() };
         message::Message {
             recipient_headers,
             meta,
@@ -75,7 +77,7 @@ impl Encryptor {
             Hmac::<Sha256>::new_varkey(&mac_key).expect("HMAC can take key of any size");
         for header in recipient_headers.iter() {
             hasher.input(header.key_type.as_bytes());
-            hasher.input(header.ephemeral_public_key.as_bytes());
+            hasher.input(header.get_ephemeral_public_key().as_bytes());
             hasher.input(&header.encrypted_file_key);
         }
         if let Some(timestamp) = &meta.timestamp {
