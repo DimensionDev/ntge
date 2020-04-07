@@ -10,6 +10,14 @@ pub enum CoreError {
         name: &'static str,
         reason: &'static str,
     },
+    MessageDecryptionError {
+        name: &'static str,
+        reason: &'static str,
+    },
+    MessageSerializationError {
+        name: &'static str,
+        reason: &'static str,
+    },
 }
 
 #[cfg(feature = "std")]
@@ -24,6 +32,12 @@ impl Display for CoreError {
         match *self {
             CoreError::KeyDeserializeError { name, reason } => {
                 write!(f, "cannot deserialize {}: {}", name, reason)
+            }
+            CoreError::MessageDecryptionError { name, reason } => {
+                write!(f, "cannot decryption {}: {}", name, reason)
+            }
+            CoreError::MessageSerializationError { name, reason } => {
+                write!(f, "cannot serialize {}: {}", name, reason)
             }
         }
     }
