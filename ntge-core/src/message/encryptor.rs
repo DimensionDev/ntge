@@ -62,7 +62,7 @@ impl Encryptor {
 }
 
 impl Encryptor {
-    pub(crate) fn calculate_mac(
+    pub(super) fn calculate_mac(
         recipient_headers: &[message::MessageRecipientHeader],
         meta: &message::MessageMeta,
         file_key: &FileKey,
