@@ -243,6 +243,7 @@ dependencies = [
  "curve25519-dalek",
  "ed25519-dalek",
  "rand",
+ "sha2",
  "x25519-dalek",
 ]
 
