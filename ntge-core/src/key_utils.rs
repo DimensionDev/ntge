@@ -52,5 +52,11 @@ pub fn ed25519_public_key_to_x25519(public_key: &PublicKey) -> x25519_dalek::Pub
 pub fn ed25519_private_key_to_x25519(private_key: &SecretKey) -> StaticSecret {
     let mut private_key_x25519 = [0; 32];
     private_key_x25519.copy_from_slice(&Sha512::digest(&(private_key.as_bytes())[0..32])[0..32]);
+
+    // https://moderncrypto.org/mail-archive/curves/2014/000293.html
+    private_key_x25519[0] &= 248;
+    private_key_x25519[31] &= 127;
+    private_key_x25519[31] |= 64;
+
     private_key_x25519.into()
 }
