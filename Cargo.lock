@@ -381,6 +381,7 @@ dependencies = [
  "bson",
  "chacha20poly1305",
  "chrono",
+ "curve25519-dalek",
  "ed25519-dalek",
  "hkdf",
  "hmac",

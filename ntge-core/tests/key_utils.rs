@@ -1,4 +1,7 @@
+use curve25519_dalek::edwards::{CompressedEdwardsY, EdwardsPoint};
+use curve25519_dalek::montgomery::MontgomeryPoint;
 use ntge_core::{ed25519, key_utils};
+use x25519_dalek::StaticSecret;
 
 #[cfg(test)]
 mod tests {
@@ -12,7 +15,7 @@ mod tests {
     #[test]
     fn it_validates_a_valid_keypair() {
         let keypair = ed25519::create_keypair();
-        assert!(key_utils::keypair_validation(&keypair.secret, &keypair.public));
+        assert!(key_utils::keypair_validation(&keypair.secret, &keypair.public).is_ok());
     }
 
     #[test]
@@ -20,6 +23,34 @@ mod tests {
         let keypair1 = ed25519::create_keypair();
         let keypair2 = ed25519::create_keypair();
 
-        assert!(!(key_utils::keypair_validation(&keypair1.secret, &keypair2.public)));
+        assert!(!(key_utils::keypair_validation(&keypair1.secret, &keypair2.public).is_ok()));
+    }
+
+    #[test]
+    fn it_converts_an_ed25519_public_key_to_x25519() {
+        let keypair = ed25519::create_keypair();
+        let pubkey = key_utils::ed25519_public_key_to_x25519(&keypair.public);
+    }
+
+    #[test]
+    fn it_converts_an_ed25519_private_key_to_x25519() {
+        let keypair = ed25519::create_keypair();
+        let private_key = key_utils::ed25519_private_key_to_x25519(&keypair.secret);
+    }
+
+    #[test]
+    fn it_conducts_diffie_hellman_on_two_ed25519_keypairs() {
+        let keypair1 = ed25519::create_keypair();
+        let private_key1 = key_utils::ed25519_private_key_to_x25519(&keypair1.secret);
+        let public_key1 = key_utils::ed25519_public_key_to_x25519(&keypair1.public);
+
+        let keypair2 = ed25519::create_keypair();
+        let private_key2 = key_utils::ed25519_private_key_to_x25519(&keypair2.secret);
+        let public_key2 = key_utils::ed25519_public_key_to_x25519(&keypair2.public);
+
+        assert_eq!(
+            private_key1.diffie_hellman(&public_key2).as_bytes(),
+            private_key2.diffie_hellman(&public_key1).as_bytes(),
+        );
     }
 }

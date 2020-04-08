@@ -18,6 +18,10 @@ pub enum CoreError {
         name: &'static str,
         reason: &'static str,
     },
+    KeyInvalidError {
+        name: &'static str,
+        reason: &'static str,
+    },
 }
 
 #[cfg(feature = "std")]
@@ -38,6 +42,9 @@ impl Display for CoreError {
             }
             CoreError::MessageSerializationError { name, reason } => {
                 write!(f, "cannot serialize {}: {}", name, reason)
+            }
+            CoreError::KeyInvalidError { name, reason } => {
+                write!(f, "is not a valid {} keypair. {}", name, reason)
             }
         }
     }
