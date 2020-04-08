@@ -1,18 +1,21 @@
-use ed25519_dalek::Keypair;
-use ed25519_dalek::{SecretKey, PublicKey};
-use ed25519_dalek::{ExpandedSecretKey, Signature};
-use curve25519_dalek::edwards::{EdwardsPoint, CompressedEdwardsY};
-use x25519_dalek::StaticSecret;
-use sha2::{Sha512, Digest};
 pub use crate::ed25519::*;
+use curve25519_dalek::edwards::{CompressedEdwardsY, EdwardsPoint};
+use ed25519_dalek::Keypair;
+use ed25519_dalek::{ExpandedSecretKey, Signature};
+use ed25519_dalek::{PublicKey, SecretKey};
+use sha2::{Digest, Sha512};
+use x25519_dalek::StaticSecret;
 
 use super::error;
 
 pub const CURVE_NAME_ED25519: &str = "Ed25519";
 
-pub fn keypair_validation(private_key: &SecretKey, public_key: &PublicKey) -> Result<bool, error::CoreError> {
+pub fn keypair_validation(
+    private_key: &SecretKey,
+    public_key: &PublicKey,
+) -> Result<bool, error::CoreError> {
     let keypair: Keypair = construct_from_private_key(private_key);
-    if  keypair.public.to_bytes() != (*public_key).to_bytes() {
+    if keypair.public.to_bytes() != (*public_key).to_bytes() {
         let core_error = error::CoreError::KeyInvalidError {
             name: CURVE_NAME_ED25519,
             reason: "The given public key and private key do not match.",
