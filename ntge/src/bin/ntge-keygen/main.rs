@@ -14,12 +14,6 @@ const DEFAULT_PRIVATE_KEY_SUFFIX: &str = "";
 
 #[derive(Debug, Options)]
 struct NtgeOptions {
-    #[options(help = "Print this help message and exit.")]
-    help: bool,
-
-    #[options(help = "Print version info and exit.", short = "V")]
-    version: bool,
-
     #[options(help = "Key's file name, default to id_ntge")]
     filename: Option<String>,
 
@@ -28,6 +22,12 @@ struct NtgeOptions {
 
     #[options(help = "Print key to console only")]
     console: bool,
+
+    #[options(help = "Print version info and exit.", short = "v")]
+    version: bool,
+
+    #[options(help = "Print this help message and exit.")]
+    help: bool,
 }
 
 fn create_file_and_write(p: PathBuf, content: String) -> Result<()> {

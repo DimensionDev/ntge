@@ -1,6 +1,6 @@
 use bech32::{self, FromBase32, ToBase32};
 use ed25519_dalek::Keypair;
-use ed25519_dalek::{PublicKey, SecretKey};
+pub use ed25519_dalek::{PublicKey, SecretKey};
 use rand::rngs::OsRng;
 
 use super::error;
@@ -17,7 +17,10 @@ pub fn construct_from_private_key(private_key: &SecretKey) -> Keypair {
     let sk: SecretKey = SecretKey::from_bytes(&(private_key.to_bytes())).unwrap();
     let pk: PublicKey = (&sk).into();
 
-    Keypair{ public: pk, secret: sk }
+    Keypair {
+        public: pk,
+        secret: sk,
+    }
 }
 
 pub fn serialize_private_key(private_key: &SecretKey) -> String {
@@ -143,7 +146,7 @@ pub fn deserialize_public_key(encoded: &str) -> Result<PublicKey, error::CoreErr
         if hrp != "pub" {
             let e = error::CoreError::KeyDeserializeError {
                 name: "PublicKey",
-                reason: "cannot read invalid key payload",
+                reason: "invalid public key payload",
             };
             return Err(e);
         }
@@ -175,4 +178,3 @@ pub fn deserialize_public_key(encoded: &str) -> Result<PublicKey, error::CoreErr
         Ok(public_key)
     }
 }
-
