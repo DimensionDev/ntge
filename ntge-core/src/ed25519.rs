@@ -5,7 +5,7 @@ use rand::rngs::OsRng;
 
 use super::error;
 
-pub const CURVE_NAME_ED25519: &'static str = "Ed25519";
+pub const CURVE_NAME_ED25519: &str = "Ed25519";
 
 pub fn create_keypair() -> Keypair {
     // a.k.a Cryptographically secure pseudo-random number generator.
@@ -41,7 +41,7 @@ pub fn deserialize_private_key(encoded: &str) -> Result<SecretKey, error::CoreEr
             name: "PrivateKey",
             reason: "cannot parse key from text",
         };
-        return Err(e);
+        Err(e)
     } else {
         let curve_name = components[1];
 
@@ -94,7 +94,7 @@ pub fn deserialize_private_key(encoded: &str) -> Result<SecretKey, error::CoreEr
             Err(_) => {
                 let e = error::CoreError::KeyDeserializeError {
                     name: "PrivateKey",
-                    reason: "cannot decode base32 key payload",
+                    reason: "cannot restore key from payload",
                 };
                 return Err(e);
             }
@@ -113,7 +113,7 @@ pub fn deserialize_public_key(encoded: &str) -> Result<PublicKey, error::CoreErr
             name: "PublicKey",
             reason: "cannot parse key from text",
         };
-        return Err(e);
+        Err(e)
     } else {
         let curve_name = components[1];
 
@@ -166,7 +166,7 @@ pub fn deserialize_public_key(encoded: &str) -> Result<PublicKey, error::CoreErr
             Err(_) => {
                 let e = error::CoreError::KeyDeserializeError {
                     name: "PublicKey",
-                    reason: "cannot decode base32 key payload",
+                    reason: "cannot restore key from payload",
                 };
                 return Err(e);
             }
