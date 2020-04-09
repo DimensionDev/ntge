@@ -1,4 +1,5 @@
 use clap::{App, Arg};
+use ntge_core::{ed25519, message};
 
 mod encrypt;
 mod util;
@@ -54,6 +55,17 @@ fn main() {
                         .help("private identity key use for decrypt message"),
                 ),
         )
+        .subcommand(
+            App::new("dump")
+                .about("dump infomation for message or key")
+                .arg(
+                    Arg::with_name("path")
+                        .short("p")
+                        .long("path")
+                        .takes_value(true)
+                        .help("Sets the message or key path"),
+                ),
+        )
         .get_matches();
 
     match matches.subcommand() {
@@ -62,10 +74,10 @@ fn main() {
             let recipients = encrypt::recipient::fetch_recipient(&arg_matches);
             let plaintext = util::read_input_bytes(&arg_matches);
             let message = encrypt::encrypt_message(&plaintext, &recipients);
-            let content = match message.serialize_to_base58() {
-                Ok(base58) => format!("MsgBegin_{}_EndMsg\n", base58),
+            let content = match message.serialize_to_armor() {
+                Ok(armor) => armor,
                 Err(e) => {
-                    eprintln!("error: can not serialize message.\nreason: {}", e);
+                    eprintln!("error: can not serialize message to armor.\nreason: {}", e);
                     std::process::exit(1);
                 }
             };
@@ -73,6 +85,24 @@ fn main() {
         }
         ("decrypt", arg_matches) => {
             println!("decrypt!!!");
+        }
+        ("dump", arg_matches) => {
+            let arg_matches = arg_matches.unwrap();
+            let input_bytes = util::read_input_bytes(&arg_matches);
+            let input_text = match String::from_utf8(input_bytes) {
+                Ok(text) => text,
+                Err(e) => {
+                    eprintln!("error: can not read content from input.\nreason: {}", e);
+                    std::process::exit(1);
+                }
+            };
+            if let Ok(message) = message::Message::deserialize_from_armor(&input_text) {
+                println!("{:?}", message);
+            } else if let Ok(public_key) = ed25519::deserialize_public_key(&input_text) {
+                println!("{:#?}", public_key);
+            } else if let Ok(private_key) = ed25519::deserialize_private_key(&input_text) {
+                println!("{:#?}", private_key);
+            }
         }
         (_, _) => {
             // do nothing
