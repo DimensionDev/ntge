@@ -8,7 +8,7 @@ use bson::DecoderError;
 #[cfg(feature = "std")]
 use std::error::Error;
 
-#[derive(Clone, Copy, Debug, Eq, PartialEq, Hash)]
+#[derive(Debug)]
 pub enum CoreError {
     KeyDeserializeError {
         name: &'static str,
