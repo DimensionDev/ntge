@@ -61,9 +61,15 @@ fn main() {
             let arg_matches = arg_matches.unwrap();
             let recipients = encrypt::recipient::fetch_recipient(&arg_matches);
             let plaintext = util::read_input_bytes(&arg_matches);
-            // TODO: encrypt plaintext
-            let content = plaintext;
-            util::write_to_output(&arg_matches, &content);
+            let message = encrypt::encrypt_message(&plaintext, &recipients);
+            let content = match message.serialize_to_base58() {
+                Ok(base58) => format!("MsgBegin_{}_EndMsg\n", base58),
+                Err(e) => {
+                    eprintln!("error: can not serialize message.\nreason: {}", e);
+                    std::process::exit(1);
+                }
+            };
+            util::write_to_output(&arg_matches, &content.as_bytes());
         }
         ("decrypt", arg_matches) => {
             println!("decrypt!!!");

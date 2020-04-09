@@ -58,7 +58,7 @@ pub struct Message {
 
 #[allow(dead_code)]
 impl Message {
-    fn serialize_to_base58(&self) -> Result<String, CoreError> {
+    pub fn serialize_to_base58(&self) -> Result<String, CoreError> {
         self.serialize_to_bson_bytes()
             .map(|bytes| bs58::encode(bytes).into_string())
             .map_err(|_| CoreError::MessageSerializationError {
@@ -67,7 +67,7 @@ impl Message {
             })
     }
 
-    fn deserialize_from_base58(text: &str) -> Result<Message, CoreError> {
+    pub fn deserialize_from_base58(text: &str) -> Result<Message, CoreError> {
         let bytes = match bs58::decode(text).into_vec() {
             Ok(bytes) => bytes,
             Err(_) => {

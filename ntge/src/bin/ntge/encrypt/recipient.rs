@@ -7,10 +7,10 @@ const DEFAULT_SAVE_PATH: &str = ".ntge";
 
 #[derive(Debug, Clone)]
 pub(crate) struct Recipient {
-    path: PathBuf,
-    name: String,
-    key_content: String,
-    key: ed25519::PublicKey,
+    pub(crate) path: PathBuf,
+    pub(crate) name: String,
+    pub(crate) key_content: String,
+    pub(crate) key: ed25519::PublicKey,
 }
 
 pub(crate) fn fetch_recipient(arg_matches: &clap::ArgMatches) -> Vec<Recipient> {
