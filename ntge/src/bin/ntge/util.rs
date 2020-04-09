@@ -29,6 +29,35 @@ pub(crate) fn read_input_bytes(arg_matches: &clap::ArgMatches) -> Vec<u8> {
     }
 }
 
+
+// read input from stdin or path
+pub(crate) fn read_input_str(arg_matches: &clap::ArgMatches) -> String {
+    if let Some(path) = arg_matches.value_of("path") {
+        // read from file
+        let file_path = Path::new(path);
+        let file_str = match fs::read_to_string(&file_path) {
+            Ok(content) => content,
+            Err(e) => {
+                eprintln!("error: can not read file {}.\nreason: {}", path, e);
+                std::process::exit(1);
+            }
+        };
+        file_str
+    } else {
+        // read from stdin
+        let mut input = String::new();
+        match io::stdin().read_to_string(&mut input) {
+            Ok(_) => input.as_str().to_string(),
+            Err(e) => {
+                eprintln!("error: can not read content from stdin.\nreason: {}", e);
+                std::process::exit(1);
+            }
+        }
+    }
+}
+
+
+
 pub(crate) fn write_to_output(arg_matches: &clap::ArgMatches, content: &[u8]) {
     if let Some(path) = arg_matches.value_of("output") {
         // write to file

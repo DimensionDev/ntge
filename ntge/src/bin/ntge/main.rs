@@ -2,6 +2,7 @@ use clap::{App, Arg};
 use ntge_core::{ed25519, message};
 
 mod encrypt;
+mod decrypt;
 mod util;
 
 fn main() {
@@ -53,6 +54,20 @@ fn main() {
                         .long("identity")
                         .takes_value(true)
                         .help("private identity key use for decrypt message"),
+                )
+                .arg(
+                    Arg::with_name("output")
+                        .short("o")
+                        .long("output")
+                        .takes_value(true)
+                        .help("decrypt result file path"),
+                )
+                .arg(
+                    Arg::with_name("verbose")
+                        .short("v")
+                        .long("verbose")
+                        .takes_value(false)
+                        .help("show more information from decrypt"),
                 ),
         )
         .subcommand(
@@ -84,7 +99,19 @@ fn main() {
             util::write_to_output(&arg_matches, &content.as_bytes());
         }
         ("decrypt", arg_matches) => {
-            println!("decrypt!!!");
+            let arg_matches = arg_matches.unwrap();
+            let plaintext = util::read_input_str(&arg_matches);
+            let result = match decrypt::decrypt_message(&plaintext, arg_matches.value_of("identity")) {
+                Ok(it) => it,
+                Err(e) => {
+                    eprintln!("{}", e.message);
+                    std::process::exit(1);
+                }
+            };
+            if arg_matches.is_present("verbose") && arg_matches.is_present("output") {
+                println!("{:?}", result.key);
+            }
+            util::write_to_output(&arg_matches, &result.content);
         }
         ("dump", arg_matches) => {
             let arg_matches = arg_matches.unwrap();
