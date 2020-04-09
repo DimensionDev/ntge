@@ -121,18 +121,9 @@ impl Message {
         }
     }
 
-    #[allow(ptr_arg)]
+    #[allow(clippy::ptr_arg)]
     fn deserialize_from_bson_bytes(bytes: &Vec<u8>) -> Result<Message, CoreError> {
-        let document = match bson::decode_document(&mut std::io::Cursor::new(&bytes[..])) {
-            Ok(document) => document,
-            Err(_) => {
-                let e = CoreError::KeyDeserializeError {
-                    name: "Message",
-                    reason: "cannot decode bson bytes to message document",
-                };
-                return Err(e);
-            }
-        };
+        let document = bson::decode_document(&mut std::io::Cursor::new(&bytes[..]))?;
 
         let result: Result<Message, _> = bson::from_bson(bson::Bson::Document(document));
         result.map_err(|_| CoreError::KeyDeserializeError {

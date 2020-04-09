@@ -56,16 +56,7 @@ pub fn deserialize_private_key(encoded: &str) -> Result<SecretKey, error::CoreEr
 
         // 2. decode bech32 to base32
         let bech32_encoded = components[0];
-        let (hrp, base32_encoded) = match bech32::decode(&bech32_encoded) {
-            Ok(tuple) => tuple,
-            Err(_) => {
-                let core_error = error::CoreError::KeyDeserializeError {
-                    name: "PrivateKey",
-                    reason: "cannot decode bech32 key payload",
-                };
-                return Err(core_error);
-            }
-        };
+        let (hrp, base32_encoded) = bech32::decode(&bech32_encoded)?
 
         // 3. check hrp
         if hrp != "pri" {
@@ -77,28 +68,10 @@ pub fn deserialize_private_key(encoded: &str) -> Result<SecretKey, error::CoreEr
         }
 
         // 4. decode base32 to bytes
-        let bytes = match Vec::<u8>::from_base32(&base32_encoded) {
-            Ok(bytes) => bytes,
-            Err(_) => {
-                let e = error::CoreError::KeyDeserializeError {
-                    name: "PrivateKey",
-                    reason: "cannot decode base32 key payload",
-                };
-                return Err(e);
-            }
-        };
+        let bytes = Vec::<u8>::from_base32(&base32_encoded)?;
 
         // 5. restore key from bytes
-        let private_key = match SecretKey::from_bytes(&bytes) {
-            Ok(key) => key,
-            Err(_) => {
-                let e = error::CoreError::KeyDeserializeError {
-                    name: "PrivateKey",
-                    reason: "cannot restore key from payload",
-                };
-                return Err(e);
-            }
-        };
+        let private_key = SecretKey::from_bytes(&bytes)?;
 
         Ok(private_key)
     }
@@ -128,16 +101,7 @@ pub fn deserialize_public_key(encoded: &str) -> Result<PublicKey, error::CoreErr
 
         // 2. decode bech32 to base32
         let bech32_encoded = components[0];
-        let (hrp, base32_encoded) = match bech32::decode(&bech32_encoded) {
-            Ok(tuple) => tuple,
-            Err(_) => {
-                let core_error = error::CoreError::KeyDeserializeError {
-                    name: "PublicKey",
-                    reason: "cannot decode bech32 key payload",
-                };
-                return Err(core_error);
-            }
-        };
+        let (hrp, base32_encoded) = bech32::decode(&bech32_encoded)?;
 
         // 3. check hrp
         if hrp != "pub" {
@@ -149,28 +113,9 @@ pub fn deserialize_public_key(encoded: &str) -> Result<PublicKey, error::CoreErr
         }
 
         // 4. decode base32 to bytes
-        let bytes = match Vec::<u8>::from_base32(&base32_encoded) {
-            Ok(bytes) => bytes,
-            Err(_) => {
-                let e = error::CoreError::KeyDeserializeError {
-                    name: "PublicKey",
-                    reason: "cannot decode base32 key payload",
-                };
-                return Err(e);
-            }
-        };
+        let bytes = Vec::<u8>::from_base32(&base32_encoded)?;
 
-        // 5. restore key from bytes
-        let public_key = match PublicKey::from_bytes(&bytes) {
-            Ok(key) => key,
-            Err(_) => {
-                let e = error::CoreError::KeyDeserializeError {
-                    name: "PublicKey",
-                    reason: "cannot restore key from payload",
-                };
-                return Err(e);
-            }
-        };
+        let public_key = PublicKey::from_bytes(&bytes)?;
 
         Ok(public_key)
     }
