@@ -8,7 +8,6 @@ edition = "2018"
 
 [dependencies]
 ntge-core = { path = "../ntge-core" }
-gumdrop = "0.7"
 dirs = "2.0.2"
 log = "0.4.8"
 clap = "~2.33.0"
