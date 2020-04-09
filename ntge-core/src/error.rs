@@ -1,6 +1,10 @@
 use core::fmt;
 use core::fmt::Display;
 
+use ed25519_dalek::SignatureError;
+use bson::EncoderError;
+use bson::DecoderError;
+
 #[cfg(feature = "std")]
 use std::error::Error;
 
@@ -46,6 +50,42 @@ impl Display for CoreError {
             CoreError::KeyInvalidError { name, reason } => {
                 write!(f, "is not a valid {} keypair. {}", name, reason)
             }
+        }
+    }
+}
+
+impl From<SignatureError> for CoreError {
+    fn from(_: SignatureError) -> Self {
+        CoreError::KeyDeserializeError {
+            name: "PublicKey",
+            reason: "cannot restore key from payload",
+        }
+    }
+}
+
+impl From<bech32::Error> for CoreError {
+    fn from(_: bech32::Error) -> Self {
+        CoreError::KeyDeserializeError {
+            name: "PrivateKey",
+            reason: "cannot decode base32 key payload",
+        }
+    }
+}
+
+impl From<EncoderError> for CoreError {
+    fn from(_: EncoderError) -> Self {
+        CoreError::MessageSerializationError {
+            name: "Message",
+            reason: "cannot encode message to bson",
+        }
+    }
+}
+
+impl From<DecoderError> for CoreError {
+    fn from(_: DecoderError) -> Self {
+        CoreError::KeyDeserializeError {
+            name: "Message",
+            reason: "cannot decode bson bytes to message document",
         }
     }
 }
