@@ -1,4 +1,3 @@
-use std::path::PathBuf;
 use crate::decrypt::error::DecryptError;
 use ntge_core::ed25519::deserialize_private_key;
 use ntge_core::ed25519::SecretKey;
@@ -8,6 +7,7 @@ use std::fs;
 use std::fs::File;
 use std::io::prelude::*;
 use std::path::Path;
+use std::path::PathBuf;
 
 mod error;
 
@@ -79,8 +79,6 @@ fn try_decrypt_with_key(
         key_content: key_contents,
     });
 }
-
-
 
 fn load_local_keys() -> Vec<PathBuf> {
     // find HOME

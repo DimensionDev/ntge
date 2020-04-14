@@ -2,68 +2,18 @@ use bech32::{self, FromBase32, ToBase32};
 use ed25519_dalek::Keypair;
 use rand::rngs::OsRng;
 
-pub use ed25519_dalek::{PublicKey, SecretKey};
-pub use ed25519_dalek;
+pub use ed25519_dalek::{self, PublicKey, SecretKey};
 
-use super::error;
+pub mod keypair;
+pub mod private;
+pub mod public;
+
+use crate::ed25519::{
+    keypair::Ed25519Keypair, private::Ed25519PrivateKey, public::Ed25519PublicKey,
+};
+use crate::error;
 
 pub const CURVE_NAME_ED25519: &str = "Ed25519";
-
-#[derive(Debug)]
-pub struct Ed25519PrivateKey {
-    pub raw: ed25519_dalek::SecretKey,
-}
-
-#[derive(Debug)]
-pub struct Ed25519PublicKey {
-    pub raw: ed25519_dalek::PublicKey
-}
-
-#[derive(Debug)]
-pub struct Ed25519Keypair {
-    pub raw: ed25519_dalek::Keypair,
-}
-
-impl Drop for Ed25519Keypair {
-    fn drop(&mut self) {
-        println!("{:?} is being deallocated", self);
-    }
-}
-
-impl Ed25519Keypair {
-    fn new() -> Self {
-        // a.k.a Cryptographically secure pseudo-random number generator.
-        let mut csprng: OsRng = OsRng {};
-        Ed25519Keypair {
-            raw: ed25519_dalek::Keypair::generate(&mut csprng),
-        }
-    }
-
-    // fn construct_from_private_key(private_key: &ed25519_dalek::SecretKey) -> Self {
-    //     let secret_key = ed25519_dalek::SecretKey::from_bytes(&(private_key.to_bytes())).unwrap();
-    //     let public_key: PublicKey = (&sk).into();
-
-    //     let keypair = ed25519_dalek::Keypair {
-    //         public: public_key,
-    //         secret: secret_key,
-    //     }
-
-    //     Ed25519Keypair {
-    //         raw: keypair
-    //     }
-    // }
-}
-
-#[no_mangle]
-pub extern "C" fn c_ed25519_keypair_new() -> *mut Ed25519Keypair {
-    let keypair = Ed25519Keypair::new();
-    Box::into_raw(Box::new(keypair))
-}
-
-#[no_mangle]
-pub extern "C" fn c_ed25519_keypair_destroy(keypair: *mut Ed25519Keypair) {
-    let _ = unsafe { Box::from_raw(keypair) };
-}
 
 #[deprecated]
 pub fn create_keypair() -> Keypair {
@@ -72,6 +22,7 @@ pub fn create_keypair() -> Keypair {
     ed25519_dalek::Keypair::generate(&mut csprng)
 }
 
+#[deprecated]
 pub fn construct_from_private_key(private_key: &SecretKey) -> Keypair {
     let sk: SecretKey = SecretKey::from_bytes(&(private_key.to_bytes())).unwrap();
     let pk: PublicKey = (&sk).into();
@@ -82,18 +33,21 @@ pub fn construct_from_private_key(private_key: &SecretKey) -> Keypair {
     }
 }
 
+#[deprecated]
 pub fn serialize_private_key(private_key: &SecretKey) -> String {
     let data = private_key.to_bytes().to_base32();
     let encoded = bech32::encode("pri", data).unwrap();
     encoded + "-" + CURVE_NAME_ED25519
 }
 
+#[deprecated]
 pub fn serialize_public_key(public_key: &PublicKey) -> String {
     let data = public_key.to_bytes().to_base32();
     let encoded = bech32::encode("pub", data).unwrap();
     encoded + "-" + CURVE_NAME_ED25519
 }
 
+#[deprecated]
 pub fn deserialize_private_key(encoded: &str) -> Result<SecretKey, error::CoreError> {
     let components: Vec<&str> = encoded.trim().split('-').collect();
     if components.len() != 2 {
@@ -236,4 +190,23 @@ pub fn deserialize_public_key(encoded: &str) -> Result<PublicKey, error::CoreErr
 
         Ok(public_key)
     }
+}
+
+#[no_mangle]
+pub extern "C" fn c_ed25519_keypair_new() -> *mut Ed25519Keypair {
+    let keypair = Ed25519Keypair::new();
+    Box::into_raw(Box::new(keypair))
+}
+
+#[no_mangle]
+pub extern "C" fn c_ed25519_keypair_destroy(keypair: *mut Ed25519Keypair) {
+    let _ = unsafe { Box::from_raw(keypair) };
+}
+
+#[no_mangle]
+pub extern "C" fn c_ed25519_keypair_construct_from_private_key(
+    private_key: &Ed25519PrivateKey,
+) -> *mut Ed25519Keypair {
+    let keypair = Ed25519Keypair::construct_from_private_key(&private_key);
+    Box::into_raw(Box::new(keypair))
 }
