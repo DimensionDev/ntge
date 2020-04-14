@@ -1,0 +1,16 @@
+PODS:
+  - NtgeCore (0.1.0)
+
+DEPENDENCIES:
+  - NtgeCore (from `../`)
+
+EXTERNAL SOURCES:
+  NtgeCore:
+    :path: "../"
+
+SPEC CHECKSUMS:
+  NtgeCore: 8ae94b28652d98e93a1e60bef34ba2cd0b8d7aff
+
+PODFILE CHECKSUM: f5212cd5b8cf44a07700e66317cab9c99872eb3f
+
+COCOAPODS: 1.9.1

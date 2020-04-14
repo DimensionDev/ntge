@@ -2,3 +2,5 @@
 **/*.rs.bk
 
 .vscode/
+
+ntge-core/include/

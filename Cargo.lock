@@ -134,6 +134,23 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "08c48aae112d48ed9f069b33538ea9e3e90aa263cfa3d1c24309612b1f7472de"
 
 [[package]]
+name = "cbindgen"
+version = "0.13.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2db2df1ebc842c41fd2c4ae5b5a577faf63bd5151b953db752fc686812bee318"
+dependencies = [
+ "clap",
+ "log",
+ "proc-macro2",
+ "quote",
+ "serde",
+ "serde_json",
+ "syn",
+ "tempfile",
+ "toml",
+]
+
+[[package]]
 name = "cc"
 version = "1.0.50"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -419,6 +436,7 @@ dependencies = [
  "bech32",
  "bs58",
  "bson",
+ "cbindgen",
  "chacha20poly1305",
  "chrono",
  "curve25519-dalek",
@@ -548,6 +566,15 @@ dependencies = [
  "getrandom",
  "redox_syscall",
  "rust-argon2",
+]
+
+[[package]]
+name = "remove_dir_all"
+version = "0.5.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4a83fa3702a688b9359eccba92d153ac33fd2e8462f9e0e3fdf155239ea7792e"
+dependencies = [
+ "winapi",
 ]
 
 [[package]]
@@ -691,6 +718,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "tempfile"
+version = "3.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7a6e24d9338a0a5be79593e2fa15a648add6138caa803e2d5bc782c371732ca9"
+dependencies = [
+ "cfg-if",
+ "libc",
+ "rand",
+ "redox_syscall",
+ "remove_dir_all",
+ "winapi",
+]
+
+[[package]]
 name = "textwrap"
 version = "0.11.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -708,6 +749,15 @@ dependencies = [
  "libc",
  "redox_syscall",
  "winapi",
+]
+
+[[package]]
+name = "toml"
+version = "0.5.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ffc92d160b1eef40665be3a05630d003936a3bc7da7421277846c2613e92c71a"
+dependencies = [
+ "serde",
 ]
 
 [[package]]

@@ -1,0 +1,11 @@
+use_frameworks!
+
+target 'NtgeCore_Example' do
+  pod 'NtgeCore', :path => '../'
+
+  target 'NtgeCore_Tests' do
+    inherit! :search_paths
+
+    
+  end
+end

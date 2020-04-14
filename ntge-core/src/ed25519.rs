@@ -1,16 +1,75 @@
 use bech32::{self, FromBase32, ToBase32};
 use ed25519_dalek::Keypair;
-pub use ed25519_dalek::{PublicKey, SecretKey};
 use rand::rngs::OsRng;
+
+pub use ed25519_dalek::{PublicKey, SecretKey};
+pub use ed25519_dalek;
 
 use super::error;
 
 pub const CURVE_NAME_ED25519: &str = "Ed25519";
 
+#[derive(Debug)]
+pub struct Ed25519PrivateKey {
+    pub raw: ed25519_dalek::SecretKey,
+}
+
+#[derive(Debug)]
+pub struct Ed25519PublicKey {
+    pub raw: ed25519_dalek::PublicKey
+}
+
+#[derive(Debug)]
+pub struct Ed25519Keypair {
+    pub raw: ed25519_dalek::Keypair,
+}
+
+impl Drop for Ed25519Keypair {
+    fn drop(&mut self) {
+        println!("{:?} is being deallocated", self);
+    }
+}
+
+impl Ed25519Keypair {
+    fn new() -> Self {
+        // a.k.a Cryptographically secure pseudo-random number generator.
+        let mut csprng: OsRng = OsRng {};
+        Ed25519Keypair {
+            raw: ed25519_dalek::Keypair::generate(&mut csprng),
+        }
+    }
+
+    // fn construct_from_private_key(private_key: &ed25519_dalek::SecretKey) -> Self {
+    //     let secret_key = ed25519_dalek::SecretKey::from_bytes(&(private_key.to_bytes())).unwrap();
+    //     let public_key: PublicKey = (&sk).into();
+
+    //     let keypair = ed25519_dalek::Keypair {
+    //         public: public_key,
+    //         secret: secret_key,
+    //     }
+
+    //     Ed25519Keypair {
+    //         raw: keypair
+    //     }
+    // }
+}
+
+#[no_mangle]
+pub extern "C" fn c_ed25519_keypair_new() -> *mut Ed25519Keypair {
+    let keypair = Ed25519Keypair::new();
+    Box::into_raw(Box::new(keypair))
+}
+
+#[no_mangle]
+pub extern "C" fn c_ed25519_keypair_destroy(keypair: *mut Ed25519Keypair) {
+    let _ = unsafe { Box::from_raw(keypair) };
+}
+
+#[deprecated]
 pub fn create_keypair() -> Keypair {
     // a.k.a Cryptographically secure pseudo-random number generator.
     let mut csprng: OsRng = OsRng {};
-    Keypair::generate(&mut csprng)
+    ed25519_dalek::Keypair::generate(&mut csprng)
 }
 
 pub fn construct_from_private_key(private_key: &SecretKey) -> Keypair {
