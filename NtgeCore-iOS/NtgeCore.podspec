@@ -43,10 +43,9 @@ TODO: Add long description of the pod here.
     cd "${BASEPATH}"
     mkdir -p lib
     cp ../target/*.a lib/
-    rm -rf NtgeCore/Classes/
+    rm -rf NtgeCore/Classes/include
     mkdir -p NtgeCore/Classes/include
     cp -r ../ntge-core/include NtgeCore/Classes/
-    touch NtgeCore/Classes/dummy.c
   CMD
 
   s.pod_target_xcconfig = {
@@ -57,6 +56,10 @@ TODO: Add long description of the pod here.
   s.source_files = 'NtgeCore/Classes/**/*'
   s.public_header_files = 'NtgeCore/Classes/include/*.h'
   s.vendored_libraries = "lib/libntge_core.a"
+
+  s.test_spec 'Tests' do |test_spec|
+    test_spec.source_files = 'NtgeCore/Tests/**'
+  end
   
   s.static_framework = true
   
