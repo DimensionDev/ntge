@@ -1,33 +1,17 @@
+pub mod decryptor;
+pub mod encryptor;
+pub mod recipient;
+
 use bs58;
 use bson;
 use serde::{Deserialize, Serialize};
 use serde_bytes;
 use x25519_dalek::PublicKey;
 
-use crate::error::CoreError;
-
-pub mod decryptor;
-pub mod encryptor;
+use crate::{error::CoreError, message::recipient::MessageRecipientHeader};
 
 pub(crate) const MAC_KEY_LABEL: &[u8] = b"ntge-message-mac-key";
 pub(crate) const PAYLOAD_KEY_LABEL: &[u8] = b"ntge-message-payload";
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct MessageRecipientHeader {
-    pub key_type: String,
-    #[serde(with = "serde_bytes")]
-    pub ephemeral_public_key: Vec<u8>,
-    #[serde(with = "serde_bytes")]
-    pub encrypted_file_key: Vec<u8>, // 32 bytes
-}
-
-impl MessageRecipientHeader {
-    pub fn get_ephemeral_public_key(&self) -> PublicKey {
-        let mut key_bytes = [0; 32];
-        key_bytes.copy_from_slice(&self.ephemeral_public_key[..32]);
-        PublicKey::from(key_bytes)
-    }
-}
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct MessageMeta {

@@ -8,7 +8,7 @@ use secrecy::{ExposeSecret, Secret};
 use sha2::Sha256;
 use x25519_dalek::{EphemeralSecret, PublicKey, StaticSecret};
 
-use crate::{aead, error::CoreError, message::MessageRecipientHeader};
+use crate::{aead, error::CoreError, message::recipient::MessageRecipientHeader};
 
 pub const CURVE_NAME_X25519: &str = "X25519";
 pub(crate) const ENCRYPTED_FILE_KEY_BYTES: usize = 32;

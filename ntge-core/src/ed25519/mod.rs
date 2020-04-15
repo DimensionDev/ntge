@@ -1,12 +1,12 @@
+pub mod keypair;
+pub mod private;
+pub mod public;
+
 use bech32::{self, FromBase32, ToBase32};
 use ed25519_dalek::Keypair;
 use rand::rngs::OsRng;
 
 pub use ed25519_dalek::{self, PublicKey, SecretKey};
-
-pub mod keypair;
-pub mod private;
-pub mod public;
 
 use crate::ed25519::{
     keypair::Ed25519Keypair, private::Ed25519PrivateKey, public::Ed25519PublicKey,
@@ -120,6 +120,7 @@ pub fn deserialize_private_key(encoded: &str) -> Result<SecretKey, error::CoreEr
     }
 }
 
+#[deprecated]
 pub fn deserialize_public_key(encoded: &str) -> Result<PublicKey, error::CoreError> {
     let components: Vec<&str> = encoded.trim().split('-').collect();
     if components.len() != 2 {
@@ -190,23 +191,4 @@ pub fn deserialize_public_key(encoded: &str) -> Result<PublicKey, error::CoreErr
 
         Ok(public_key)
     }
-}
-
-#[no_mangle]
-pub extern "C" fn c_ed25519_keypair_new() -> *mut Ed25519Keypair {
-    let keypair = Ed25519Keypair::new();
-    Box::into_raw(Box::new(keypair))
-}
-
-#[no_mangle]
-pub extern "C" fn c_ed25519_keypair_destroy(keypair: *mut Ed25519Keypair) {
-    let _ = unsafe { Box::from_raw(keypair) };
-}
-
-#[no_mangle]
-pub extern "C" fn c_ed25519_keypair_construct_from_private_key(
-    private_key: &Ed25519PrivateKey,
-) -> *mut Ed25519Keypair {
-    let keypair = Ed25519Keypair::construct_from_private_key(&private_key);
-    Box::into_raw(Box::new(keypair))
 }

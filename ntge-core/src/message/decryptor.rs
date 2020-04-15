@@ -9,6 +9,11 @@ use crate::{
     x25519::FileKey,
 };
 
+use crate::{
+    ed25519::keypair::Ed25519Keypair, ed25519::private::Ed25519PrivateKey,
+    ed25519::public::Ed25519PublicKey,
+};
+
 #[derive(Debug)]
 pub struct Decryptor<'a> {
     pub message: &'a message::Message,
