@@ -6,7 +6,6 @@ use bs58;
 use bson;
 use serde::{Deserialize, Serialize};
 use serde_bytes;
-use x25519_dalek::PublicKey;
 
 use crate::{error::CoreError, message::recipient::MessageRecipientHeader};
 
@@ -152,6 +151,17 @@ impl Message {
             reason: "cannot decode message document to message",
         })
     }
+}
+
+impl Drop for Message {
+    fn drop(&mut self) {
+        println!("{:?} is being deallocated", self);
+    }
+}
+
+#[no_mangle]
+pub extern "C" fn c_message_destory(message: *mut Message) {
+    let _ = unsafe { Box::from_raw(message) };
 }
 
 #[cfg(test)]

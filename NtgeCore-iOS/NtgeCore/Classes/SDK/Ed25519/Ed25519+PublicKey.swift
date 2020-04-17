@@ -42,3 +42,11 @@ extension Ed25519.PublicKey {
     }
     
 }
+
+extension Ed25519.PublicKey {
+    
+    public func toX25519() -> X25519.PublicKey {
+        X25519.PublicKey(raw: c_key_utils_ed25519_public_key_to_x25519(raw))
+    }
+    
+}

@@ -8,7 +8,8 @@ fn main() {
 
     let builder = cbindgen::Builder::new()
         .with_crate(crate_dir)
-        .with_language(Language::C);
+        .with_language(Language::C)
+        .with_tab_width(4);
 
     match builder.generate() {
         Ok(gen) => gen,

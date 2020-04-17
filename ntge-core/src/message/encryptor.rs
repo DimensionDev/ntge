@@ -5,19 +5,24 @@ use rand::rngs::OsRng;
 use rand::RngCore;
 use secrecy::ExposeSecret;
 use sha2::Sha256;
-use x25519_dalek::PublicKey;
+use x25519_dalek;
 
-use crate::{aead, message, x25519::FileKey};
+use crate::{
+    aead, arrays,
+    buffer::Buffer,
+    message,
+    x25519::{filekey::FileKey, public::X25519PublicKey},
+};
 
 #[derive(Debug)]
 pub struct Encryptor {
-    pub recipent_public_keys: Vec<PublicKey>,
+    pub x25519_public_keys: Vec<X25519PublicKey>,
 }
 
 impl Encryptor {
-    pub fn new(recipent_public_keys: Vec<PublicKey>) -> Self {
+    pub fn new(x25519_public_keys: &[X25519PublicKey]) -> Self {
         Encryptor {
-            recipent_public_keys,
+            x25519_public_keys: x25519_public_keys.to_vec(),
         }
     }
 }
@@ -29,7 +34,7 @@ impl Encryptor {
         let file_key = FileKey::new();
         // 2. wrap file key for recipients
         let recipient_headers: Vec<_> = self
-            .recipent_public_keys
+            .x25519_public_keys
             .iter()
             .map(|public_key| file_key.wrap(&public_key))
             .collect();
@@ -85,4 +90,56 @@ impl Encryptor {
         }
         hasher.result().code().into()
     }
+}
+
+impl Drop for Encryptor {
+    fn drop(&mut self) {
+        println!("{:?} is being deallocated", self);
+    }
+}
+
+#[no_mangle]
+pub extern "C" fn c_array_new_for_x25519_public_key() -> *mut Vec<X25519PublicKey> {
+    let array: Vec<X25519PublicKey> = arrays::new_array();
+    Box::into_raw(Box::new(array))
+}
+
+#[no_mangle]
+pub extern "C" fn c_array_destroy_x25519_public_key(public_keys: *mut Vec<X25519PublicKey>) {
+    let _ = unsafe { Box::from_raw(public_keys) };
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn c_array_push_x25519_public_key(
+    array: *mut Vec<X25519PublicKey>,
+    element: *mut X25519PublicKey,
+) {
+    let array = &mut *array;
+    let element = &mut *element;
+    arrays::push_to(array, element);
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn c_message_encryptor_new(
+    x25519_public_keys: *mut Vec<X25519PublicKey>,
+) -> *mut Encryptor {
+    let x25519_public_keys = &mut *x25519_public_keys;
+    let encryptor = Encryptor::new(&x25519_public_keys);
+    Box::into_raw(Box::new(encryptor))
+}
+
+#[no_mangle]
+pub extern "C" fn c_message_encryptor_destroy(encryptor: *mut Encryptor) {
+    let _ = unsafe { Box::from_raw(encryptor) };
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn c_message_encryptor_encrypt_plaintext(
+    encryptor: *mut Encryptor,
+    plaintext_buffer: Buffer,
+) -> *mut message::Message {
+    let encryptor = &mut *encryptor;
+    let data = plaintext_buffer.to_bytes();
+    let message = encryptor.encrypt(&data[..]);
+    Box::into_raw(Box::new(message))
 }
