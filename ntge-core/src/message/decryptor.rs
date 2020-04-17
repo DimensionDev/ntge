@@ -6,7 +6,7 @@ use x25519_dalek::StaticSecret;
 use crate::{
     aead,
     message::{self, encryptor::Encryptor},
-    x25519::FileKey,
+    x25519::filekey::FileKey,
 };
 
 use crate::{

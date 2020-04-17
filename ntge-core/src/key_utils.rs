@@ -7,6 +7,10 @@ use sha2::{Digest, Sha512};
 use x25519_dalek::StaticSecret;
 
 use super::error;
+use crate::{
+    ed25519::{private::Ed25519PrivateKey, public::Ed25519PublicKey},
+    x25519::public::X25519PublicKey,
+};
 
 pub const CURVE_NAME_ED25519: &str = "Ed25519";
 
@@ -39,8 +43,8 @@ pub fn keypair_validation(
     }
 }
 
-pub fn ed25519_public_key_to_x25519(public_key: &PublicKey) -> x25519_dalek::PublicKey {
-    let public_key_bytes: [u8; 32] = (*public_key).to_bytes();
+pub fn ed25519_public_key_to_x25519(public_key: &Ed25519PublicKey) -> X25519PublicKey {
+    let public_key_bytes: [u8; 32] = (*public_key).raw.to_bytes();
     let mut bits: [u8; 32] = [0u8; 32];
     bits.copy_from_slice(&public_key_bytes[..32]);
     let compressed = CompressedEdwardsY(bits);
@@ -48,7 +52,9 @@ pub fn ed25519_public_key_to_x25519(public_key: &PublicKey) -> x25519_dalek::Pub
 
     let x25519_public_key: x25519_dalek::PublicKey = edwardspoint.to_montgomery().to_bytes().into();
 
-    x25519_public_key
+    X25519PublicKey {
+        raw: x25519_public_key,
+    }
 }
 
 // https://github.com/jedisct1/libsodium/blob/927dfe8e2eaa86160d3ba12a7e3258fbc322909c/src/libsodium/crypto_sign/ed25519/ref10/keypair.c#L69-L83
@@ -62,4 +68,13 @@ pub fn ed25519_private_key_to_x25519(private_key: &SecretKey) -> StaticSecret {
     private_key_x25519[31] |= 64;
 
     private_key_x25519.into()
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn c_key_utils_ed25519_public_key_to_x25519(
+    public_key: *mut Ed25519PublicKey,
+) -> *mut X25519PublicKey {
+    let ed25519_public_key = &mut *public_key;
+    let x25519_public_key = ed25519_public_key_to_x25519(ed25519_public_key);
+    Box::into_raw(Box::new(x25519_public_key))
 }

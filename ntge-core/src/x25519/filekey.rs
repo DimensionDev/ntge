@@ -8,7 +8,10 @@ use secrecy::{ExposeSecret, Secret};
 use sha2::Sha256;
 use x25519_dalek::{EphemeralSecret, PublicKey, StaticSecret};
 
-use crate::{aead, error::CoreError, message::recipient::MessageRecipientHeader};
+use crate::{
+    aead, error::CoreError, message::recipient::MessageRecipientHeader,
+    x25519::public::X25519PublicKey,
+};
 
 pub const CURVE_NAME_X25519: &str = "X25519";
 pub(crate) const ENCRYPTED_FILE_KEY_BYTES: usize = 32;
@@ -29,17 +32,17 @@ impl FileKey {
 #[allow(dead_code)]
 impl FileKey {
     // wrap file key by public key
-    pub(crate) fn wrap(&self, public_key: &PublicKey) -> MessageRecipientHeader {
+    pub(crate) fn wrap(&self, public_key: &X25519PublicKey) -> MessageRecipientHeader {
         // 1. create ephemeral x25519 key
         let mut csprng = OsRng {};
         let ephemeral_private_key = EphemeralSecret::new(&mut csprng);
         let ephemeral_public_key = PublicKey::from(&ephemeral_private_key);
         // 2. shared_secret = ECHD(ephemeral_private_key, public_key)
-        let shared_secret = ephemeral_private_key.diffie_hellman(&public_key);
+        let shared_secret = ephemeral_private_key.diffie_hellman(&(public_key.raw));
         // 3. use ephemeral_public_key appending public_key as salt
         let mut salt = vec![];
         salt.extend_from_slice(ephemeral_public_key.as_bytes());
-        salt.extend_from_slice(public_key.as_bytes());
+        salt.extend_from_slice(public_key.raw.as_bytes());
         // 4. encryption_key = HKDF(shared_secret)
         let mut encryption_key = [0; 32];
         Hkdf::<Sha256>::new(Some(&salt), shared_secret.as_bytes())

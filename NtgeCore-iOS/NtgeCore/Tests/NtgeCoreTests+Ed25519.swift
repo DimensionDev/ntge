@@ -69,3 +69,10 @@ extension NtgeCoreTests_Ed25519 {
     
 }
 
+extension NtgeCoreTests_Ed25519 {
+    
+    func testEncryptor() {
+        
+    }
+    
+}
