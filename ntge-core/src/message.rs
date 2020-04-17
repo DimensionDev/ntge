@@ -8,6 +8,7 @@ use crate::error::CoreError;
 
 pub mod decryptor;
 pub mod encryptor;
+pub mod signer;
 
 pub(crate) const MAC_KEY_LABEL: &[u8] = b"ntge-message-mac-key";
 pub(crate) const PAYLOAD_KEY_LABEL: &[u8] = b"ntge-message-payload";
@@ -32,6 +33,8 @@ impl MessageRecipientHeader {
 #[derive(Debug, Serialize, Deserialize)]
 pub struct MessageMeta {
     pub timestamp: Option<String>,
+    pub signature_a: [u8; 32],
+    pub signature_b: [u8; 32],
 }
 
 #[derive(Debug, Serialize, Deserialize)]

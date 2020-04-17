@@ -35,6 +35,8 @@ impl Encryptor {
             .collect();
         let meta = message::MessageMeta {
             timestamp: Some(Utc::now().to_string()),
+            signature_a: [0; 32],
+            signature_b: [0; 32],
         };
         // 3. TODO: calculate HMAC for recipient_headers + meta
         let mac = Encryptor::calculate_mac(&recipient_headers, &meta, &file_key);
