@@ -58,7 +58,35 @@ pub struct Message {
 
 #[allow(dead_code)]
 impl Message {
-    fn serialize_to_base58(&self) -> Result<String, CoreError> {
+    pub fn serialize_to_armor(&self) -> Result<String, CoreError> {
+        match self.serialize_to_base58() {
+            Ok(base58) => Ok(format!("MsgBegin_{}_EndMsg", base58)),
+            Err(e) => Err(e),
+        }
+    }
+
+    pub fn deserialize_from_armor(text: &str) -> Result<Message, CoreError> {
+        let text = text.trim();
+        let has_prefix = text.starts_with("MsgBegin_");
+        let has_suffix = text.ends_with("_EndMsg");
+
+        if has_prefix && has_suffix {
+            let text = text.trim_start_matches("MsgBegin_");
+            let text = text.trim_end_matches("_EndMsg");
+            Message::deserialize_from_base58(text)
+        } else {
+            // no armor
+            let e = CoreError::MessageSerializationError {
+                name: "Message",
+                reason: "cannot deserialize message armor text",
+            };
+            Err(e)
+        }
+    }
+}
+
+impl Message {
+    pub fn serialize_to_base58(&self) -> Result<String, CoreError> {
         self.serialize_to_bson_bytes()
             .map(|bytes| bs58::encode(bytes).into_string())
             .map_err(|_| CoreError::MessageSerializationError {
@@ -67,7 +95,7 @@ impl Message {
             })
     }
 
-    fn deserialize_from_base58(text: &str) -> Result<Message, CoreError> {
+    pub fn deserialize_from_base58(text: &str) -> Result<Message, CoreError> {
         let bytes = match bs58::decode(text).into_vec() {
             Ok(bytes) => bytes,
             Err(_) => {
@@ -214,10 +242,10 @@ mod tests {
         let encryptor = encryptor::Encryptor::new(vec![alice_public_key]);
         let message = encryptor.encrypt(plaintext);
         // encode
-        let encoded_message = message.serialize_to_base58().expect("could serialize");
+        let encoded_message = message.serialize_to_armor().expect("could serialize");
         print!("{:?}", encoded_message);
         let decoded_message =
-            Message::deserialize_from_base58(&encoded_message).expect("could deserialize");
+            Message::deserialize_from_armor(&encoded_message).expect("could deserialize");
         assert_eq!(decoded_message.mac.mac, message.mac.mac);
         assert_eq!(decoded_message.meta.timestamp, message.meta.timestamp);
     }
