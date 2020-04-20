@@ -14,11 +14,11 @@ pub(crate) const PAYLOAD_KEY_LABEL: &[u8] = b"ntge-message-payload";
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct MessageRecipientHeader {
-    pub key_type: String,
+    pub(crate) key_type: String,
     #[serde(with = "serde_bytes")]
-    pub ephemeral_public_key: Vec<u8>,
+    pub(crate) ephemeral_public_key: Vec<u8>,
     #[serde(with = "serde_bytes")]
-    pub encrypted_file_key: Vec<u8>, // 32 bytes
+    pub(crate) encrypted_file_key: Vec<u8>, // 32 bytes
 }
 
 impl MessageRecipientHeader {
