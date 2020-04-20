@@ -1,6 +1,16 @@
 use wasm_bindgen::prelude::*;
+extern crate js_sys;
+extern crate web_sys;
+use web_sys::console;
 use crate::ed25519;
 use ed25519_dalek::{Keypair, PublicKey, SecretKey};
+
+// A macro to provide `println!(..)`-style syntax for `console.log` logging.
+macro_rules! log {
+    ( $( $t:tt )* ) => {
+        web_sys::console::log_1(&format!( $( $t )* ).into());
+    }
+}
 
 #[wasm_bindgen]
 pub struct NTGEKeypair {
@@ -10,7 +20,10 @@ pub struct NTGEKeypair {
 #[wasm_bindgen]
 impl NTGEKeypair {
     pub fn new() -> NTGEKeypair {
+        log!("rust::Creating");
+        console_error_panic_hook::set_once();
         let inter_keypair = ed25519::create_keypair();
+        log!("rust::Created");
         NTGEKeypair {
             _keypair: inter_keypair
         }
