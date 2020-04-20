@@ -22,9 +22,12 @@ impl NTGEKeypair {
         }
     }
 
-    pub fn get_Secret_key(&self) -> NTGESecretKey {
-        NTGESecretKey {
-            _privkey: ed25519::serialize_private_key(&self._keypair.secret)
+    pub fn get_secret_key(&self) -> Option<NTGESecretKey> {
+        match ed25519_dalek::SecretKey::from_bytes(&(self._keypair.secret.to_bytes())).ok() {
+            Some(sk) => Some(NTGESecretKey {
+                _privkey: sk
+            }),
+            None => None
         }
     }
 }
@@ -37,12 +40,12 @@ pub struct NTGEPublicKey {
 #[wasm_bindgen]
 impl NTGEPublicKey {
     pub fn serialize(&self) -> String {
-        JsValue::from_serde(&self._pubkey).unwrap()
-        // ed25519::serialize_public_key(&self._pubkey)
+        // JsValue::from_serde(&self._pubkey).unwrap()
+        ed25519::serialize_public_key(&self._pubkey)
     }
 }
 
 #[wasm_bindgen]
 pub struct NTGESecretKey {
-    _privkey: String
+    _privkey: ed25519_dalek::SecretKey
 }
