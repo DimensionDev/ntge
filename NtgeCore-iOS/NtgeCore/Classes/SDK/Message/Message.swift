@@ -15,7 +15,7 @@ public class Message: RustObject {
         self.raw = raw
     }
     
-    public func intoRaw() -> OpaquePointer {
+    func intoRaw() -> OpaquePointer {
         return raw
     }
     
@@ -25,3 +25,23 @@ public class Message: RustObject {
     
 }
 
+extension Message {
+    
+    public func serialize_to_armor() throws -> String? {
+        var armor: UnsafeMutablePointer<Int8>? = nil
+        let result = c_message_serialize_to_armor(raw, &armor)
+        defer {
+            if armor != nil {
+                c_strings_destroy_c_char(&armor)
+            }
+        }
+        
+        // TODO: throw error if result not 0
+        
+        guard let text = armor else {
+            return nil
+        }
+        return String(cString: text)
+    }
+    
+}

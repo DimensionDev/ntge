@@ -17,7 +17,7 @@ extension Ed25519 {
             self.raw = raw
         }
         
-        public func intoRaw() -> OpaquePointer {
+        func intoRaw() -> OpaquePointer {
             return raw
         }
         
@@ -32,7 +32,12 @@ extension Ed25519 {
 extension Ed25519.PublicKey {
     
     public func serialize() -> String {
-        return String(cString: c_ed25519_public_key_serialize(raw))
+        var text = c_ed25519_public_key_serialize(raw)
+        defer {
+            c_strings_destroy_c_char(&text)
+        }
+        
+        return String(cString: text!)
     }
     
     public static func deserialize(serialized text: String) -> Ed25519.PublicKey? {

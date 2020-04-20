@@ -25,7 +25,7 @@ extension Ed25519 {
             self.init(raw: c_ed25519_keypair_construct_from_private_key(privateKey.intoRaw()))
         }
         
-        public func intoRaw() -> OpaquePointer {
+        func intoRaw() -> OpaquePointer {
             return raw
         }
         

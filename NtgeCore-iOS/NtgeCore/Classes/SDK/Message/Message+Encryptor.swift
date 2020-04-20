@@ -34,7 +34,7 @@ extension Message {
         }
         
         deinit {
-            // TODO: c_message_encryptor_destroy
+            c_message_encryptor_destroy(raw)
         }
     }
     

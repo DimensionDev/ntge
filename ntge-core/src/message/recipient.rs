@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 use serde_bytes;
 use x25519_dalek::PublicKey;
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MessageRecipientHeader {
     pub key_type: String,
     #[serde(with = "serde_bytes")]

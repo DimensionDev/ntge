@@ -23,3 +23,8 @@ pub fn c_char_to_string(cchar: *const c_char) -> String {
 pub fn string_to_c_char(r_string: String) -> *mut c_char {
     CString::new(r_string).unwrap().into_raw()
 }
+
+#[no_mangle]
+pub unsafe extern "C" fn c_strings_destroy_c_char(cchar: *mut *mut c_char) {
+    CString::from_raw(*cchar);
+}

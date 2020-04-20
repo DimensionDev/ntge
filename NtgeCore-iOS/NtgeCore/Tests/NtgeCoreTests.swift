@@ -18,15 +18,4 @@ class NtgeCoreTests: XCTestCase {
 
 }
 
-extension NtgeCoreTests {
-    
-    func testEncryptor() {
-        let x25519PublicKey = Ed25519.PrivateKey().publicKey.toX25519()
-        let encryptor = Message.Encryptor(publicKeys: [x25519PublicKey])
-        let plaintext = "Hello, World!"
-        let plaintextData = Data(plaintext.utf8)
-        let message = encryptor.encrypt(plaintext: plaintextData)
-    }
-    
-}
 

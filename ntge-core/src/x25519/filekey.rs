@@ -10,7 +10,7 @@ use x25519_dalek::{EphemeralSecret, PublicKey, StaticSecret};
 
 use crate::{
     aead, error::CoreError, message::recipient::MessageRecipientHeader,
-    x25519::public::X25519PublicKey,
+    x25519::private::X25519PrivateKey, x25519::public::X25519PublicKey,
 };
 
 pub const CURVE_NAME_X25519: &str = "X25519";
@@ -66,13 +66,14 @@ impl FileKey {
 
     pub(crate) fn unwrap(
         message_recipient: &MessageRecipientHeader,
-        secret_key: &StaticSecret,
+        secret_key: &X25519PrivateKey,
     ) -> Result<Self, CoreError> {
         // 1. calculate ECDH shared_secret
-        let shared_secret =
-            secret_key.diffie_hellman(&message_recipient.get_ephemeral_public_key());
+        let shared_secret = secret_key
+            .raw
+            .diffie_hellman(&message_recipient.get_ephemeral_public_key());
         // 2. create public key from private key
-        let public_key = PublicKey::from(secret_key);
+        let public_key = PublicKey::from(&secret_key.raw);
         // 3. calculate same salt in wrap method
         let mut salt = vec![];
         salt.extend_from_slice(message_recipient.get_ephemeral_public_key().as_bytes());
@@ -98,6 +99,17 @@ impl FileKey {
             }
         }
     }
+}
+
+impl Drop for FileKey {
+    fn drop(&mut self) {
+        println!("{:?} is being deallocated", self);
+    }
+}
+
+#[no_mangle]
+pub extern "C" fn c_x25519_file_key_destroy(file_key: *mut FileKey) {
+    let _ = unsafe { Box::from_raw(file_key) };
 }
 
 #[test]
@@ -134,8 +146,12 @@ fn it_wrap_then_unwrap_a_file_key() {
     let file_key = FileKey::new();
     // alice
     let mut alice_csprng = OsRng {};
-    let alice_secret_key = StaticSecret::new(&mut alice_csprng);
-    let alice_public_key = PublicKey::from(&alice_secret_key);
+    let alice_secret_key = X25519PrivateKey {
+        raw: StaticSecret::new(&mut alice_csprng),
+    };
+    let alice_public_key = X25519PublicKey {
+        raw: PublicKey::from(&alice_secret_key.raw),
+    };
     // wrap file key
     let message_recipient_for_alice = file_key.wrap(&alice_public_key);
     // unwrap it

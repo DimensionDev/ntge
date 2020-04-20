@@ -5,27 +5,29 @@ use x25519_dalek::StaticSecret;
 
 use crate::{
     aead,
+    buffer::Buffer,
+    ed25519::keypair::Ed25519Keypair,
+    ed25519::private::Ed25519PrivateKey,
+    ed25519::public::Ed25519PublicKey,
     message::{self, encryptor::Encryptor},
     x25519::filekey::FileKey,
-};
-
-use crate::{
-    ed25519::keypair::Ed25519Keypair, ed25519::private::Ed25519PrivateKey,
-    ed25519::public::Ed25519PublicKey,
+    x25519::private::X25519PrivateKey,
 };
 
 #[derive(Debug)]
-pub struct Decryptor<'a> {
-    pub message: &'a message::Message,
+pub struct Decryptor {
+    pub message: message::Message,
 }
 
-impl<'a> Decryptor<'a> {
-    pub fn new(message: &'a message::Message) -> Self {
-        Decryptor { message }
+impl Decryptor {
+    pub fn new(message: &message::Message) -> Self {
+        Decryptor {
+            message: message.clone(),
+        }
     }
 }
 
-impl<'a> Decryptor<'a> {
+impl Decryptor {
     pub fn verify_message_mac(&self, file_key: &FileKey) -> bool {
         let calculated_mac = Encryptor::calculate_mac(
             &self.message.recipient_headers,
@@ -36,9 +38,9 @@ impl<'a> Decryptor<'a> {
         calculated_mac == self.message.mac.mac
     }
 
-    pub fn decrypt_file_key(&self, secret_key: &StaticSecret) -> Option<FileKey> {
+    pub fn decrypt_file_key(&self, private_key: &X25519PrivateKey) -> Option<FileKey> {
         for header in self.message.recipient_headers.iter() {
-            match FileKey::unwrap(&header, &secret_key) {
+            match FileKey::unwrap(&header, &private_key) {
                 Ok(file_key) => {
                     return Some(file_key);
                 }
@@ -61,5 +63,71 @@ impl<'a> Decryptor<'a> {
             Ok(plaintext) => Some(plaintext),
             Err(_) => None,
         }
+    }
+}
+
+impl Drop for Decryptor {
+    fn drop(&mut self) {
+        println!("{:?} is being deallocated", self);
+    }
+}
+
+#[no_mangle]
+pub extern "C" fn c_message_decryptor_destroy(decryptor: *mut Decryptor) {
+    let _ = unsafe { Box::from_raw(decryptor) };
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn c_message_decryptor_new(message: *mut message::Message) -> *mut Decryptor {
+    let message = &mut *message;
+    let decryptor = Decryptor::new(&message);
+    Box::into_raw(Box::new(decryptor))
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn c_message_decryptor_verify_message_mac(
+    decryptor: *mut Decryptor,
+    file_key: *mut FileKey,
+) -> bool {
+    let decryptor = &mut *decryptor;
+    let file_key = &mut *file_key;
+    decryptor.verify_message_mac(&file_key)
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn c_message_decryptor_decrypt_file_key(
+    decryptor: *mut Decryptor,
+    private_key: *mut X25519PrivateKey,
+) -> *mut FileKey {
+    let decryptor = &mut *decryptor;
+    let private_key = &mut *private_key;
+    match decryptor.decrypt_file_key(private_key) {
+        Some(file_key) => Box::into_raw(Box::new(file_key)),
+        None => std::ptr::null_mut(),
+    }
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn c_message_decryptor_decrypt_payload(
+    decryptor: *mut Decryptor,
+    file_key: *mut FileKey,
+) -> Buffer {
+    let decryptor = &mut *decryptor;
+    let file_key = &mut *file_key;
+    match decryptor.decrypt_payload(&file_key) {
+        Some(bytes) => {
+            let slice = bytes.into_boxed_slice();
+            let data = slice.as_ptr();
+            let len = slice.len();
+            std::mem::forget(slice);
+            Buffer {
+                data: data,
+                len: len,
+            }
+        }
+        None => Buffer {
+            data: std::ptr::null_mut(),
+            len: 0,
+        },
     }
 }

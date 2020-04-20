@@ -46,7 +46,8 @@ extension NtgeCoreTests_Ed25519 {
     func testKeypairFromPrivateKey() {
         // test construct keypair from private key
         let privateKey = Ed25519.PrivateKey()
-        _ = Ed25519.Keypair(privateKey: privateKey)
+        _ = Ed25519.Keypair(privateKey: privateKey)         // build keypair from private key
+        _ = privateKey.serialize()                          // check private key availability
     }
     
     func testPrivateKey() {

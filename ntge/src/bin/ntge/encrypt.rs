@@ -9,7 +9,8 @@ pub mod recipient;
 pub(crate) fn encrypt_message(plaintext: &[u8], recipients: &[Recipient]) -> Message {
     let keys: Vec<_> = recipients
         .iter()
-        .map(|r| key_utils::ed25519_public_key_to_x25519(&Ed25519PublicKey { raw: r.key }))
+        .map(|r| key_utils::ed25519_public_key_to_x25519(&r.key))
+        .map(|key| X25519PublicKey { raw: key })
         .collect();
 
     let encryptor = Encryptor::new(&keys[..]);

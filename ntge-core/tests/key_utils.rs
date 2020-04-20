@@ -1,6 +1,6 @@
 use curve25519_dalek::edwards::{CompressedEdwardsY, EdwardsPoint};
 use curve25519_dalek::montgomery::MontgomeryPoint;
-use ntge_core::{ed25519, key_utils};
+use ntge_core::{ed25519, key_utils, x25519};
 use x25519_dalek::StaticSecret;
 
 #[cfg(test)]

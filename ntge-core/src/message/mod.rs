@@ -7,23 +7,29 @@ use bson;
 use serde::{Deserialize, Serialize};
 use serde_bytes;
 
-use crate::{error::CoreError, message::recipient::MessageRecipientHeader};
+use crate::strings;
+use std::os::raw::c_char;
+
+use crate::{
+    error::CoreError, message::recipient::MessageRecipientHeader,
+    x25519::private::X25519PrivateKey, x25519::public::X25519PublicKey,
+};
 
 pub(crate) const MAC_KEY_LABEL: &[u8] = b"ntge-message-mac-key";
 pub(crate) const PAYLOAD_KEY_LABEL: &[u8] = b"ntge-message-payload";
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MessageMeta {
     pub timestamp: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MessageMac {
     #[serde(with = "serde_bytes")]
     pub mac: Vec<u8>, // 32 bytes
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MessagePayload {
     #[serde(with = "serde_bytes")]
     pub nonce: Vec<u8>, // 16 bytes
@@ -31,7 +37,7 @@ pub struct MessagePayload {
     pub ciphertext: Vec<u8>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Message {
     pub recipient_headers: Vec<MessageRecipientHeader>,
     pub meta: MessageMeta,
@@ -164,11 +170,30 @@ pub extern "C" fn c_message_destory(message: *mut Message) {
     let _ = unsafe { Box::from_raw(message) };
 }
 
+#[no_mangle]
+pub unsafe extern "C" fn c_message_serialize_to_armor(
+    message: *mut Message,
+    armor: *mut *mut c_char,
+) -> i32 {
+    let message = &mut *message;
+    match message.serialize_to_armor() {
+        Ok(text) => {
+            let result = strings::string_to_c_char(text);
+            *armor = result;
+            return 0;
+        }
+        Err(_) => {
+            // TODO:
+            return 1;
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
     use crate::message::{decryptor, encryptor, Message};
-    use crate::{aead, x25519::FileKey};
+    use crate::{aead, x25519::filekey::FileKey};
     use hkdf::Hkdf;
     use rand::rngs::OsRng;
     use rand::RngCore;
@@ -203,10 +228,14 @@ mod tests {
         let plaintext = b"Hello, World!";
         // alice
         let mut alice_csprng = OsRng {};
-        let alice_secret_key = StaticSecret::new(&mut alice_csprng);
-        let alice_public_key = PublicKey::from(&alice_secret_key);
+        let alice_secret_key = X25519PrivateKey {
+            raw: StaticSecret::new(&mut alice_csprng),
+        };
+        let alice_public_key = X25519PublicKey {
+            raw: PublicKey::from(&alice_secret_key.raw),
+        };
 
-        let encryptor = encryptor::Encryptor::new(vec![alice_public_key]);
+        let encryptor = encryptor::Encryptor::new(&vec![alice_public_key]);
         let message = encryptor.encrypt(plaintext);
 
         // create decryptor
@@ -230,10 +259,14 @@ mod tests {
 
         // alice
         let mut alice_csprng = OsRng {};
-        let alice_secret_key = StaticSecret::new(&mut alice_csprng);
-        let alice_public_key = PublicKey::from(&alice_secret_key);
+        let alice_secret_key = X25519PrivateKey {
+            raw: StaticSecret::new(&mut alice_csprng),
+        };
+        let alice_public_key = X25519PublicKey {
+            raw: PublicKey::from(&alice_secret_key.raw),
+        };
 
-        let encryptor = encryptor::Encryptor::new(vec![alice_public_key]);
+        let encryptor = encryptor::Encryptor::new(&vec![alice_public_key]);
         let message = encryptor.encrypt(plaintext);
         // encode
         let encoded_message = message.serialize_to_armor().expect("could serialize");

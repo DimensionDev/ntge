@@ -17,7 +17,7 @@ extension X25519 {
             self.raw = raw
         }
         
-        public func intoRaw() -> OpaquePointer {
+        func intoRaw() -> OpaquePointer {
             return raw
         }
         
