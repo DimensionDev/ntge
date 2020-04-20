@@ -20,10 +20,10 @@ pub struct NTGEKeypair {
 #[wasm_bindgen]
 impl NTGEKeypair {
     pub fn new() -> NTGEKeypair {
-        log!("rust::Creating");
+        log!("rust::Creating Keypair");
         console_error_panic_hook::set_once();
         let inter_keypair = ed25519::create_keypair();
-        log!("rust::Created");
+        log!("rust::Created Keypair");
         NTGEKeypair {
             _keypair: inter_keypair
         }
@@ -61,4 +61,12 @@ impl NTGEPublicKey {
 #[wasm_bindgen]
 pub struct NTGESecretKey {
     _privkey: ed25519_dalek::SecretKey
+}
+
+#[wasm_bindgen]
+impl NTGESecretKey {
+    pub fn serialize(&self) -> String {
+        // JsValue::from_serde(&self._pubkey).unwrap()
+        ed25519::serialize_private_key(&self._privkey)
+    }
 }
