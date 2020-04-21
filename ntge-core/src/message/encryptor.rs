@@ -1,4 +1,5 @@
 use chrono::prelude::*;
+use ed25519_dalek::{SecretKey, Signature};
 use hkdf::Hkdf;
 use hmac::{Hmac, Mac};
 use rand::rngs::OsRng;
@@ -7,7 +8,7 @@ use secrecy::ExposeSecret;
 use sha2::Sha256;
 use x25519_dalek::PublicKey;
 
-use crate::{aead, message, x25519::FileKey};
+use crate::{aead, ed25519, message, x25519::FileKey};
 
 #[derive(Debug)]
 pub struct Encryptor {
@@ -24,7 +25,7 @@ impl Encryptor {
 
 #[allow(dead_code)]
 impl Encryptor {
-    pub fn encrypt(&self, plaintext: &[u8]) -> message::Message {
+    pub fn encrypt(&self, plaintext: &[u8], _sign: Option<&SecretKey>) -> message::Message {
         // 1. create new file key
         let file_key = FileKey::new();
         // 2. wrap file key for recipients
@@ -33,14 +34,7 @@ impl Encryptor {
             .iter()
             .map(|public_key| file_key.wrap(&public_key))
             .collect();
-        let meta = message::MessageMeta {
-            timestamp: Some(Utc::now().to_string()),
-            signature_a: [0; 32],
-            signature_b: [0; 32],
-        };
-        // 3. TODO: calculate HMAC for recipient_headers + meta
-        let mac = Encryptor::calculate_mac(&recipient_headers, &meta, &file_key);
-        // 4. create payload
+        // 3. create payload
         // prepare nonce
         let mut nonce = [0; 16];
         OsRng.fill_bytes(&mut nonce);
@@ -50,9 +44,29 @@ impl Encryptor {
             .expand(message::PAYLOAD_KEY_LABEL, &mut payload_key)
             .expect("payload_key is the correct length");
         let ciphertext = aead::aead_encrypt(&payload_key, &plaintext);
+        // 4. calculate HMAC for recipient_headers + meta
+        let meta: message::MessageMeta = match _sign {
+            Some(private_key) => {
+                let signature = Encryptor::sign(private_key, &ciphertext);
+                let (mut sig_a, mut sig_b) = ([0; 32], [0; 32]);
+                sig_a.copy_from_slice(&signature[..32]);
+                sig_b.copy_from_slice(&signature[32..]);
+                message::MessageMeta {
+                    timestamp: Some(Utc::now().to_string()),
+                    signature_a: sig_a,
+                    signature_b: sig_b,
+                }
+            }
+            None => message::MessageMeta {
+                timestamp: Some(Utc::now().to_string()),
+                signature_a: [0; 32],
+                signature_b: [0; 32],
+            },
+        };
+        let mac = Encryptor::calculate_mac(&recipient_headers, &meta, &file_key);
         let nonce = nonce.to_vec();
         let payload = message::MessagePayload { nonce, ciphertext };
-        // 5. construct message
+        // 6. construct message
         let mac = message::MessageMac { mac: mac.to_vec() };
         message::Message {
             recipient_headers,
@@ -86,5 +100,13 @@ impl Encryptor {
             hasher.input(timestamp.as_bytes());
         }
         hasher.result().code().into()
+    }
+}
+
+impl Encryptor {
+    pub(super) fn sign(private_key: &SecretKey, message: &[u8]) -> [u8; 64] {
+        let signature: Signature = ed25519::sign(private_key, message);
+
+        signature.to_bytes()
     }
 }
