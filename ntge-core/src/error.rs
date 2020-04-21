@@ -39,13 +39,13 @@ impl Display for CoreError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match *self {
             CoreError::KeyDeserializeError { name, reason } => {
-                write!(f, "cannot deserialize {}: {}", name, reason)
+                write!(f, "deserialize {} - {}", name, reason)
             }
             CoreError::MessageDecryptionError { name, reason } => {
-                write!(f, "cannot decryption {}: {}", name, reason)
+                write!(f, "decryption {} - {}", name, reason)
             }
             CoreError::MessageSerializationError { name, reason } => {
-                write!(f, "cannot serialize {}: {}", name, reason)
+                write!(f, "serialize {} - {}", name, reason)
             }
             CoreError::KeyInvalidError { name, reason } => {
                 write!(f, "is not a valid {} keypair. {}", name, reason)

@@ -147,7 +147,7 @@ pub fn deserialize_public_key(encoded: &str) -> Result<PublicKey, error::CoreErr
         if hrp != "pub" {
             let e = error::CoreError::KeyDeserializeError {
                 name: "PublicKey",
-                reason: "cannot read invalid key payload",
+                reason: "invalid public key payload",
             };
             return Err(e);
         }
