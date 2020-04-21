@@ -32,8 +32,8 @@ impl MessageRecipientHeader {
 #[derive(Debug, Serialize, Deserialize)]
 pub struct MessageMeta {
     pub timestamp: Option<String>,
-    pub signature_a: [u8; 32],
-    pub signature_b: [u8; 32],
+    #[serde(with = "serde_bytes")]
+    pub signature: Vec<u8>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -61,6 +61,7 @@ pub struct Message {
 #[allow(dead_code)]
 impl Message {
     pub fn serialize_to_armor(&self) -> Result<String, CoreError> {
+        self.serialize_to_base58();
         match self.serialize_to_base58() {
             Ok(base58) => Ok(format!("MsgBegin_{}_EndMsg", base58)),
             Err(e) => Err(e),
@@ -89,6 +90,10 @@ impl Message {
 
 impl Message {
     pub fn serialize_to_base58(&self) -> Result<String, CoreError> {
+        match self.serialize_to_bson_bytes() {
+            Ok(document) => println!("{:?}", document),
+            Err(e) => return Err(e),
+        };
         self.serialize_to_bson_bytes()
             .map(|bytes| bs58::encode(bytes).into_string())
             .map_err(|_| CoreError::MessageSerializationError {
@@ -116,6 +121,7 @@ impl Message {
 #[allow(dead_code)]
 impl Message {
     fn serialize_to_bson_bytes(&self) -> Result<Vec<u8>, CoreError> {
+        let d = bson::to_bson(&self);
         let document = match bson::to_bson(&self) {
             Ok(encoded) => {
                 if let bson::Bson::Document(document) = encoded {
@@ -123,7 +129,7 @@ impl Message {
                 } else {
                     let e = CoreError::MessageSerializationError {
                         name: "Message",
-                        reason: "cannot encode message to bson",
+                        reason: "cannot encode message to bson1",
                     };
                     return Err(e);
                 }
@@ -132,7 +138,7 @@ impl Message {
                 print!("{:?}", err);
                 let e = CoreError::MessageSerializationError {
                     name: "Message",
-                    reason: "cannot encode message to bson",
+                    reason: "cannot encode message to bson2",
                 };
                 return Err(e);
             }
@@ -198,6 +204,16 @@ mod tests {
     }
 
     #[test]
+    fn it_haha() {
+        let a: [u8; 12] = [0; 12];
+
+        match bson::to_bson(&a) {
+            Ok(_) => println!("a"),
+            Err(_) => println!("b"),
+        };
+    }
+
+    #[test]
     fn it_encrypts_a_message_to_alice() {
         // plaintext
         let plaintext = b"Hello, World!";
@@ -207,6 +223,7 @@ mod tests {
         let ciphertext = encrypt_plaintext(&file_key, plaintext);
         print!("{:?}", ciphertext);
     }
+
     #[test]
     fn it_encrypts_and_decrypts_a_message_to_alice() {
         let plaintext = b"Hello, World!";
@@ -310,15 +327,33 @@ mod tests {
             .expect("could decrypt payload");
         assert_eq!(decrypted_plaintext, plaintext);
         // verify signature
-        let (mut sig_a, sig_b) = (
-            message.meta.signature_a.to_vec(),
-            message.meta.signature_b.to_vec(),
-        );
-        sig_a.extend_from_slice(&sig_b);
         assert!(decryptor::Decryptor::verify(
             &alice_public_key,
             &message.payload.ciphertext,
-            &sig_a
+            &message.meta.signature,
         ));
+    }
+
+    #[test]
+    fn it_encodes_and_decodes_a_signed_message_to_alice() {
+        let plaintext = b"Hello, World!";
+
+        // alice
+        let mut alice_csprng = OsRng {};
+        let alice_keypair = ed25519::create_keypair();
+        let alice_secret_key = alice_keypair.secret;
+        let alice_secret_key_x25519 = key_utils::ed25519_private_key_to_x25519(&alice_secret_key);
+        let alice_public_key = alice_keypair.public;
+        let alice_public_key_x25519 = PublicKey::from(&alice_secret_key_x25519);
+
+        let encryptor = encryptor::Encryptor::new(vec![alice_public_key_x25519]);
+        let message = encryptor.encrypt(plaintext, Some(&alice_secret_key));
+        // encode
+        let encoded_message = message.serialize_to_armor().expect("could serialize");
+        print!("{:?}", encoded_message);
+        let decoded_message =
+            Message::deserialize_from_armor(&encoded_message).expect("could deserialize");
+        assert_eq!(decoded_message.mac.mac, message.mac.mac);
+        assert_eq!(decoded_message.meta.timestamp, message.meta.timestamp);
     }
 }

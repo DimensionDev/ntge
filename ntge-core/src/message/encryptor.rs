@@ -48,19 +48,14 @@ impl Encryptor {
         let meta: message::MessageMeta = match _sign {
             Some(private_key) => {
                 let signature = Encryptor::sign(private_key, &ciphertext);
-                let (mut sig_a, mut sig_b) = ([0; 32], [0; 32]);
-                sig_a.copy_from_slice(&signature[..32]);
-                sig_b.copy_from_slice(&signature[32..]);
                 message::MessageMeta {
                     timestamp: Some(Utc::now().to_string()),
-                    signature_a: sig_a,
-                    signature_b: sig_b,
+                    signature: signature.to_vec(),
                 }
             }
             None => message::MessageMeta {
                 timestamp: Some(Utc::now().to_string()),
-                signature_a: [0; 32],
-                signature_b: [0; 32],
+                signature: vec![0; 64],
             },
         };
         let mac = Encryptor::calculate_mac(&recipient_headers, &meta, &file_key);
