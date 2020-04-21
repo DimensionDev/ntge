@@ -90,10 +90,6 @@ impl Message {
 
 impl Message {
     pub fn serialize_to_base58(&self) -> Result<String, CoreError> {
-        match self.serialize_to_bson_bytes() {
-            Ok(document) => println!("{:?}", document),
-            Err(e) => return Err(e),
-        };
         self.serialize_to_bson_bytes()
             .map(|bytes| bs58::encode(bytes).into_string())
             .map_err(|_| CoreError::MessageSerializationError {
@@ -121,7 +117,6 @@ impl Message {
 #[allow(dead_code)]
 impl Message {
     fn serialize_to_bson_bytes(&self) -> Result<Vec<u8>, CoreError> {
-        let d = bson::to_bson(&self);
         let document = match bson::to_bson(&self) {
             Ok(encoded) => {
                 if let bson::Bson::Document(document) = encoded {
@@ -129,7 +124,7 @@ impl Message {
                 } else {
                     let e = CoreError::MessageSerializationError {
                         name: "Message",
-                        reason: "cannot encode message to bson1",
+                        reason: "cannot encode message to bson",
                     };
                     return Err(e);
                 }
@@ -138,7 +133,7 @@ impl Message {
                 print!("{:?}", err);
                 let e = CoreError::MessageSerializationError {
                     name: "Message",
-                    reason: "cannot encode message to bson2",
+                    reason: "cannot encode message to bson",
                 };
                 return Err(e);
             }
@@ -190,6 +185,7 @@ mod tests {
     use secrecy::ExposeSecret;
     use sha2::Sha256;
     use x25519_dalek::{PublicKey, StaticSecret};
+
     #[allow(dead_code)]
     fn encrypt_plaintext(file_key: &FileKey, plaintext: &[u8]) -> Vec<u8> {
         // prepare nonce
@@ -201,16 +197,6 @@ mod tests {
             .expand(PAYLOAD_KEY_LABEL, &mut payload_key)
             .expect("payload_key is the correct length");
         aead::aead_encrypt(&payload_key, &plaintext)
-    }
-
-    #[test]
-    fn it_haha() {
-        let a: [u8; 12] = [0; 12];
-
-        match bson::to_bson(&a) {
-            Ok(_) => println!("a"),
-            Err(_) => println!("b"),
-        };
     }
 
     #[test]
