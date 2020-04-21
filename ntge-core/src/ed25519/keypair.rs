@@ -57,8 +57,8 @@ pub extern "C" fn c_ed25519_keypair_new() -> *mut Ed25519Keypair {
 }
 
 #[no_mangle]
-pub extern "C" fn c_ed25519_keypair_destroy(keypair: *mut Ed25519Keypair) {
-    let _ = unsafe { Box::from_raw(keypair) };
+pub unsafe extern "C" fn c_ed25519_keypair_destroy(keypair: *mut Ed25519Keypair) {
+    let _ = Box::from_raw(keypair);
 }
 
 #[no_mangle]

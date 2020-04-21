@@ -105,8 +105,8 @@ pub extern "C" fn c_array_new_for_x25519_public_key() -> *mut Vec<X25519PublicKe
 }
 
 #[no_mangle]
-pub extern "C" fn c_array_destroy_x25519_public_key(public_keys: *mut Vec<X25519PublicKey>) {
-    let _ = unsafe { Box::from_raw(public_keys) };
+pub unsafe extern "C" fn c_array_destroy_x25519_public_key(public_keys: *mut Vec<X25519PublicKey>) {
+    let _ = Box::from_raw(public_keys);
 }
 
 #[no_mangle]
@@ -129,8 +129,8 @@ pub unsafe extern "C" fn c_message_encryptor_new(
 }
 
 #[no_mangle]
-pub extern "C" fn c_message_encryptor_destroy(encryptor: *mut Encryptor) {
-    let _ = unsafe { Box::from_raw(encryptor) };
+pub unsafe extern "C" fn c_message_encryptor_destroy(encryptor: *mut Encryptor) {
+    let _ = Box::from_raw(encryptor);
 }
 
 #[no_mangle]

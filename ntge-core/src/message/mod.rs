@@ -166,8 +166,8 @@ impl Drop for Message {
 }
 
 #[no_mangle]
-pub extern "C" fn c_message_destory(message: *mut Message) {
-    let _ = unsafe { Box::from_raw(message) };
+pub unsafe extern "C" fn c_message_destory(message: *mut Message) {
+    let _ = Box::from_raw(message);
 }
 
 #[no_mangle]

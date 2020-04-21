@@ -73,8 +73,8 @@ impl Drop for Decryptor {
 }
 
 #[no_mangle]
-pub extern "C" fn c_message_decryptor_destroy(decryptor: *mut Decryptor) {
-    let _ = unsafe { Box::from_raw(decryptor) };
+pub unsafe extern "C" fn c_message_decryptor_destroy(decryptor: *mut Decryptor) {
+    let _ = Box::from_raw(decryptor);
 }
 
 #[no_mangle]
