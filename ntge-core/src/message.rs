@@ -61,7 +61,6 @@ pub struct Message {
 #[allow(dead_code)]
 impl Message {
     pub fn serialize_to_armor(&self) -> Result<String, CoreError> {
-        self.serialize_to_base58();
         match self.serialize_to_base58() {
             Ok(base58) => Ok(format!("MsgBegin_{}_EndMsg", base58)),
             Err(e) => Err(e),
@@ -260,11 +259,9 @@ mod tests {
     fn it_encrypts_and_decrypts_a_message_to_alice_and_signs() {
         let plaintext = b"Hello, World!";
         // alice
-        let mut alice_csprng = OsRng {};
         let alice_keypair = ed25519::create_keypair();
         let alice_secret_key = alice_keypair.secret;
         let alice_secret_key_x25519 = key_utils::ed25519_private_key_to_x25519(&alice_secret_key);
-        let alice_public_key = alice_keypair.public;
         let alice_public_key_x25519 = PublicKey::from(&alice_secret_key_x25519);
 
         let encryptor = encryptor::Encryptor::new(vec![alice_public_key_x25519]);
@@ -289,7 +286,6 @@ mod tests {
     fn it_encrypts_and_decrypts_a_message_to_alice_and_signs_and_verifies() {
         let plaintext = b"Hello, World!";
         // alice
-        let mut alice_csprng = OsRng {};
         let alice_keypair = ed25519::create_keypair();
         let alice_secret_key = alice_keypair.secret;
         let alice_secret_key_x25519 = key_utils::ed25519_private_key_to_x25519(&alice_secret_key);
@@ -325,11 +321,9 @@ mod tests {
         let plaintext = b"Hello, World!";
 
         // alice
-        let mut alice_csprng = OsRng {};
         let alice_keypair = ed25519::create_keypair();
         let alice_secret_key = alice_keypair.secret;
         let alice_secret_key_x25519 = key_utils::ed25519_private_key_to_x25519(&alice_secret_key);
-        let alice_public_key = alice_keypair.public;
         let alice_public_key_x25519 = PublicKey::from(&alice_secret_key_x25519);
 
         let encryptor = encryptor::Encryptor::new(vec![alice_public_key_x25519]);
@@ -341,5 +335,40 @@ mod tests {
             Message::deserialize_from_armor(&encoded_message).expect("could deserialize");
         assert_eq!(decoded_message.mac.mac, message.mac.mac);
         assert_eq!(decoded_message.meta.timestamp, message.meta.timestamp);
+    }
+
+    #[test]
+    fn it_encrypts_and_decrypts_a_message_from_alice_to_bob_and_signs_and_verifies() {
+        let plaintext = b"Hello, World!";
+        // alice
+        let alice_keypair = ed25519::create_keypair();
+        let alice_secret_key = alice_keypair.secret;
+        let alice_public_key = alice_keypair.public;
+        // bob
+        let bob_keypair = ed25519::create_keypair();
+        let bob_secret_key = bob_keypair.secret;
+        let bob_secret_key_x25519 = key_utils::ed25519_private_key_to_x25519(&bob_secret_key);
+        let bob_public_key_x25519 = PublicKey::from(&bob_secret_key_x25519);
+
+        // alice encrypts and signs
+        let encryptor = encryptor::Encryptor::new(vec![bob_public_key_x25519]);
+        let message = encryptor.encrypt(plaintext, Some(&alice_secret_key));
+
+        // bob decrypts
+        let decryptor = decryptor::Decryptor::new(&message);
+        let file_key = decryptor
+            .decrypt_file_key(&bob_secret_key_x25519)
+            .expect("could decrypt file key");
+        assert_eq!(decryptor.verify_message_mac(&file_key), true);
+        let decrypted_plaintext = decryptor
+            .decrypt_payload(&file_key)
+            .expect("could decrypt payload");
+        assert_eq!(decrypted_plaintext, plaintext);
+        // verify signature
+        assert!(decryptor::Decryptor::verify(
+            &alice_public_key,
+            &message.payload.ciphertext,
+            &message.meta.signature,
+        ));
     }
 }

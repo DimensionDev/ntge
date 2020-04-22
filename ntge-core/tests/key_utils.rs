@@ -27,12 +27,17 @@ mod tests {
     fn it_converts_an_ed25519_public_key_to_x25519() {
         let keypair = ed25519::create_keypair();
         let pubkey = key_utils::ed25519_public_key_to_x25519(&keypair.public);
+
+        // no need to verify an X25519 key
+        assert_ne!(pubkey.as_bytes(), &[0; 32]);
     }
 
     #[test]
     fn it_converts_an_ed25519_private_key_to_x25519() {
         let keypair = ed25519::create_keypair();
         let private_key = key_utils::ed25519_private_key_to_x25519(&keypair.secret);
+
+        assert_ne!(private_key.to_bytes(), [0; 32]);
     }
 
     #[test]
