@@ -49,4 +49,14 @@ mod tests {
         let deserialized_public_key = ed25519::deserialize_public_key(&encoded_public_key);
         assert_eq!(true, deserialized_public_key.is_ok());
     }
+
+    #[test]
+    fn it_signs_a_message_and_self_verify() {
+        let message = "TEST";
+        let keypair = ed25519::create_keypair();
+
+        let signature = ed25519::sign(&keypair.secret, message.as_bytes());
+        let result = ed25519::verify(&keypair.public, message.as_bytes(), &signature);
+        assert!(result.is_ok());
+    }
 }

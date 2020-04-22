@@ -1,3 +1,4 @@
+use ed25519_dalek::{PublicKey, Signature};
 use hkdf::Hkdf;
 use secrecy::ExposeSecret;
 use sha2::Sha256;
@@ -6,6 +7,7 @@ use x25519_dalek::StaticSecret;
 use crate::{
     aead,
     buffer::Buffer,
+    ed25519,
     ed25519::keypair::Ed25519Keypair,
     ed25519::private::Ed25519PrivateKey,
     ed25519::public::Ed25519PublicKey,
@@ -62,6 +64,19 @@ impl Decryptor {
         match aead::aead_decrypt(&payload_key, &self.message.payload.ciphertext) {
             Ok(plaintext) => Some(plaintext),
             Err(_) => None,
+        }
+    }
+}
+
+impl Decryptor {
+    pub fn verify(public_key: &Ed25519PublicKey, message: &[u8], signature_bytes: &[u8]) -> bool {
+        let signature: Signature = match Signature::from_bytes(&signature_bytes) {
+            Ok(sig) => sig,
+            Err(_) => return false,
+        };
+        match ed25519::verify(&public_key.raw, message, &signature) {
+            Ok(_) => true,
+            Err(_) => false,
         }
     }
 }
