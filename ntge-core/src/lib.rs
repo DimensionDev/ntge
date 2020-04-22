@@ -4,3 +4,6 @@ pub mod error;
 pub mod key_utils;
 pub mod message;
 pub mod x25519;
+
+#[cfg(feature = "wasm")]
+pub mod wasm;

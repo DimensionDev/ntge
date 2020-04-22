@@ -4,6 +4,9 @@ version = "0.1.0"
 authors = ["Yisi Liu <yisiliu@gmail.com>", "CMK <cirno.mainasuk@gmail.com>", "Tlaster <tlaster@outlook.com>", "Brad Gao <ugling88@hotmail.com>"]
 edition = "2018"
 
+[lib]
+crate-type = ["cdylib", "rlib"]
+
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
@@ -23,3 +26,18 @@ serde = { version = "1.0", features = ["derive"] }
 serde_cbor = "0.11.1"
 serde_bytes = "0.11.3"
 bs58 = "0.3.0"
+
+wasm-bindgen = { version = "0.2", optional = true }
+console_error_panic_hook = { version = "0.1.6", optional = true }
+js-sys = { version = "0.3", optional = true }
+web-sys = { version = "0.3", features=["console"], optional = true }
+
+[features]
+wasm = ["wasm-bindgen", "console_error_panic_hook", "js-sys", "web-sys"]
+
+[target.wasm32-unknown-unknown.dependencies]
+rand = { version = "0.7.3", features = ["wasm-bindgen"] }
+
+[profile.release]
+# Tell `rustc` to optimize for small code size.
+opt-level = "z"
