@@ -1,7 +1,7 @@
 use bech32::{self, FromBase32, ToBase32};
 use ed25519_dalek::Keypair;
 use ed25519_dalek::{ExpandedSecretKey, Signature};
-use ed25519_dalek::{PublicKey, SecretKey};
+pub use ed25519_dalek::{PublicKey, SecretKey};
 use rand::rngs::OsRng;
 
 use super::error;
