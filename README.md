@@ -9,5 +9,14 @@ Not That Good Encryption is a general-purpose rust-based encryption tool. Our ma
 $ cargo install --force cbindgen
 ```
 
+## cbindgen
+Generate header manually
+
+```bash
+$ cd ./ntge-core
+$ touch build.rs
+$ cargo build --features cbindgen-enable
+```
+
 ## Acknowledgements
 - [rage](https://github.com/str4d/rage)

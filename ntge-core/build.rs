@@ -1,9 +1,9 @@
-extern crate cbindgen;
+use cbindgen;
 
 use cbindgen::Language;
 use std::env;
 
-fn main() {
+fn write_headers() {
     let crate_dir = env::var("CARGO_MANIFEST_DIR").unwrap();
 
     let builder = cbindgen::Builder::new()
@@ -24,4 +24,9 @@ fn main() {
         },
     }
     .write_to_file("./include/ntge-core.h");
+}
+
+fn main() {
+    #[cfg(feature = "cbindgen-enable")]
+    write_headers();
 }
