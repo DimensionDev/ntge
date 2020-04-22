@@ -32,8 +32,7 @@ impl MessageRecipientHeader {
 #[derive(Debug, Serialize, Deserialize)]
 pub struct MessageMeta {
     pub timestamp: Option<String>,
-    #[serde(with = "serde_bytes")]
-    pub signature: Vec<u8>,
+    pub signature: Option<encryptor::Signature>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -312,7 +311,7 @@ mod tests {
         assert!(decryptor::Decryptor::verify(
             &alice_public_key,
             &message.payload.ciphertext,
-            &message.meta.signature,
+            &message.meta.signature.unwrap().signature,
         ));
     }
 
@@ -368,7 +367,7 @@ mod tests {
         assert!(decryptor::Decryptor::verify(
             &alice_public_key,
             &message.payload.ciphertext,
-            &message.meta.signature,
+            &message.meta.signature.unwrap().signature,
         ));
     }
 }

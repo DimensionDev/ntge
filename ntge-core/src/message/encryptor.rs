@@ -1,10 +1,12 @@
 use chrono::prelude::*;
-use ed25519_dalek::{SecretKey, Signature};
+use ed25519_dalek;
 use hkdf::Hkdf;
 use hmac::{Hmac, Mac};
 use rand::rngs::OsRng;
 use rand::RngCore;
 use secrecy::ExposeSecret;
+use serde::{Deserialize, Serialize};
+use serde_bytes;
 use sha2::Sha256;
 use x25519_dalek::PublicKey;
 
@@ -23,9 +25,25 @@ impl Encryptor {
     }
 }
 
+#[derive(Debug, Serialize, Deserialize)]
+pub struct Signature {
+    #[serde(with = "serde_bytes")]
+    pub signature: Vec<u8>,
+}
+
+impl Signature {
+    pub fn new(signature: Vec<u8>) -> Self {
+        Signature { signature }
+    }
+}
+
 #[allow(dead_code)]
 impl Encryptor {
-    pub fn encrypt(&self, plaintext: &[u8], _sign: Option<&SecretKey>) -> message::Message {
+    pub fn encrypt(
+        &self,
+        plaintext: &[u8],
+        sign: Option<&ed25519_dalek::SecretKey>,
+    ) -> message::Message {
         // 1. create new file key
         let file_key = FileKey::new();
         // 2. wrap file key for recipients
@@ -45,17 +63,17 @@ impl Encryptor {
             .expect("payload_key is the correct length");
         let ciphertext = aead::aead_encrypt(&payload_key, &plaintext);
         // 4. calculate HMAC for recipient_headers + meta
-        let meta: message::MessageMeta = match _sign {
+        let meta: message::MessageMeta = match sign {
             Some(private_key) => {
                 let signature = Encryptor::sign(private_key, &ciphertext);
                 message::MessageMeta {
                     timestamp: Some(Utc::now().to_string()),
-                    signature: signature.to_vec(),
+                    signature: Some(Signature::new(signature.to_vec())),
                 }
             }
             None => message::MessageMeta {
                 timestamp: Some(Utc::now().to_string()),
-                signature: vec![0; 64],
+                signature: None,
             },
         };
         let mac = Encryptor::calculate_mac(&recipient_headers, &meta, &file_key);
@@ -94,13 +112,16 @@ impl Encryptor {
         if let Some(timestamp) = &meta.timestamp {
             hasher.input(timestamp.as_bytes());
         }
+        if let Some(signature) = &meta.signature {
+            hasher.input(&signature.signature);
+        }
         hasher.result().code().into()
     }
 }
 
 impl Encryptor {
-    pub(super) fn sign(private_key: &SecretKey, message: &[u8]) -> [u8; 64] {
-        let signature: Signature = ed25519::sign(private_key, message);
+    pub(super) fn sign(private_key: &ed25519_dalek::SecretKey, message: &[u8]) -> [u8; 64] {
+        let signature: ed25519_dalek::Signature = ed25519::sign(private_key, message);
 
         signature.to_bytes()
     }
