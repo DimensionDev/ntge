@@ -192,17 +192,15 @@ pub fn verify(
     public_key: &PublicKey,
     message: &[u8],
     signature: &Signature,
-) -> Result<bool, error::CoreError> {
-    let result = match public_key.verify(message, signature) {
-        Ok(_) => true,
+) -> Result<(), error::CoreError> {
+    match public_key.verify(message, signature) {
+        Ok(_) => Ok(()),
         Err(_) => {
             let e = error::CoreError::SignatureVerificationError {
                 name: "signature",
                 reason: "The signature does not match the given public key.",
             };
-            return Err(e);
+            Err(e)
         }
-    };
-
-    Ok(result)
+    }
 }
