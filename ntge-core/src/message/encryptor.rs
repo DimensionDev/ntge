@@ -28,12 +28,12 @@ impl Encryptor {
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Signature {
     #[serde(with = "serde_bytes")]
-    pub signature: Vec<u8>,
+    pub data: Vec<u8>,
 }
 
 impl Signature {
-    pub fn new(signature: Vec<u8>) -> Self {
-        Signature { signature }
+    pub fn new(data: Vec<u8>) -> Self {
+        Signature { data }
     }
 }
 
@@ -113,7 +113,7 @@ impl Encryptor {
             hasher.input(timestamp.as_bytes());
         }
         if let Some(signature) = &meta.signature {
-            hasher.input(&signature.signature);
+            hasher.input(&signature.data);
         }
         hasher.result().code().into()
     }

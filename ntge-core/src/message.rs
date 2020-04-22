@@ -311,7 +311,7 @@ mod tests {
         assert!(decryptor::Decryptor::verify(
             &alice_public_key,
             &message.payload.ciphertext,
-            &message.meta.signature.unwrap().signature,
+            &message.meta.signature.unwrap().data,
         ));
     }
 
@@ -367,7 +367,7 @@ mod tests {
         assert!(decryptor::Decryptor::verify(
             &alice_public_key,
             &message.payload.ciphertext,
-            &message.meta.signature.unwrap().signature,
+            &message.meta.signature.unwrap().data,
         ));
     }
 }
