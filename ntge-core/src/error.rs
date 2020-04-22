@@ -22,6 +22,10 @@ pub enum CoreError {
         name: &'static str,
         reason: &'static str,
     },
+    SignatureVerificationError {
+        name: &'static str,
+        reason: &'static str,
+    },
 }
 
 #[cfg(feature = "std")]
@@ -45,6 +49,9 @@ impl Display for CoreError {
             }
             CoreError::KeyInvalidError { name, reason } => {
                 write!(f, "is not a valid {} keypair. {}", name, reason)
+            }
+            CoreError::SignatureVerificationError { name, reason } => {
+                write!(f, "The {} is not verified. {}", name, reason)
             }
         }
     }

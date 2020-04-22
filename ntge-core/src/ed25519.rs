@@ -1,5 +1,6 @@
 use bech32::{self, FromBase32, ToBase32};
 use ed25519_dalek::Keypair;
+use ed25519_dalek::{ExpandedSecretKey, Signature};
 pub use ed25519_dalek::{PublicKey, SecretKey};
 use rand::rngs::OsRng;
 
@@ -176,5 +177,30 @@ pub fn deserialize_public_key(encoded: &str) -> Result<PublicKey, error::CoreErr
         };
 
         Ok(public_key)
+    }
+}
+
+pub fn sign(private_key: &SecretKey, message: &[u8]) -> Signature {
+    let expanded_private_key: ExpandedSecretKey = private_key.into();
+    let public_key: PublicKey = private_key.into();
+
+    let signature: Signature = expanded_private_key.sign(message, &public_key);
+    signature
+}
+
+pub fn verify(
+    public_key: &PublicKey,
+    message: &[u8],
+    signature: &Signature,
+) -> Result<(), error::CoreError> {
+    match public_key.verify(message, signature) {
+        Ok(_) => Ok(()),
+        Err(_) => {
+            let e = error::CoreError::SignatureVerificationError {
+                name: "signature",
+                reason: "The signature does not match the given public key.",
+            };
+            Err(e)
+        }
     }
 }

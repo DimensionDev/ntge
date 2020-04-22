@@ -34,7 +34,7 @@ impl FileKey {
         let mut csprng = OsRng {};
         let ephemeral_private_key = EphemeralSecret::new(&mut csprng);
         let ephemeral_public_key = PublicKey::from(&ephemeral_private_key);
-        // 2. shared_secret = ECHD(ephemeral_private_key, public_key)
+        // 2. shared_secret = ECDH(ephemeral_private_key, public_key)
         let shared_secret = ephemeral_private_key.diffie_hellman(&public_key);
         // 3. use ephemeral_public_key appending public_key as salt
         let mut salt = vec![];

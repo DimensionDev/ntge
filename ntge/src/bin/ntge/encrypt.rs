@@ -11,7 +11,7 @@ pub(crate) fn encrypt_message(plaintext: &[u8], recipients: &[Recipient]) -> Mes
         .collect();
 
     let encryptor = Encryptor::new(keys);
-    let message = encryptor.encrypt(plaintext);
+    let message = encryptor.encrypt(plaintext, None);
 
     message
 }

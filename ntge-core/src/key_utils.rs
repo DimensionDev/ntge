@@ -34,7 +34,7 @@ pub fn keypair_validation(
                 name: CURVE_NAME_ED25519,
                 reason: "The given public key and private key do not match.",
             };
-            return Err(core_error);
+            Err(core_error)
         }
     }
 }
