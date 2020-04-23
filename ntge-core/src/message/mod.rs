@@ -162,7 +162,9 @@ impl Message {
 
 impl Drop for Message {
     fn drop(&mut self) {
-        println!("{:?} is being deallocated", self);
+        if cfg!(feature = "drop-log-enable") {
+            println!("{:?} is being deallocated", self);
+        }
     }
 }
 

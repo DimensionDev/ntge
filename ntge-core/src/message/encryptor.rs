@@ -127,7 +127,9 @@ impl Encryptor {
 
 impl Drop for Encryptor {
     fn drop(&mut self) {
-        println!("{:?} is being deallocated", self);
+        if cfg!(feature = "drop-log-enable") {
+            println!("{:?} is being deallocated", self);
+        }
     }
 }
 

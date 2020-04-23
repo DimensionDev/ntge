@@ -3,6 +3,8 @@ use std::io::Write;
 use std::io::{self, Read};
 use std::path::Path;
 
+pub(crate) const DEFAULT_SAVE_PATH: &str = ".ntge";
+
 // read input from stdin or path
 pub(crate) fn read_input_bytes(arg_matches: &clap::ArgMatches) -> Vec<u8> {
     if let Some(path) = arg_matches.value_of("path") {
@@ -29,7 +31,6 @@ pub(crate) fn read_input_bytes(arg_matches: &clap::ArgMatches) -> Vec<u8> {
     }
 }
 
-
 // read input from stdin or path
 pub(crate) fn read_input_str(arg_matches: &clap::ArgMatches) -> String {
     if let Some(path) = arg_matches.value_of("path") {
@@ -55,8 +56,6 @@ pub(crate) fn read_input_str(arg_matches: &clap::ArgMatches) -> String {
         }
     }
 }
-
-
 
 pub(crate) fn write_to_output(arg_matches: &clap::ArgMatches, content: &[u8]) {
     if let Some(path) = arg_matches.value_of("output") {

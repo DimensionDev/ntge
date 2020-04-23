@@ -112,7 +112,19 @@ impl Ed25519PrivateKey {
 
 impl Drop for Ed25519PrivateKey {
     fn drop(&mut self) {
-        println!("{:?} is being deallocated", self);
+        if cfg!(feature = "drop-log-enable") {
+            println!("{:?} is being deallocated", self);
+        }
+    }
+}
+
+impl Clone for Ed25519PrivateKey {
+    fn clone(&self) -> Self {
+        let bytes = self.raw.as_bytes().clone();
+        Ed25519PrivateKey {
+            raw: ed25519_dalek::SecretKey::from_bytes(&bytes)
+                .expect("should generate a new raw key from its bytes"),
+        }
     }
 }
 

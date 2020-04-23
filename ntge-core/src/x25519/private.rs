@@ -31,7 +31,9 @@ impl From<&Ed25519PrivateKey> for X25519PrivateKey {
 
 impl Drop for X25519PrivateKey {
     fn drop(&mut self) {
-        println!("The X25519PrivateKey is being deallocated");
+        if cfg!(feature = "drop-log-enable") {
+            println!("The X25519PrivateKey is being deallocated");
+        }
     }
 }
 

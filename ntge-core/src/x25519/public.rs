@@ -17,7 +17,9 @@ impl Clone for X25519PublicKey {
 
 impl Drop for X25519PublicKey {
     fn drop(&mut self) {
-        println!("{:?} is being deallocated", self);
+        if cfg!(feature = "drop-log-enable") {
+            println!("{:?} is being deallocated", self);
+        }
     }
 }
 

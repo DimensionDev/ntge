@@ -46,7 +46,9 @@ impl Ed25519Keypair {
 
 impl Drop for Ed25519Keypair {
     fn drop(&mut self) {
-        println!("{:?} is being deallocated", self);
+        if cfg!(feature = "drop-log-enable") {
+            println!("{:?} is being deallocated", self);
+        }
     }
 }
 
