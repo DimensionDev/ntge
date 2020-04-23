@@ -1,4 +1,4 @@
-use ntge_core::{ed25519, key_utils};
+use ntge_core::{ed25519, key_utils, x25519};
 
 #[cfg(test)]
 mod tests {

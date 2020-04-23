@@ -1,19 +1,26 @@
+pub mod keypair;
+pub mod private;
+pub mod public;
+
 use bech32::{self, FromBase32, ToBase32};
 use ed25519_dalek::Keypair;
 use ed25519_dalek::{ExpandedSecretKey, Signature};
-pub use ed25519_dalek::{PublicKey, SecretKey};
 use rand::rngs::OsRng;
 
-use super::error;
+pub use ed25519_dalek::{self, PublicKey, SecretKey};
+
+use crate::error;
 
 pub const CURVE_NAME_ED25519: &str = "Ed25519";
 
+#[deprecated]
 pub fn create_keypair() -> Keypair {
     // a.k.a Cryptographically secure pseudo-random number generator.
     let mut csprng: OsRng = OsRng {};
-    Keypair::generate(&mut csprng)
+    ed25519_dalek::Keypair::generate(&mut csprng)
 }
 
+#[deprecated]
 pub fn construct_from_private_key(private_key: &SecretKey) -> Keypair {
     let sk: SecretKey = SecretKey::from_bytes(&(private_key.to_bytes())).unwrap();
     let pk: PublicKey = (&sk).into();
@@ -24,18 +31,21 @@ pub fn construct_from_private_key(private_key: &SecretKey) -> Keypair {
     }
 }
 
+#[deprecated]
 pub fn serialize_private_key(private_key: &SecretKey) -> String {
     let data = private_key.to_bytes().to_base32();
     let encoded = bech32::encode("pri", data).unwrap();
     encoded + "-" + CURVE_NAME_ED25519
 }
 
+#[deprecated]
 pub fn serialize_public_key(public_key: &PublicKey) -> String {
     let data = public_key.to_bytes().to_base32();
     let encoded = bech32::encode("pub", data).unwrap();
     encoded + "-" + CURVE_NAME_ED25519
 }
 
+#[deprecated]
 pub fn deserialize_private_key(encoded: &str) -> Result<SecretKey, error::CoreError> {
     let components: Vec<&str> = encoded.trim().split('-').collect();
     if components.len() != 2 {
@@ -108,6 +118,7 @@ pub fn deserialize_private_key(encoded: &str) -> Result<SecretKey, error::CoreEr
     }
 }
 
+#[deprecated]
 pub fn deserialize_public_key(encoded: &str) -> Result<PublicKey, error::CoreError> {
     let components: Vec<&str> = encoded.trim().split('-').collect();
     if components.len() != 2 {

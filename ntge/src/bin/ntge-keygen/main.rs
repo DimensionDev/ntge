@@ -1,4 +1,3 @@
-use std::process::exit;
 use clap::{App, Arg};
 use dirs::home_dir;
 use ntge_core::ed25519;
@@ -7,6 +6,7 @@ use std::fs;
 use std::fs::File;
 use std::io::Write;
 use std::path::{Path, PathBuf};
+use std::process::exit;
 
 const DEFAULT_SAVE_PATH: &str = ".ntge";
 const DEFAULT_FILE_NAME: &str = "id_ntge";

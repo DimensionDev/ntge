@@ -1,13 +1,14 @@
-use std::path::PathBuf;
 use crate::decrypt::error::DecryptError;
 use ntge_core::ed25519::deserialize_private_key;
 use ntge_core::ed25519::SecretKey;
 use ntge_core::key_utils::ed25519_private_key_to_x25519;
 use ntge_core::message::{decryptor::Decryptor, Message};
+use ntge_core::x25519::private::X25519PrivateKey;
 use std::fs;
 use std::fs::File;
 use std::io::prelude::*;
 use std::path::Path;
+use std::path::PathBuf;
 
 mod error;
 
@@ -17,7 +18,7 @@ const DEFAULT_SAVE_PATH: &str = ".ntge";
 pub(crate) struct DecryptResult {
     pub(crate) content: Vec<u8>,
     pub(crate) key_content: String,
-    pub(crate) key: SecretKey,
+    pub(crate) key: X25519PrivateKey,
 }
 
 fn try_decrypt_with_key(
@@ -59,7 +60,8 @@ fn try_decrypt_with_key(
     };
 
     let secret_key = ed25519_private_key_to_x25519(&private_key);
-    let file_key = if let Some(it) = decryptor.decrypt_file_key(&secret_key) {
+    let private_key = X25519PrivateKey { raw: secret_key };
+    let file_key = if let Some(it) = decryptor.decrypt_file_key(&private_key) {
         it
     } else {
         return Err(DecryptError {
@@ -79,8 +81,6 @@ fn try_decrypt_with_key(
         key_content: key_contents,
     });
 }
-
-
 
 fn load_local_keys() -> Vec<PathBuf> {
     // find HOME

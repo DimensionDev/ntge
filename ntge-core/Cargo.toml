@@ -3,8 +3,17 @@ name = "ntge-core"
 version = "0.1.0"
 authors = ["Yisi Liu <yisiliu@gmail.com>", "CMK <cirno.mainasuk@gmail.com>", "Tlaster <tlaster@outlook.com>", "Brad Gao <ugling88@hotmail.com>"]
 edition = "2018"
+build = "build.rs"
+exclude = ["./include/*"]
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[features]
+cbindgen-enable = []
+
+[lib]
+crate-type = ["lib", "staticlib", "cdylib"]
+
+[build-dependencies]
+cbindgen = "0.14.1"
 
 [dependencies]
 ed25519-dalek = "1.0.0-pre.3"
@@ -23,3 +32,6 @@ serde = { version = "1.0", features = ["derive"] }
 serde_cbor = "0.11.1"
 serde_bytes = "0.11.3"
 bs58 = "0.3.0"
+jni = "0.16.0"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
