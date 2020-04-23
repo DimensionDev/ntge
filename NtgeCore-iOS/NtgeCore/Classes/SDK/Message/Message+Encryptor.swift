@@ -42,11 +42,11 @@ extension Message {
 
 extension Message.Encryptor {
     
-    public func encrypt(plaintext: Data) -> Message {
+    public func encrypt(plaintext: Data, signatureKey: Ed25519.PrivateKey? = nil) -> Message {
         var plaintextData = plaintext
         let message = plaintextData.withUnsafeMutableBytes { (pointer: UnsafeMutablePointer<UInt8>?) -> Message in
             let buffer = Buffer(data: pointer, len: UInt(plaintext.count))
-            return Message(raw: c_message_encryptor_encrypt_plaintext(raw, buffer))
+            return Message(raw: c_message_encryptor_encrypt_plaintext(raw, buffer, signatureKey?.intoRaw()))
         }   // pointer will dealloc here
         
         return message

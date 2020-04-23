@@ -13,7 +13,8 @@ use x25519_dalek;
 use crate::{
     aead, arrays,
     buffer::Buffer,
-    ed25519, message,
+    ed25519::{self, private::Ed25519PrivateKey},
+    message,
     x25519::{filekey::FileKey, public::X25519PublicKey},
 };
 
@@ -47,7 +48,7 @@ impl Encryptor {
     pub fn encrypt(
         &self,
         plaintext: &[u8],
-        sign: Option<&ed25519_dalek::SecretKey>,
+        signature_key: Option<&Ed25519PrivateKey>,
     ) -> message::Message {
         // 1. create new file key
         let file_key = FileKey::new();
@@ -68,9 +69,9 @@ impl Encryptor {
             .expect("payload_key is the correct length");
         let ciphertext = aead::aead_encrypt(&payload_key, &plaintext);
         // 4. calculate HMAC for recipient_headers + meta
-        let meta: message::MessageMeta = match sign {
+        let meta: message::MessageMeta = match signature_key {
             Some(private_key) => {
-                let signature = Encryptor::sign(private_key, &ciphertext);
+                let signature = Encryptor::sign(&private_key.raw, &ciphertext);
                 message::MessageMeta {
                     timestamp: Some(Utc::now().to_string()),
                     signature: Some(Signature::new(signature.to_vec())),
@@ -177,9 +178,11 @@ pub unsafe extern "C" fn c_message_encryptor_destroy(encryptor: *mut Encryptor) 
 pub unsafe extern "C" fn c_message_encryptor_encrypt_plaintext(
     encryptor: *mut Encryptor,
     plaintext_buffer: Buffer,
+    signature_key: *mut Ed25519PrivateKey,
 ) -> *mut message::Message {
     let encryptor = &mut *encryptor;
     let data = plaintext_buffer.to_bytes();
-    let message = encryptor.encrypt(&data[..], None);
+    let signature_key = signature_key.as_ref();
+    let message = encryptor.encrypt(&data[..], signature_key);
     Box::into_raw(Box::new(message))
 }

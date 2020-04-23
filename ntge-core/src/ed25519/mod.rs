@@ -9,9 +9,6 @@ use rand::rngs::OsRng;
 
 pub use ed25519_dalek::{self, PublicKey, SecretKey};
 
-use crate::ed25519::{
-    keypair::Ed25519Keypair, private::Ed25519PrivateKey, public::Ed25519PublicKey,
-};
 use crate::error;
 
 pub const CURVE_NAME_ED25519: &str = "Ed25519";

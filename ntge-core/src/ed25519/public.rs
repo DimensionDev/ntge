@@ -1,6 +1,5 @@
 use bech32::{self, FromBase32, ToBase32};
 use ed25519_dalek::{self, PublicKey};
-use rand::rngs::OsRng;
 
 use crate::strings;
 use std::os::raw::c_char;

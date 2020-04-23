@@ -6,7 +6,8 @@ BASEPATH="${PWD}"
 echo "Building rust library..."
 
 cd ../ntge-core
-cargo build --target x86_64-apple-ios --release --lib
+touch build.rs
+cargo build --target x86_64-apple-ios --release --lib --features cbindgen-enable
 RUSTFLAGS="-Z embed-bitcode" cargo +ios-arm64 build --target aarch64-apple-ios --release --lib
 
 echo "lipo bitcode lib"

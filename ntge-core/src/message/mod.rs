@@ -192,17 +192,18 @@ pub unsafe extern "C" fn c_message_serialize_to_armor(
 
 #[cfg(test)]
 mod tests {
-    use super::*;
-    use crate::ed25519::public::Ed25519PublicKey;
-    use crate::message::{decryptor, encryptor, Message};
-    use crate::{aead, x25519::filekey::FileKey};
-    use crate::{ed25519, key_utils};
+    use crate::{
+        aead,
+        ed25519::keypair::Ed25519Keypair,
+        message::{self, decryptor, encryptor, Message},
+        x25519::{filekey::FileKey, private::X25519PrivateKey, public::X25519PublicKey},
+    };
+
     use hkdf::Hkdf;
     use rand::rngs::OsRng;
     use rand::RngCore;
     use secrecy::ExposeSecret;
     use sha2::Sha256;
-    use x25519_dalek::{PublicKey, StaticSecret};
 
     #[allow(dead_code)]
     fn encrypt_plaintext(file_key: &FileKey, plaintext: &[u8]) -> Vec<u8> {
@@ -212,7 +213,7 @@ mod tests {
         // create payload key
         let mut payload_key = [0; 32];
         Hkdf::<Sha256>::new(Some(&nonce), file_key.0.expose_secret())
-            .expand(PAYLOAD_KEY_LABEL, &mut payload_key)
+            .expand(message::PAYLOAD_KEY_LABEL, &mut payload_key)
             .expect("payload_key is the correct length");
         aead::aead_encrypt(&payload_key, &plaintext)
     }
@@ -232,13 +233,9 @@ mod tests {
     fn it_encrypts_and_decrypts_a_message_to_alice() {
         let plaintext = b"Hello, World!";
         // alice
-        let mut alice_csprng = OsRng {};
-        let alice_secret_key = X25519PrivateKey {
-            raw: StaticSecret::new(&mut alice_csprng),
-        };
-        let alice_public_key = X25519PublicKey {
-            raw: PublicKey::from(&alice_secret_key.raw),
-        };
+        let alice_keypair = Ed25519Keypair::new();
+        let alice_secret_key: X25519PrivateKey = (&alice_keypair.get_private_key()).into();
+        let alice_public_key: X25519PublicKey = (&alice_keypair.get_public_key()).into();
 
         let encryptor = encryptor::Encryptor::new(&vec![alice_public_key]);
         let message = encryptor.encrypt(plaintext, None);
@@ -263,13 +260,8 @@ mod tests {
         let plaintext = b"Hello, World!";
 
         // alice
-        let mut alice_csprng = OsRng {};
-        let alice_secret_key = X25519PrivateKey {
-            raw: StaticSecret::new(&mut alice_csprng),
-        };
-        let alice_public_key = X25519PublicKey {
-            raw: PublicKey::from(&alice_secret_key.raw),
-        };
+        let alice_keypair = Ed25519Keypair::new();
+        let alice_public_key: X25519PublicKey = (&alice_keypair.get_public_key()).into();
 
         let encryptor = encryptor::Encryptor::new(&vec![alice_public_key]);
         let message = encryptor.encrypt(plaintext, None);
@@ -286,17 +278,15 @@ mod tests {
     fn it_encrypts_and_decrypts_a_message_to_alice_and_signs() {
         let plaintext = b"Hello, World!";
         // alice
-        let alice_keypair = ed25519::create_keypair();
-        let alice_secret_key = alice_keypair.secret;
-        let alice_secret_key_x25519 = X25519PrivateKey {
-            raw: key_utils::ed25519_private_key_to_x25519(&alice_secret_key),
-        };
-        let alice_public_key_x25519 = X25519PublicKey {
-            raw: PublicKey::from(&alice_secret_key_x25519.raw),
-        };
+        let alice_keypair = Ed25519Keypair::new();
+        let alice_private_key = alice_keypair.get_private_key();
+        let alice_public_key = alice_keypair.get_public_key();
+
+        let alice_secret_key_x25519: X25519PrivateKey = (&alice_private_key).into();
+        let alice_public_key_x25519: X25519PublicKey = (&alice_public_key).into();
 
         let encryptor = encryptor::Encryptor::new(&vec![alice_public_key_x25519]);
-        let message = encryptor.encrypt(plaintext, Some(&alice_secret_key));
+        let message = encryptor.encrypt(plaintext, Some(&alice_private_key));
 
         // create decryptor
         let decryptor = decryptor::Decryptor::new(&message);
@@ -317,20 +307,15 @@ mod tests {
     fn it_encrypts_and_decrypts_a_message_to_alice_and_signs_and_verifies() {
         let plaintext = b"Hello, World!";
         // alice
-        let alice_keypair = ed25519::create_keypair();
-        let alice_secret_key = alice_keypair.secret;
-        let alice_secret_key_x25519 = X25519PrivateKey {
-            raw: key_utils::ed25519_private_key_to_x25519(&alice_secret_key),
-        };
-        let alice_public_key = Ed25519PublicKey {
-            raw: alice_keypair.public,
-        };
-        let alice_public_key_x25519 = X25519PublicKey {
-            raw: PublicKey::from(&alice_secret_key_x25519.raw),
-        };
+        let alice_keypair = Ed25519Keypair::new();
+        let alice_private_key = alice_keypair.get_private_key();
+        let alice_public_key = alice_keypair.get_public_key();
+
+        let alice_secret_key_x25519: X25519PrivateKey = (&alice_private_key).into();
+        let alice_public_key_x25519: X25519PublicKey = (&alice_public_key).into();
 
         let encryptor = encryptor::Encryptor::new(&[alice_public_key_x25519]);
-        let message = encryptor.encrypt(plaintext, Some(&alice_secret_key));
+        let message = encryptor.encrypt(plaintext, Some(&alice_private_key));
 
         // create decryptor
         let decryptor = decryptor::Decryptor::new(&message);
@@ -346,10 +331,9 @@ mod tests {
             .expect("could decrypt payload");
         assert_eq!(decrypted_plaintext, plaintext);
         // verify signature
-        assert!(decryptor::Decryptor::verify(
-            &alice_public_key,
-            &message.payload.ciphertext,
-            &message.meta.clone().signature.unwrap().data,
+        assert!(decryptor::Decryptor::verify_signature(
+            &message,
+            &alice_public_key
         ));
     }
 
@@ -358,17 +342,13 @@ mod tests {
         let plaintext = b"Hello, World!";
 
         // alice
-        let alice_keypair = ed25519::create_keypair();
-        let alice_secret_key = alice_keypair.secret;
-        let alice_secret_key_x25519 = X25519PrivateKey {
-            raw: key_utils::ed25519_private_key_to_x25519(&alice_secret_key),
-        };
-        let alice_public_key_x25519 = X25519PublicKey {
-            raw: PublicKey::from(&alice_secret_key_x25519.raw),
-        };
+        let alice_keypair = Ed25519Keypair::new();
+        let alice_private_key = alice_keypair.get_private_key();
+        let alice_public_key = alice_keypair.get_public_key();
+        let alice_public_key_x25519: X25519PublicKey = (&alice_public_key).into();
 
         let encryptor = encryptor::Encryptor::new(&[alice_public_key_x25519]);
-        let message = encryptor.encrypt(plaintext, Some(&alice_secret_key));
+        let message = encryptor.encrypt(plaintext, Some(&alice_private_key));
         // encode
         let encoded_message = message.serialize_to_armor().expect("could serialize");
         print!("{:?}", encoded_message);
@@ -382,24 +362,21 @@ mod tests {
     fn it_encrypts_and_decrypts_a_message_from_alice_to_bob_and_signs_and_verifies() {
         let plaintext = b"Hello, World!";
         // alice
-        let alice_keypair = ed25519::create_keypair();
-        let alice_secret_key = alice_keypair.secret;
-        let alice_public_key = Ed25519PublicKey {
-            raw: alice_keypair.public,
-        };
+        let alice_keypair = Ed25519Keypair::new();
+        let alice_private_key = alice_keypair.get_private_key();
+        let alice_public_key = alice_keypair.get_public_key();
+
         // bob
-        let bob_keypair = ed25519::create_keypair();
-        let bob_secret_key = bob_keypair.secret;
-        let bob_secret_key_x25519 = X25519PrivateKey {
-            raw: key_utils::ed25519_private_key_to_x25519(&bob_secret_key),
-        };
-        let bob_public_key_x25519 = X25519PublicKey {
-            raw: PublicKey::from(&bob_secret_key_x25519.raw),
-        };
+        let bob_keypair = Ed25519Keypair::new();
+        let bob_private_key = bob_keypair.get_private_key();
+        let bob_public_key = bob_keypair.get_public_key();
+
+        let bob_secret_key_x25519: X25519PrivateKey = (&bob_private_key).into();
+        let bob_public_key_x25519: X25519PublicKey = (&bob_public_key).into();
 
         // alice encrypts and signs
         let encryptor = encryptor::Encryptor::new(&[bob_public_key_x25519]);
-        let message = encryptor.encrypt(plaintext, Some(&alice_secret_key));
+        let message = encryptor.encrypt(plaintext, Some(&alice_private_key));
 
         // bob decrypts
         let decryptor = decryptor::Decryptor::new(&message);
@@ -412,10 +389,9 @@ mod tests {
             .expect("could decrypt payload");
         assert_eq!(decrypted_plaintext, plaintext);
         // verify signature
-        assert!(decryptor::Decryptor::verify(
+        assert!(decryptor::Decryptor::verify_signature(
+            &message,
             &alice_public_key,
-            &message.payload.ciphertext,
-            &message.meta.clone().signature.unwrap().data,
         ));
     }
 }

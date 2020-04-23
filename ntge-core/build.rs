@@ -3,6 +3,7 @@ use cbindgen;
 use cbindgen::Language;
 use std::env;
 
+#[allow(dead_code)]
 fn write_headers() {
     let crate_dir = env::var("CARGO_MANIFEST_DIR").unwrap();
 

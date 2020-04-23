@@ -11,7 +11,7 @@ use crate::{
     ed25519::keypair::Ed25519Keypair,
     ed25519::private::Ed25519PrivateKey,
     ed25519::public::Ed25519PublicKey,
-    message::{self, encryptor::Encryptor},
+    message::{self, encryptor::Encryptor, Message},
     x25519::filekey::FileKey,
     x25519::private::X25519PrivateKey,
 };
@@ -69,12 +69,18 @@ impl Decryptor {
 }
 
 impl Decryptor {
-    pub fn verify(public_key: &Ed25519PublicKey, message: &[u8], signature_bytes: &[u8]) -> bool {
-        let signature: Signature = match Signature::from_bytes(&signature_bytes) {
+    pub fn verify_signature(message: &message::Message, public_key: &Ed25519PublicKey) -> bool {
+        let signature_bytes = match &message.meta.signature {
+            Some(signature) => &signature.data,
+            None => return false,
+        };
+
+        let signature: Signature = match Signature::from_bytes(&signature_bytes[..]) {
             Ok(sig) => sig,
             Err(_) => return false,
         };
-        match ed25519::verify(&public_key.raw, message, &signature) {
+
+        match ed25519::verify(&public_key.raw, &message.payload.ciphertext, &signature) {
             Ok(_) => true,
             Err(_) => false,
         }
@@ -145,4 +151,15 @@ pub unsafe extern "C" fn c_message_decryptor_decrypt_payload(
             len: 0,
         },
     }
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn c_message_decryptor_verify_signature(
+    message: *mut Message,
+    public_key: *mut Ed25519PublicKey,
+) -> bool {
+    let message = &mut *message;
+    let public_key = &mut *public_key;
+
+    Decryptor::verify_signature(&message, &public_key)
 }

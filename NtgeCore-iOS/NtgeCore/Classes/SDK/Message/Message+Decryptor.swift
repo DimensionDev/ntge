@@ -59,3 +59,11 @@ extension Message.Decryptor {
     }
     
 }
+
+extension Message.Decryptor {
+    
+    public static func verifySignature(for message: Message, use publicKey: Ed25519.PublicKey) -> Bool {
+        return c_message_decryptor_verify_signature(message.intoRaw(), publicKey.intoRaw())
+    }
+    
+}
