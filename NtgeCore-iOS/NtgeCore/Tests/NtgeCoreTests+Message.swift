@@ -76,3 +76,76 @@ extension NtgeCoreTests_Message {
     }
     
 }
+
+extension NtgeCoreTests_Message {
+    
+    func testPerformance_encrypt_1MB_10Recipient() throws {
+        let encryptor = self.newEncryptor(recipientCount: 10)
+
+        let lengthInBytes = Measurement(value: 10, unit: UnitInformationStorage.megabytes).converted(to: .bytes).value
+        let plaintext = randomData(ofLength: Int(lengthInBytes))
+        
+        // 1MB to 10 Recipient
+        self.measure {
+            _ = encryptor.encrypt(plaintext: plaintext)
+        }
+    }
+    
+    func testPerformance_encrypt_100MB_10Recipient() throws {
+        let encryptor = self.newEncryptor(recipientCount: 10)
+        
+        let lengthInBytes = Measurement(value: 100, unit: UnitInformationStorage.megabytes).converted(to: .bytes).value
+        let plaintext = randomData(ofLength: Int(lengthInBytes))
+        
+        // 1MB to 10 Recipient
+        self.measure {
+            _ = encryptor.encrypt(plaintext: plaintext)
+        }
+    }
+    
+    func testPerformance_encrypt_1000MB_10Recipient() throws {
+        let encryptor = self.newEncryptor(recipientCount: 10)
+        
+        let lengthInBytes = Measurement(value: 1000, unit: UnitInformationStorage.megabytes).converted(to: .bytes).value
+        let plaintext = randomData(ofLength: Int(lengthInBytes))
+        
+        // 1MB to 10 Recipient
+        self.measure {
+            _ = encryptor.encrypt(plaintext: plaintext)
+        }
+    }
+    
+    // Compare: https://github.com/str4d/rage/issues/57
+    // ~7.69s
+    func testPerformance_encrypt_2GB_1Recipient() throws {
+        let encryptor = self.newEncryptor(recipientCount: 1)
+        
+        let lengthInBytes = Measurement(value: 2, unit: UnitInformationStorage.gigabytes).converted(to: .bytes).value
+        let plaintext = randomData(ofLength: Int(lengthInBytes))
+        
+        // 1MB to 10 Recipient
+        self.measure {
+            _ = encryptor.encrypt(plaintext: plaintext)
+        }
+    }
+    
+}
+
+extension NtgeCoreTests_Message {
+    
+    private func newEncryptor(recipientCount: Int) -> Message.Encryptor {
+        let recipientKeys = [0..<recipientCount].map { _ in Ed25519.Keypair().publicKey.toX25519() }
+        return Message.Encryptor(publicKeys: recipientKeys)
+    }
+    
+    private func randomData(ofLength length: Int) -> Data {
+        var bytes = [UInt8](repeating: 0, count: length)
+        let status = SecRandomCopyBytes(kSecRandomDefault, length, &bytes)
+        if status == errSecSuccess {
+            return Data(bytes: bytes)
+        }
+        
+        fatalError()
+    }
+    
+}

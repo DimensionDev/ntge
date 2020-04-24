@@ -40,3 +40,27 @@ extension NtgeCoreTests_X25519 {
     }
     
 }
+
+extension NtgeCoreTests_X25519 {
+    
+    func testPerformance_Ed25519_Private_toX25519_x10000() throws {
+        let ed25519 = Ed25519.Keypair().privateKey
+        // x10000
+        self.measure {
+            for _ in 0..<10000 {
+                _ = ed25519.toX25519()
+            }
+        }
+    }
+    
+    func testPerformance_Ed25519_Public_toX25519_x10000() throws {
+        let ed25519 = Ed25519.Keypair().publicKey
+        // x10000
+        self.measure {
+            for _ in 0..<10000 {
+                _ = ed25519.toX25519()
+            }
+        }
+    }
+    
+}
