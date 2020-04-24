@@ -69,7 +69,10 @@ pub(crate) fn write_to_output(arg_matches: &clap::ArgMatches, content: &[u8]) {
             }
         };
         match file.write_all(content) {
-            Ok(_) => {}
+            Ok(_) => {
+                // add trailing line break
+                let _ = file.write_all(b"\n");
+            }
             Err(e) => {
                 eprintln!("error: can not write to file {}\nreason: {}", path, e);
                 std::process::exit(1);
@@ -78,7 +81,10 @@ pub(crate) fn write_to_output(arg_matches: &clap::ArgMatches, content: &[u8]) {
     } else {
         // write to stdout
         match io::stdout().lock().write_all(content) {
-            Ok(_) => {}
+            Ok(_) => {
+                // add trailing line break
+                let _ = io::stdout().lock().write_all(b"\n");
+            }
             Err(e) => {
                 eprintln!("error: can not write to stdout\nreason: {}", e);
                 std::process::exit(1);
