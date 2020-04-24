@@ -80,6 +80,24 @@ fn main() {
                 ),
         )
         .subcommand(
+            App::new("verify")
+                .about("verify message signature")
+                .arg(
+                    Arg::with_name("path")
+                        .short("p")
+                        .long("path")
+                        .takes_value(true)
+                        .help("Sets the input file path"),
+                )
+                .arg(
+                    Arg::with_name("identity")
+                        .short("i")
+                        .long("identity")
+                        .takes_value(true)
+                        .help("public identity key use for verify message signature"),
+                ),
+        )
+        .subcommand(
             App::new("dump")
                 .about("dump infomation for message or key")
                 .arg(
@@ -123,6 +141,19 @@ fn main() {
                 println!("{:?}", result.key);
             }
             util::write_to_output(&arg_matches, &result.content);
+        }
+        ("verify", arg_matches) => {
+            let arg_matches = arg_matches.unwrap();
+            let plaintext = util::read_input_str(&arg_matches);
+            let identities = signature::fetch_verifier(&arg_matches);
+            let result = match signature::verify_message_signature(&plaintext, &identities) {
+                Ok(it) => it,
+                Err(e) => {
+                    eprintln!("{}", e.message);
+                    std::process::exit(1);
+                }
+            };
+            println!("message signature verified by {}", result.name);
         }
         ("dump", arg_matches) => {
             let arg_matches = arg_matches.unwrap();

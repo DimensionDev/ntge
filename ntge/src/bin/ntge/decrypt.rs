@@ -122,7 +122,7 @@ pub(crate) fn decrypt_message(
         it
     } else {
         return Err(DecryptError {
-            message: format!("Can not decript message"),
+            message: format!("Can not read message"),
         });
     };
     let decryptor = Decryptor::new(&message);
