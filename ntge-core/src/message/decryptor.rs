@@ -1,20 +1,18 @@
-use ed25519_dalek::{PublicKey, Signature};
+use ed25519_dalek::Signature;
 use hkdf::Hkdf;
 use secrecy::ExposeSecret;
 use sha2::Sha256;
-use x25519_dalek::StaticSecret;
 
 use crate::{
-    aead,
-    buffer::Buffer,
-    ed25519,
-    ed25519::keypair::Ed25519Keypair,
-    ed25519::private::Ed25519PrivateKey,
+    aead, ed25519,
     ed25519::public::Ed25519PublicKey,
-    message::{self, encryptor::Encryptor, Message},
+    message::{self, encryptor::Encryptor},
     x25519::filekey::FileKey,
     x25519::private::X25519PrivateKey,
 };
+
+#[cfg(target_os = "ios")]
+use crate::{buffer::Buffer, message::Message};
 
 #[derive(Debug)]
 pub struct Decryptor {
@@ -80,7 +78,7 @@ impl Decryptor {
             Err(_) => return false,
         };
 
-        match ed25519::verify(&public_key.raw, &message.payload.ciphertext, &signature) {
+        match ed25519::public::verify(&public_key.raw, &message.payload.ciphertext, &signature) {
             Ok(_) => true,
             Err(_) => false,
         }
@@ -89,16 +87,20 @@ impl Decryptor {
 
 impl Drop for Decryptor {
     fn drop(&mut self) {
-        println!("{:?} is being deallocated", self);
+        if cfg!(feature = "drop-log-enable") {
+            println!("{:?} is being deallocated", self);
+        }
     }
 }
 
 #[no_mangle]
+#[cfg(target_os = "ios")]
 pub unsafe extern "C" fn c_message_decryptor_destroy(decryptor: *mut Decryptor) {
     let _ = Box::from_raw(decryptor);
 }
 
 #[no_mangle]
+#[cfg(target_os = "ios")]
 pub unsafe extern "C" fn c_message_decryptor_new(message: *mut message::Message) -> *mut Decryptor {
     let message = &mut *message;
     let decryptor = Decryptor::new(&message);
@@ -106,6 +108,7 @@ pub unsafe extern "C" fn c_message_decryptor_new(message: *mut message::Message)
 }
 
 #[no_mangle]
+#[cfg(target_os = "ios")]
 pub unsafe extern "C" fn c_message_decryptor_verify_message_mac(
     decryptor: *mut Decryptor,
     file_key: *mut FileKey,
@@ -116,6 +119,7 @@ pub unsafe extern "C" fn c_message_decryptor_verify_message_mac(
 }
 
 #[no_mangle]
+#[cfg(target_os = "ios")]
 pub unsafe extern "C" fn c_message_decryptor_decrypt_file_key(
     decryptor: *mut Decryptor,
     private_key: *mut X25519PrivateKey,
@@ -129,6 +133,7 @@ pub unsafe extern "C" fn c_message_decryptor_decrypt_file_key(
 }
 
 #[no_mangle]
+#[cfg(target_os = "ios")]
 pub unsafe extern "C" fn c_message_decryptor_decrypt_payload(
     decryptor: *mut Decryptor,
     file_key: *mut FileKey,
@@ -154,6 +159,7 @@ pub unsafe extern "C" fn c_message_decryptor_decrypt_payload(
 }
 
 #[no_mangle]
+#[cfg(target_os = "ios")]
 pub unsafe extern "C" fn c_message_decryptor_verify_signature(
     message: *mut Message,
     public_key: *mut Ed25519PublicKey,

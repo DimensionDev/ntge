@@ -3,6 +3,8 @@ use std::io::Write;
 use std::io::{self, Read};
 use std::path::Path;
 
+pub(crate) const DEFAULT_SAVE_PATH: &str = ".ntge";
+
 // read input from stdin or path
 pub(crate) fn read_input_bytes(arg_matches: &clap::ArgMatches) -> Vec<u8> {
     if let Some(path) = arg_matches.value_of("path") {
@@ -28,7 +30,6 @@ pub(crate) fn read_input_bytes(arg_matches: &clap::ArgMatches) -> Vec<u8> {
         }
     }
 }
-
 
 // read input from stdin or path
 pub(crate) fn read_input_str(arg_matches: &clap::ArgMatches) -> String {
@@ -56,8 +57,6 @@ pub(crate) fn read_input_str(arg_matches: &clap::ArgMatches) -> String {
     }
 }
 
-
-
 pub(crate) fn write_to_output(arg_matches: &clap::ArgMatches, content: &[u8]) {
     if let Some(path) = arg_matches.value_of("output") {
         // write to file
@@ -70,7 +69,10 @@ pub(crate) fn write_to_output(arg_matches: &clap::ArgMatches, content: &[u8]) {
             }
         };
         match file.write_all(content) {
-            Ok(_) => {}
+            Ok(_) => {
+                // add trailing line break
+                let _ = file.write_all(b"\n");
+            }
             Err(e) => {
                 eprintln!("error: can not write to file {}\nreason: {}", path, e);
                 std::process::exit(1);
@@ -79,7 +81,10 @@ pub(crate) fn write_to_output(arg_matches: &clap::ArgMatches, content: &[u8]) {
     } else {
         // write to stdout
         match io::stdout().lock().write_all(content) {
-            Ok(_) => {}
+            Ok(_) => {
+                // add trailing line break
+                let _ = io::stdout().lock().write_all(b"\n");
+            }
             Err(e) => {
                 eprintln!("error: can not write to stdout\nreason: {}", e);
                 std::process::exit(1);

@@ -1,16 +1,16 @@
 use clap::values_t;
-use ntge_core::ed25519;
+use ntge_core::ed25519::{public::Ed25519PublicKey};
 use std::fs;
 use std::path::{Path, PathBuf};
 
-const DEFAULT_SAVE_PATH: &str = ".ntge";
+use crate::util::DEFAULT_SAVE_PATH;
 
 #[derive(Debug, Clone)]
 pub(crate) struct Recipient {
     pub(crate) path: PathBuf,
     pub(crate) name: String,
     pub(crate) key_content: String,
-    pub(crate) key: ed25519::PublicKey,
+    pub(crate) key: Ed25519PublicKey,
 }
 
 pub(crate) fn fetch_recipient(arg_matches: &clap::ArgMatches) -> Vec<Recipient> {
@@ -33,7 +33,7 @@ pub(crate) fn fetch_recipient(arg_matches: &clap::ArgMatches) -> Vec<Recipient> 
                     std::process::exit(1);
                 }
             };
-            let key = match ed25519::deserialize_public_key(key_content.trim()) {
+            let key = match Ed25519PublicKey::deserialize(key_content.trim()) {
                 Ok(key) => key,
                 Err(e) => {
                     eprintln!("error: can not parse recipient {}.\nreason: {}", name, e);
@@ -53,7 +53,7 @@ pub(crate) fn fetch_recipient(arg_matches: &clap::ArgMatches) -> Vec<Recipient> 
     recipients
 }
 
-fn load_local_recipients() -> Vec<Recipient> {
+pub(crate) fn load_local_recipients() -> Vec<Recipient> {
     // find HOME
     let home = match dirs::home_dir() {
         Some(dir) => dir,
@@ -101,7 +101,7 @@ fn load_local_recipients() -> Vec<Recipient> {
             Ok(content) => content,
             Err(_) => continue,
         };
-        let key = match ed25519::deserialize_public_key(key_content.trim()) {
+        let key = match Ed25519PublicKey::deserialize(key_content.trim()) {
             Ok(key) => key,
             Err(_) => continue,
         };

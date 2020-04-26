@@ -8,6 +8,7 @@ exclude = ["./include/*"]
 
 [features]
 cbindgen-enable = []
+drop-log-enable = []
 
 [lib]
 crate-type = ["lib", "staticlib", "cdylib"]

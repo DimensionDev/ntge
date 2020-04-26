@@ -7,13 +7,13 @@ use bson;
 use serde::{Deserialize, Serialize};
 use serde_bytes;
 
+#[cfg(target_os = "ios")]
 use crate::strings;
+
+#[cfg(target_os = "ios")]
 use std::os::raw::c_char;
 
-use crate::{
-    error::CoreError, message::recipient::MessageRecipientHeader,
-    x25519::private::X25519PrivateKey, x25519::public::X25519PublicKey,
-};
+use crate::{error::CoreError, message::recipient::MessageRecipientHeader};
 
 pub(crate) const MAC_KEY_LABEL: &[u8] = b"ntge-message-mac-key";
 pub(crate) const PAYLOAD_KEY_LABEL: &[u8] = b"ntge-message-payload";
@@ -139,7 +139,6 @@ impl Message {
         }
     }
 
-    #[allow(ptr_arg)]
     fn deserialize_from_bson_bytes(bytes: &Vec<u8>) -> Result<Message, CoreError> {
         let document = match bson::decode_document(&mut std::io::Cursor::new(&bytes[..])) {
             Ok(document) => document,
@@ -162,16 +161,20 @@ impl Message {
 
 impl Drop for Message {
     fn drop(&mut self) {
-        println!("{:?} is being deallocated", self);
+        if cfg!(feature = "drop-log-enable") {
+            println!("{:?} is being deallocated", self);
+        }
     }
 }
 
 #[no_mangle]
+#[cfg(target_os = "ios")]
 pub unsafe extern "C" fn c_message_destory(message: *mut Message) {
     let _ = Box::from_raw(message);
 }
 
 #[no_mangle]
+#[cfg(target_os = "ios")]
 pub unsafe extern "C" fn c_message_serialize_to_armor(
     message: *mut Message,
     armor: *mut *mut c_char,

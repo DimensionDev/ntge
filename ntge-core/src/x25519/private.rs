@@ -1,4 +1,3 @@
-use ed25519_dalek;
 use std::fmt;
 
 use crate::{ed25519::private::Ed25519PrivateKey, key_utils};
@@ -31,11 +30,14 @@ impl From<&Ed25519PrivateKey> for X25519PrivateKey {
 
 impl Drop for X25519PrivateKey {
     fn drop(&mut self) {
-        println!("The X25519PrivateKey is being deallocated");
+        if cfg!(feature = "drop-log-enable") {
+            println!("The X25519PrivateKey is being deallocated");
+        }
     }
 }
 
 #[no_mangle]
+#[cfg(target_os = "ios")]
 pub extern "C" fn c_x25519_private_key_destroy(private_key: &mut X25519PrivateKey) {
     let _ = unsafe { Box::from_raw(private_key) };
 }

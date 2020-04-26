@@ -6,7 +6,7 @@ use rand::rngs::OsRng;
 use rand::RngCore;
 use secrecy::{ExposeSecret, Secret};
 use sha2::Sha256;
-use x25519_dalek::{EphemeralSecret, PublicKey, StaticSecret};
+use x25519_dalek::{EphemeralSecret, PublicKey};
 
 use crate::{
     aead, error::CoreError, message::recipient::MessageRecipientHeader,
@@ -103,63 +103,78 @@ impl FileKey {
 
 impl Drop for FileKey {
     fn drop(&mut self) {
-        println!("{:?} is being deallocated", self);
+        if cfg!(feature = "drop-log-enable") {
+            println!("{:?} is being deallocated", self);
+        }
     }
 }
 
 #[no_mangle]
+#[cfg(target_os = "ios")]
 pub unsafe extern "C" fn c_x25519_file_key_destroy(file_key: *mut FileKey) {
     let _ = Box::from_raw(file_key);
 }
 
-#[test]
-fn it_smoke() {
-    let mut alice_csprng = OsRng {};
-    let alice_private = EphemeralSecret::new(&mut alice_csprng);
-    let _alice_public = PublicKey::from(&alice_private);
-
-    let mut bob_csprng = OsRng {};
-    let bob_secret = EphemeralSecret::new(&mut bob_csprng);
-    let _bob_public = PublicKey::from(&bob_secret);
-}
-
-#[test]
-fn it_use_aead_encrypt_and_decrypt() {
-    // create ChaCha20 key
-    let mut csprng = OsRng {};
-    let mut key = [0; 32];
-    csprng.fill_bytes(&mut key);
-
-    let plaintext = "Plaintext";
-    // aead encrypt plaintext
-    let ciphertext = aead::aead_encrypt(&key, &plaintext.as_bytes());
-    // aead decrypt ciphertext
-    let decrypted_vec = aead::aead_decrypt(&key, &ciphertext).unwrap();
-    // expect decrypted text same to original plaintext
-    let plaintext_vec = plaintext.as_bytes().to_vec();
-    assert_eq!(plaintext_vec, decrypted_vec);
-}
-
-#[test]
-fn it_wrap_then_unwrap_a_file_key() {
-    // file_key for recipient
-    let file_key = FileKey::new();
-    // alice
-    let mut alice_csprng = OsRng {};
-    let alice_secret_key = X25519PrivateKey {
-        raw: StaticSecret::new(&mut alice_csprng),
+#[cfg(test)]
+mod test {
+    use crate::{
+        aead, x25519::filekey::FileKey, x25519::private::X25519PrivateKey,
+        x25519::public::X25519PublicKey,
     };
-    let alice_public_key = X25519PublicKey {
-        raw: PublicKey::from(&alice_secret_key.raw),
-    };
-    // wrap file key
-    let message_recipient_for_alice = file_key.wrap(&alice_public_key);
-    // unwrap it
-    let decrypted_file_key =
-        FileKey::unwrap(&message_recipient_for_alice, &alice_secret_key).unwrap();
-    // expect same file key after unwrap
-    assert_eq!(
-        file_key.0.expose_secret(),
-        decrypted_file_key.0.expose_secret()
-    );
+    use rand::rngs::OsRng;
+    use rand::RngCore;
+    use secrecy::ExposeSecret;
+    use x25519_dalek::{EphemeralSecret, PublicKey, StaticSecret};
+
+    #[test]
+    fn it_smoke() {
+        let mut alice_csprng = OsRng {};
+        let alice_private = EphemeralSecret::new(&mut alice_csprng);
+        let _alice_public = PublicKey::from(&alice_private);
+
+        let mut bob_csprng = OsRng {};
+        let bob_secret = EphemeralSecret::new(&mut bob_csprng);
+        let _bob_public = PublicKey::from(&bob_secret);
+    }
+
+    #[test]
+    fn it_use_aead_encrypt_and_decrypt() {
+        // create ChaCha20 key
+        let mut csprng = OsRng {};
+        let mut key = [0; 32];
+        csprng.fill_bytes(&mut key);
+
+        let plaintext = "Plaintext";
+        // aead encrypt plaintext
+        let ciphertext = aead::aead_encrypt(&key, &plaintext.as_bytes());
+        // aead decrypt ciphertext
+        let decrypted_vec = aead::aead_decrypt(&key, &ciphertext).unwrap();
+        // expect decrypted text same to original plaintext
+        let plaintext_vec = plaintext.as_bytes().to_vec();
+        assert_eq!(plaintext_vec, decrypted_vec);
+    }
+
+    #[test]
+    fn it_wrap_then_unwrap_a_file_key() {
+        // file_key for recipient
+        let file_key = FileKey::new();
+        // alice
+        let mut alice_csprng = OsRng {};
+        let alice_secret_key = X25519PrivateKey {
+            raw: StaticSecret::new(&mut alice_csprng),
+        };
+        let alice_public_key = X25519PublicKey {
+            raw: PublicKey::from(&alice_secret_key.raw),
+        };
+        // wrap file key
+        let message_recipient_for_alice = file_key.wrap(&alice_public_key);
+        // unwrap it
+        let decrypted_file_key =
+            FileKey::unwrap(&message_recipient_for_alice, &alice_secret_key).unwrap();
+        // expect same file key after unwrap
+        assert_eq!(
+            file_key.0.expose_secret(),
+            decrypted_file_key.0.expose_secret()
+        );
+    }
 }

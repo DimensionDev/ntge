@@ -8,15 +8,16 @@ use secrecy::ExposeSecret;
 use serde::{Deserialize, Serialize};
 use serde_bytes;
 use sha2::Sha256;
-use x25519_dalek;
 
 use crate::{
-    aead, arrays,
-    buffer::Buffer,
+    aead,
     ed25519::{self, private::Ed25519PrivateKey},
     message,
     x25519::{filekey::FileKey, public::X25519PublicKey},
 };
+
+#[cfg(target_os = "ios")]
+use crate::{arrays, buffer::Buffer};
 
 #[derive(Debug)]
 pub struct Encryptor {
@@ -127,30 +128,35 @@ impl Encryptor {
 
 impl Drop for Encryptor {
     fn drop(&mut self) {
-        println!("{:?} is being deallocated", self);
+        if cfg!(feature = "drop-log-enable") {
+            println!("{:?} is being deallocated", self);
+        }
     }
 }
 
 impl Encryptor {
     pub(super) fn sign(private_key: &ed25519_dalek::SecretKey, message: &[u8]) -> [u8; 64] {
-        let signature: ed25519_dalek::Signature = ed25519::sign(private_key, message);
+        let signature: ed25519_dalek::Signature = ed25519::private::sign(private_key, message);
 
         signature.to_bytes()
     }
 }
 
 #[no_mangle]
+#[cfg(target_os = "ios")]
 pub extern "C" fn c_array_new_for_x25519_public_key() -> *mut Vec<X25519PublicKey> {
     let array: Vec<X25519PublicKey> = arrays::new_array();
     Box::into_raw(Box::new(array))
 }
 
 #[no_mangle]
+#[cfg(target_os = "ios")]
 pub unsafe extern "C" fn c_array_destroy_x25519_public_key(public_keys: *mut Vec<X25519PublicKey>) {
     let _ = Box::from_raw(public_keys);
 }
 
 #[no_mangle]
+#[cfg(target_os = "ios")]
 pub unsafe extern "C" fn c_array_push_x25519_public_key(
     array: *mut Vec<X25519PublicKey>,
     element: *mut X25519PublicKey,
@@ -161,6 +167,7 @@ pub unsafe extern "C" fn c_array_push_x25519_public_key(
 }
 
 #[no_mangle]
+#[cfg(target_os = "ios")]
 pub unsafe extern "C" fn c_message_encryptor_new(
     x25519_public_keys: *mut Vec<X25519PublicKey>,
 ) -> *mut Encryptor {
@@ -170,11 +177,13 @@ pub unsafe extern "C" fn c_message_encryptor_new(
 }
 
 #[no_mangle]
+#[cfg(target_os = "ios")]
 pub unsafe extern "C" fn c_message_encryptor_destroy(encryptor: *mut Encryptor) {
     let _ = Box::from_raw(encryptor);
 }
 
 #[no_mangle]
+#[cfg(target_os = "ios")]
 pub unsafe extern "C" fn c_message_encryptor_encrypt_plaintext(
     encryptor: *mut Encryptor,
     plaintext_buffer: Buffer,
