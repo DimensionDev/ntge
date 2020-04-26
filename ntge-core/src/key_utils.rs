@@ -1,4 +1,3 @@
-pub use crate::ed25519::*;
 use curve25519_dalek::edwards::{CompressedEdwardsY, EdwardsPoint};
 use ed25519_dalek::Keypair;
 use ed25519_dalek::{ExpandedSecretKey, Signature};
@@ -6,7 +5,8 @@ use ed25519_dalek::{PublicKey, SecretKey};
 use sha2::{Digest, Sha512};
 use x25519_dalek::StaticSecret;
 
-use super::error;
+use crate::{ed25519::*, error};
+
 pub const CURVE_NAME_ED25519: &str = "Ed25519";
 
 #[cfg(target_os = "ios")]
