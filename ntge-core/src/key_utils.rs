@@ -7,12 +7,13 @@ use sha2::{Digest, Sha512};
 use x25519_dalek::StaticSecret;
 
 use super::error;
+pub const CURVE_NAME_ED25519: &str = "Ed25519";
+
+#[cfg(target_os = "ios")]
 use crate::{
     ed25519::private::Ed25519PrivateKey, ed25519::public::Ed25519PublicKey,
     x25519::private::X25519PrivateKey, x25519::public::X25519PublicKey,
 };
-
-pub const CURVE_NAME_ED25519: &str = "Ed25519";
 
 pub fn keypair_validation(
     private_key: &SecretKey,
@@ -68,6 +69,7 @@ pub fn ed25519_private_key_to_x25519(private_key: &SecretKey) -> StaticSecret {
 }
 
 #[no_mangle]
+#[cfg(target_os = "ios")]
 pub unsafe extern "C" fn c_key_utils_ed25519_public_key_to_x25519(
     public_key: *mut Ed25519PublicKey,
 ) -> *mut X25519PublicKey {
@@ -79,6 +81,7 @@ pub unsafe extern "C" fn c_key_utils_ed25519_public_key_to_x25519(
 }
 
 #[no_mangle]
+#[cfg(target_os = "ios")]
 pub unsafe extern "C" fn c_key_utils_ed25519_private_key_to_x25519(
     private_key: *mut Ed25519PrivateKey,
 ) -> *mut X25519PrivateKey {

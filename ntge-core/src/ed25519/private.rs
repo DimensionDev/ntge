@@ -3,7 +3,10 @@ use ed25519_dalek::{self, PublicKey, SecretKey};
 use ed25519_dalek::{ExpandedSecretKey, Signature};
 use rand::rngs::OsRng;
 
+#[cfg(target_os = "ios")]
 use crate::strings;
+
+#[cfg(target_os = "ios")]
 use std::os::raw::c_char;
 
 use crate::{
@@ -216,17 +219,20 @@ pub fn sign(private_key: &SecretKey, message: &[u8]) -> Signature {
 }
 
 #[no_mangle]
+#[cfg(target_os = "ios")]
 pub extern "C" fn c_ed25519_private_key_new() -> *mut Ed25519PrivateKey {
     let private_key = Ed25519PrivateKey::new();
     Box::into_raw(Box::new(private_key))
 }
 
 #[no_mangle]
+#[cfg(target_os = "ios")]
 pub extern "C" fn c_ed25519_private_key_destroy(private_key: &mut Ed25519PrivateKey) {
     let _ = unsafe { Box::from_raw(private_key) };
 }
 
 #[no_mangle]
+#[cfg(target_os = "ios")]
 pub unsafe extern "C" fn c_ed25519_private_key_get_public_key(
     private_key: *mut Ed25519PrivateKey,
 ) -> *mut Ed25519PublicKey {
@@ -236,6 +242,7 @@ pub unsafe extern "C" fn c_ed25519_private_key_get_public_key(
 }
 
 #[no_mangle]
+#[cfg(target_os = "ios")]
 pub unsafe extern "C" fn c_ed25519_private_key_serialize(
     private_key: *mut Ed25519PrivateKey,
 ) -> *mut c_char {
@@ -244,6 +251,7 @@ pub unsafe extern "C" fn c_ed25519_private_key_serialize(
 }
 
 #[no_mangle]
+#[cfg(target_os = "ios")]
 pub unsafe extern "C" fn c_ed25519_private_key_deserialize(
     encoded: *const c_char,
 ) -> *mut Ed25519PrivateKey {

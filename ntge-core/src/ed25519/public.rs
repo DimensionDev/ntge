@@ -2,10 +2,13 @@ use bech32::{self, FromBase32, ToBase32};
 use ed25519_dalek::Signature;
 use ed25519_dalek::{self, PublicKey};
 
-use crate::strings;
-use std::os::raw::c_char;
-
 use super::{error, private::Ed25519PrivateKey, CURVE_NAME_ED25519};
+
+#[cfg(target_os = "ios")]
+use crate::strings;
+
+#[cfg(target_os = "ios")]
+use std::os::raw::c_char;
 
 #[derive(Debug)]
 pub struct Ed25519PublicKey {
@@ -212,11 +215,13 @@ pub fn verify(
 }
 
 #[no_mangle]
+#[cfg(target_os = "ios")]
 pub extern "C" fn c_ed25519_public_key_destroy(public_key: &mut Ed25519PublicKey) {
     let _ = unsafe { Box::from_raw(public_key) };
 }
 
 #[no_mangle]
+#[cfg(target_os = "ios")]
 pub unsafe extern "C" fn c_ed25519_public_key_serialize(
     public_key: *mut Ed25519PublicKey,
 ) -> *mut c_char {
@@ -225,6 +230,7 @@ pub unsafe extern "C" fn c_ed25519_public_key_serialize(
 }
 
 #[no_mangle]
+#[cfg(target_os = "ios")]
 pub unsafe extern "C" fn c_ed25519_public_key_deserialize(
     encoded: *const c_char,
 ) -> *mut Ed25519PublicKey {

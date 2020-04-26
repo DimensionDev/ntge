@@ -110,6 +110,7 @@ impl Drop for FileKey {
 }
 
 #[no_mangle]
+#[cfg(target_os = "ios")]
 pub unsafe extern "C" fn c_x25519_file_key_destroy(file_key: *mut FileKey) {
     let _ = Box::from_raw(file_key);
 }

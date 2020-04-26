@@ -25,6 +25,7 @@ pub fn string_to_c_char(r_string: String) -> *mut c_char {
 }
 
 #[no_mangle]
+#[cfg(target_os = "ios")]
 pub unsafe extern "C" fn c_strings_destroy_c_char(cchar: *mut *mut c_char) {
     CString::from_raw(*cchar);
 }

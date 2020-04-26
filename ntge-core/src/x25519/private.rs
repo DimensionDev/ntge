@@ -37,6 +37,7 @@ impl Drop for X25519PrivateKey {
 }
 
 #[no_mangle]
+#[cfg(target_os = "ios")]
 pub extern "C" fn c_x25519_private_key_destroy(private_key: &mut X25519PrivateKey) {
     let _ = unsafe { Box::from_raw(private_key) };
 }

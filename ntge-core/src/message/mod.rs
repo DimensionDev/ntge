@@ -7,7 +7,10 @@ use bson;
 use serde::{Deserialize, Serialize};
 use serde_bytes;
 
+#[cfg(target_os = "ios")]
 use crate::strings;
+
+#[cfg(target_os = "ios")]
 use std::os::raw::c_char;
 
 use crate::{error::CoreError, message::recipient::MessageRecipientHeader};
@@ -136,7 +139,6 @@ impl Message {
         }
     }
 
-    #[allow(ptr_arg)]
     fn deserialize_from_bson_bytes(bytes: &Vec<u8>) -> Result<Message, CoreError> {
         let document = match bson::decode_document(&mut std::io::Cursor::new(&bytes[..])) {
             Ok(document) => document,
@@ -166,11 +168,13 @@ impl Drop for Message {
 }
 
 #[no_mangle]
+#[cfg(target_os = "ios")]
 pub unsafe extern "C" fn c_message_destory(message: *mut Message) {
     let _ = Box::from_raw(message);
 }
 
 #[no_mangle]
+#[cfg(target_os = "ios")]
 pub unsafe extern "C" fn c_message_serialize_to_armor(
     message: *mut Message,
     armor: *mut *mut c_char,

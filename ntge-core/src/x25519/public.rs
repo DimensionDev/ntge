@@ -32,6 +32,7 @@ impl From<&Ed25519PublicKey> for X25519PublicKey {
 }
 
 #[no_mangle]
+#[cfg(target_os = "ios")]
 pub extern "C" fn c_x25519_public_key_destroy(public_key: &mut X25519PublicKey) {
     let _ = unsafe { Box::from_raw(public_key) };
 }

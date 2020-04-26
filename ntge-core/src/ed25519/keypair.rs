@@ -64,17 +64,20 @@ pub fn construct_from_secret_key(private_key: &SecretKey) -> Keypair {
 }
 
 #[no_mangle]
+#[cfg(target_os = "ios")]
 pub extern "C" fn c_ed25519_keypair_new() -> *mut Ed25519Keypair {
     let keypair = Ed25519Keypair::new();
     Box::into_raw(Box::new(keypair))
 }
 
 #[no_mangle]
+#[cfg(target_os = "ios")]
 pub unsafe extern "C" fn c_ed25519_keypair_destroy(keypair: *mut Ed25519Keypair) {
     let _ = Box::from_raw(keypair);
 }
 
 #[no_mangle]
+#[cfg(target_os = "ios")]
 pub unsafe extern "C" fn c_ed25519_keypair_get_private_key(
     keypair: *mut Ed25519Keypair,
 ) -> *mut Ed25519PrivateKey {
@@ -84,6 +87,7 @@ pub unsafe extern "C" fn c_ed25519_keypair_get_private_key(
 }
 
 #[no_mangle]
+#[cfg(target_os = "ios")]
 pub unsafe extern "C" fn c_ed25519_keypair_get_public_key(
     keypair: *mut Ed25519Keypair,
 ) -> *mut Ed25519PublicKey {
@@ -93,6 +97,7 @@ pub unsafe extern "C" fn c_ed25519_keypair_get_public_key(
 }
 
 #[no_mangle]
+#[cfg(target_os = "ios")]
 pub extern "C" fn c_ed25519_keypair_construct_from_private_key(
     private_key: &Ed25519PrivateKey,
 ) -> *mut Ed25519Keypair {
