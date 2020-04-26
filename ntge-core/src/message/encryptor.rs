@@ -8,7 +8,6 @@ use secrecy::ExposeSecret;
 use serde::{Deserialize, Serialize};
 use serde_bytes;
 use sha2::Sha256;
-use x25519_dalek;
 
 use crate::{
     aead, arrays,
@@ -135,7 +134,7 @@ impl Drop for Encryptor {
 
 impl Encryptor {
     pub(super) fn sign(private_key: &ed25519_dalek::SecretKey, message: &[u8]) -> [u8; 64] {
-        let signature: ed25519_dalek::Signature = ed25519::sign(private_key, message);
+        let signature: ed25519_dalek::Signature = ed25519::private::sign(private_key, message);
 
         signature.to_bytes()
     }

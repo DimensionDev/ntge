@@ -1,15 +1,12 @@
-use ed25519_dalek::{PublicKey, Signature};
+use ed25519_dalek::Signature;
 use hkdf::Hkdf;
 use secrecy::ExposeSecret;
 use sha2::Sha256;
-use x25519_dalek::StaticSecret;
 
 use crate::{
     aead,
     buffer::Buffer,
     ed25519,
-    ed25519::keypair::Ed25519Keypair,
-    ed25519::private::Ed25519PrivateKey,
     ed25519::public::Ed25519PublicKey,
     message::{self, encryptor::Encryptor, Message},
     x25519::filekey::FileKey,
@@ -80,7 +77,7 @@ impl Decryptor {
             Err(_) => return false,
         };
 
-        match ed25519::verify(&public_key.raw, &message.payload.ciphertext, &signature) {
+        match ed25519::public::verify(&public_key.raw, &message.payload.ciphertext, &signature) {
             Ok(_) => true,
             Err(_) => false,
         }

@@ -1,6 +1,6 @@
 use crate::decrypt::error::DecryptError;
-use ntge_core::ed25519::deserialize_private_key;
-use ntge_core::ed25519::SecretKey;
+use ntge_core::ed25519::private::deserialize_private_key;
+
 use ntge_core::key_utils::ed25519_private_key_to_x25519;
 use ntge_core::message::{decryptor::Decryptor, Message};
 use ntge_core::x25519::private::X25519PrivateKey;

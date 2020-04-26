@@ -1,10 +1,5 @@
 use clap::value_t;
-use ntge_core::{
-    ed25519::public::Ed25519PublicKey,
-    key_utils,
-    message::{decryptor::Decryptor, encryptor::Encryptor, Message},
-    x25519::public::X25519PublicKey,
-};
+use ntge_core::message::{decryptor::Decryptor, Message};
 
 pub(crate) mod error;
 pub(crate) mod identity;

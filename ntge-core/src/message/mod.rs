@@ -10,10 +10,7 @@ use serde_bytes;
 use crate::strings;
 use std::os::raw::c_char;
 
-use crate::{
-    error::CoreError, message::recipient::MessageRecipientHeader,
-    x25519::private::X25519PrivateKey, x25519::public::X25519PublicKey,
-};
+use crate::{error::CoreError, message::recipient::MessageRecipientHeader};
 
 pub(crate) const MAC_KEY_LABEL: &[u8] = b"ntge-message-mac-key";
 pub(crate) const PAYLOAD_KEY_LABEL: &[u8] = b"ntge-message-payload";

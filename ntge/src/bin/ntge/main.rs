@@ -167,9 +167,9 @@ fn main() {
             };
             if let Ok(message) = message::Message::deserialize_from_armor(&input_text) {
                 println!("{:?}", message);
-            } else if let Ok(public_key) = ed25519::deserialize_public_key(&input_text) {
+            } else if let Ok(public_key) = ed25519::public::deserialize_public_key(&input_text) {
                 println!("{:#?}", public_key);
-            } else if let Ok(private_key) = ed25519::deserialize_private_key(&input_text) {
+            } else if let Ok(private_key) = ed25519::private::deserialize_private_key(&input_text) {
                 println!("{:#?}", private_key);
             }
         }

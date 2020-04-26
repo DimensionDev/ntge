@@ -1,11 +1,10 @@
 use clap::value_t;
-use ntge_core::ed25519;
+
 use ntge_core::ed25519::{private::Ed25519PrivateKey, public::Ed25519PublicKey};
 use std::fs;
 use std::path::{Path, PathBuf};
 
 use crate::{
-    encrypt::recipient::{self, Recipient},
     util::DEFAULT_SAVE_PATH,
 };
 

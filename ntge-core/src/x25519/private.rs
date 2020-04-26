@@ -1,4 +1,3 @@
-use ed25519_dalek;
 use std::fmt;
 
 use crate::{ed25519::private::Ed25519PrivateKey, key_utils};

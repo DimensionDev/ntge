@@ -1,5 +1,5 @@
 use clap::values_t;
-use ntge_core::ed25519::{self, public::Ed25519PublicKey};
+use ntge_core::ed25519::{public::Ed25519PublicKey};
 use std::fs;
 use std::path::{Path, PathBuf};
 
