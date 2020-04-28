@@ -3,6 +3,7 @@ package com.dimension.ntge
 
 internal object Ntge {
     init {
-        System.loadLibrary("ntge_core")
+        System.loadLibrary("ntgedroid")
     }
+    external fun greeting(pattern: String): String
 }

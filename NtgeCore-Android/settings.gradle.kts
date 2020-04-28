@@ -1,3 +1,4 @@
+rootProject.name = "ntge-android" 
 pluginManagement {
     repositories {
         gradlePluginPortal()
