@@ -9,7 +9,7 @@ license = "MIT"
 homepage = "https://dimension.im"
 description = "A cryptography tool that supports file encryption, decryption, signing and verifying."
 repository = "https://github.com/DimensionDev/ntge"
-readme = "README"
+readme = "README.md"
 
 [features]
 cbindgen-enable = []
