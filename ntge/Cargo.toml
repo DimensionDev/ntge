@@ -8,11 +8,12 @@ homepage = "https://dimension.im"
 description = "A cryptography CLI tool that supports file encryption, decryption, signing and verifying."
 repository = "https://github.com/DimensionDev/ntge"
 readme = "README.md"
+keywords = ["ntge", "encryption", "cryptography"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-ntge-core = { path = "../ntge-core" }
+ntge-core = { version = "0.1.0", path = "../ntge-core" }
 dirs = "2.0.2"
 log = "0.4.8"
 clap = "~2.33.0"
