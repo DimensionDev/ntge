@@ -12,7 +12,5 @@ import org.junit.runner.RunWith
 class ExampleInstrumentedTest {
     @Test
     fun useAppContext() {
-        val result = Ntge.greeting("haha!")
-        assert(result.isNullOrEmpty())
     }
 }
