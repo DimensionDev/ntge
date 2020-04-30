@@ -23,7 +23,7 @@ fn main() {
     }
 
     let mut cmd2 = Command::new("cargo");
-    let output = match cmd2
+    let _output = match cmd2
         .args(&["run", "--bin", "ntge"])
         .arg("decrypt")
         .args(&["-i", "example_key"])
