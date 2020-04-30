@@ -5,6 +5,11 @@ authors = ["Yisi Liu <yisiliu@gmail.com>", "CMK <cirno.mainasuk@gmail.com>", "Tl
 edition = "2018"
 build = "build.rs"
 exclude = ["./include/*"]
+license = "MIT"
+homepage = "https://dimension.im"
+description = "A cryptography tool that supports file encryption, decryption, signing and verifying."
+repository = "https://github.com/DimensionDev/ntge"
+readme = "README"
 
 [features]
 cbindgen-enable = []
