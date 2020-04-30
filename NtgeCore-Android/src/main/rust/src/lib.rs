@@ -223,6 +223,30 @@ pub mod android {
     }
 
     #[no_mangle]
+    pub unsafe extern "system" fn Java_com_dimension_ntge_Ntge_deserializeMessage(
+        _env: JNIEnv,
+        _class: JClass,
+        message: JString,
+    ) -> *mut Message {
+        let message: String = _env
+            .get_string(message)
+            .expect("Couldn't get java string!")
+            .into();
+        match Message::deserialize_from_armor(&message) {
+            Ok(it) => {
+                Box::into_raw(Box::new(it))
+            }
+            Err(_) => {
+                let _ = _env.throw_new(
+                    "com/dimension/ntge/NtgeException",
+                    "Can not deserialize message",
+                );
+                unreachable!();
+            }
+        }
+    }
+
+    #[no_mangle]
     pub unsafe extern "system" fn Java_com_dimension_ntge_Ntge_destroyMessageDecryptor(
         _env: JNIEnv,
         _class: JClass,

@@ -1,10 +1,5 @@
 package com.dimension.ntge
 
-import android.annotation.TargetApi
-import android.os.Build
-import java.lang.Exception
-
-
 internal object Ntge {
     init {
         System.loadLibrary("ntgedroid")
@@ -27,6 +22,7 @@ internal object Ntge {
     external fun destroyX25519FileKey(ptr: Long)
     external fun destroyMessage(ptr: Long)
     external fun serializeMessage(ptr: Long): String
+    external fun deserializeMessage(input: String): Long
     external fun destroyMessageDecryptor(ptr: Long)
     external fun newMessageDecryptor(message_ptr: Long): Long
     external fun messageDecryptorVerifyMessageMac(decryptor_ptr: Long, file_key_ptr: Long): Boolean
@@ -43,11 +39,3 @@ internal object Ntge {
     external fun encryptPlaintext(encryptor_ptr: Long, input: ByteArray, signature_key_ptr: Long): Long
 }
 
-class NtgeException : Exception {
-    constructor() : super()
-    constructor(message: String?) : super(message)
-    constructor(message: String?, cause: Throwable?) : super(message, cause)
-    constructor(cause: Throwable?) : super(cause)
-    @TargetApi(Build.VERSION_CODES.N)
-    constructor(message: String?, cause: Throwable?, enableSuppression: Boolean, writableStackTrace: Boolean) : super(message, cause, enableSuppression, writableStackTrace)
-}
