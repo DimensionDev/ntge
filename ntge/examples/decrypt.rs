@@ -33,9 +33,4 @@ fn main() {
         Err(_) => panic!("couldn't spawn"),
         Ok(output) => output,
     };
-
-    match output.stdin.unwrap().write_all(TESTSTRING.as_bytes()) {
-        Err(_) => panic!("couldn't write to stdin"),
-        Ok(_) => (),
-    }
 }
