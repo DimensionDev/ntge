@@ -5,6 +5,7 @@ Design doc: [Google Doc](https://docs.google.com/document/d/1rI3G_YtyeDMQmRI4D7o
 Not That Good Encryption is a general-purpose rust-based encryption tool. Our main goal is to learn rust in a project-based way for a real on-hand practice for the team. We are also willing to integrate this tool/lib to our new encryption input method mobile app. If our implementation works well enough, we will definitely give it a try.
 
 ## Get Started
+```bash
 $ cargo build
 Build the project first
 
@@ -22,6 +23,7 @@ It encrypts the message `Decrypt Succeeds! Welcome to use NTGE!` to `example_key
 
 $ cargo run --example verify
 It encrypts the message `Decrypt Succeeds! Welcome to use NTGE!` to `example_key`, verify the signature in the payload with `example_key.pub` and prints `message signature verified by example_key` on the terminal.
+```
 
 ## Setup
 ```bash
