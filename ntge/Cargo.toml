@@ -3,6 +3,11 @@ name = "ntge"
 version = "0.1.0"
 authors = ["Yisi Liu <yisiliu@gmail.com>", "CMK <cirno.mainasuk@gmail.com>", "Tlaster <tlaster@outlook.com>", "Brad Gao <ugling88@hotmail.com>"]
 edition = "2018"
+license = "MIT"
+homepage = "https://dimension.im"
+description = "A cryptography CLI tool that supports file encryption, decryption, signing and verifying."
+repository = "https://github.com/DimensionDev/ntge"
+readme = "README.md"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
