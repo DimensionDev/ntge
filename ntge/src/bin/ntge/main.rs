@@ -128,19 +128,16 @@ fn main() {
         }
         ("decrypt", arg_matches) => {
             let arg_matches = arg_matches.unwrap();
-            let plaintext = util::read_input_str(&arg_matches);
-            let result =
-                match decrypt::decrypt_message(&plaintext, arg_matches.value_of("identity")) {
-                    Ok(it) => it,
-                    Err(e) => {
-                        eprintln!("{}", e.message);
-                        std::process::exit(1);
-                    }
-                };
-            if arg_matches.is_present("verbose") && arg_matches.is_present("output") {
-                println!("{:?}", result.key);
-            }
-            util::write_to_output(&arg_matches, &result.content);
+            let ciphertext = util::read_input_str(&arg_matches);
+            let identities = decrypt::fetch_decryptor(&arg_matches);
+            let content = match decrypt::decrypt_message(&ciphertext, &identities) {
+                Ok(it) => it,
+                Err(e) => {
+                    eprintln!("{}", e.message);
+                    std::process::exit(1);
+                }
+            };
+            util::write_to_output(&arg_matches, &content);
         }
         ("verify", arg_matches) => {
             let arg_matches = arg_matches.unwrap();

@@ -1,4 +1,4 @@
-use crate::util::{load_identity_at_path, load_local_identities, Identity};
+use crate::{util::load_identity_at_path, util::load_local_identities, util::Identity};
 use clap::value_t;
 use std::path::Path;
 
