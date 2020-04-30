@@ -515,12 +515,38 @@ dependencies = [
  "clap",
  "dirs",
  "log",
- "ntge-core",
+ "ntge-core 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
 name = "ntge-core"
 version = "0.1.0"
+dependencies = [
+ "bech32",
+ "bs58",
+ "bson",
+ "cbindgen",
+ "chacha20poly1305",
+ "chrono",
+ "curve25519-dalek",
+ "ed25519-dalek",
+ "hkdf",
+ "hmac",
+ "jni",
+ "rand",
+ "secrecy",
+ "serde",
+ "serde_bytes",
+ "serde_cbor",
+ "sha2",
+ "x25519-dalek",
+]
+
+[[package]]
+name = "ntge-core"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e0134107b42243280a4601c031f8acabc42015ba3ff1d4d2785b78ff79ae50e9"
 dependencies = [
  "bech32",
  "bs58",
