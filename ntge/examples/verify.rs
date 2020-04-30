@@ -4,11 +4,12 @@ use std::process::{Command, Stdio};
 static TESTSTRING: &'static str = "Decrypt Succeeds! Welcome to use NTGE!";
 
 fn main() {
-    let mut cmd = Command::new("./target/Debug/ntge");
+    let mut cmd = Command::new("cargo");
     let output = match cmd
+        .args(&["run", "--bin", "ntge"])
         .arg("encrypt")
-        .args(&["-r", "id_ntge"])
-        .args(&["-i", "id_ntge"])
+        .args(&["-r", "example_key"])
+        .args(&["-i", "example_key"])
         .stdin(Stdio::piped())
         .stdout(Stdio::piped())
         .spawn()
@@ -22,9 +23,10 @@ fn main() {
         Ok(_) => (),
     }
 
-    let mut cmd2 = Command::new("./target/Debug/ntge");
-    cmd2.arg("verify")
-        .args(&["-i", "id_ntge"])
+    let mut cmd2 = Command::new("cargo");
+    cmd2.args(&["run", "--bin", "ntge"])
+        .arg("verify")
+        .args(&["-i", "example_key"])
         .stdin(output.stdout.unwrap())
         .spawn()
         .expect("You need to create a keypair with ntge-keygen first!");
