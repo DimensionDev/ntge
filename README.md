@@ -1,4 +1,6 @@
 # Not That Good Encryption (NTGE)
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2FDimensionDev%2Fntge.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2FDimensionDev%2Fntge?ref=badge_shield)
+
 
 Design doc: [Google Doc](https://docs.google.com/document/d/1rI3G_YtyeDMQmRI4D7oIdvdhjY4rfBeBA6c7aXybJhU/edit?usp=sharing) (Comments and suggestions are welcomed!)
 
@@ -20,3 +22,6 @@ $ cargo build --features cbindgen-enable
 
 ## Acknowledgements
 - [rage](https://github.com/str4d/rage)
+
+## License
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2FDimensionDev%2Fntge.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2FDimensionDev%2Fntge?ref=badge_large)
