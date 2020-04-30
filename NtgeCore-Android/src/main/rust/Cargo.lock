@@ -437,6 +437,8 @@ checksum = "3728d817d99e5ac407411fa471ff9800a778d88a24685968b36824eaf4bee400"
 [[package]]
 name = "ntge-core"
 version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e0134107b42243280a4601c031f8acabc42015ba3ff1d4d2785b78ff79ae50e9"
 dependencies = [
  "bech32",
  "bs58",
@@ -448,6 +450,7 @@ dependencies = [
  "ed25519-dalek",
  "hkdf",
  "hmac",
+ "jni",
  "rand",
  "secrecy",
  "serde",
