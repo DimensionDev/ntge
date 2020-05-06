@@ -24,9 +24,9 @@ jobs:
         working-directory: ./NtgeCore-Android
         run: ./gradlew clean cargoBuild copyNtgeNativeLib build
       - name: run tests
-        working-directory: ./NtgeCore-Android
         uses: reactivecircus/android-emulator-runner@v2
         with:
+          working-directory: ./NtgeCore-Android
           api-level: 29
           script: ./gradlew connectedCheck
 
