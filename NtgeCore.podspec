@@ -20,7 +20,7 @@ Not That Good Encryption is a general-purpose rust-based encryption tool. Our ma
   s.author           = { 'mainasuk' => 'mainasuk@sujitech.com' }
   s.source           = { :git => 'https://github.com/DimensionDev/ntge.git', :tag => s.version.to_s }
 
-  s.ios.deployment_target = '12.0'
+  s.ios.deployment_target = '13.0'
 
   s.prepare_command = <<-CMD
     ./NtgeCore-iOS/build.sh
