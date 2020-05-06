@@ -1,8 +1,10 @@
 source 'https://cdn.cocoapods.org/'
+
+platform :ios, '12.0'
 use_frameworks!
 
 target 'NtgeCore_Example' do
-  pod 'NtgeCore', :path => '../', :testspecs => ['Tests']
+  pod 'NtgeCore', :path => '../../', :testspecs => ['Tests']
 
   target 'NtgeCore_Tests' do
     inherit! :search_paths
