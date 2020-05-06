@@ -1,0 +1,32 @@
+name: Android
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v1
+      - name: set up JDK 1.8
+        uses: actions/setup-java@v1
+        with:
+          java-version: 1.8
+      - name: grant execute permission for gradlew
+        working-directory: ./NtgeCore-Android
+        run: chmod +x ./gradlew
+      - name: build
+        working-directory: ./NtgeCore-Android
+        run: ./gradlew clean cargoBuild copyNtgeNativeLib build
+      - name: run tests
+        working-directory: ./NtgeCore-Android
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 29
+          script: ./gradlew connectedCheck
+
