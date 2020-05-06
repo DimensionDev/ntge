@@ -16,11 +16,11 @@ pub(crate) fn decrypt_message(
         it
     } else {
         return Err(DecryptError {
-            message: format!("Can not read message"),
+            message: "Can not read message".to_string(),
         });
     };
     let decryptor = Decryptor::new(&message);
-    for identity in identities.into_iter() {
+    for identity in identities.iter() {
         match &identity.private_key {
             Some(key) => {
                 let private_key = X25519PrivateKey {
@@ -55,7 +55,7 @@ pub(crate) fn decrypt_message(
 pub(crate) fn fetch_decryptor(arg_matches: &clap::ArgMatches) -> Vec<Identity> {
     match value_t!(arg_matches, "identity", String) {
         Ok(_) => match identity::fetch_identity(&arg_matches) {
-            Some(identity) => vec![identity.clone()],
+            Some(identity) => vec![identity],
             None => {
                 eprintln!("error: can not find identity to verify message");
                 std::process::exit(1);

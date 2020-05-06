@@ -22,7 +22,7 @@ pub(crate) fn fetch_signer(arg_matches: &clap::ArgMatches) -> Option<Identity> {
 pub(crate) fn fetch_verifier(arg_matches: &clap::ArgMatches) -> Vec<Identity> {
     match value_t!(arg_matches, "identity", String) {
         Ok(_) => match identity::fetch_identity(&arg_matches) {
-            Some(identity) => vec![identity.clone()],
+            Some(identity) => vec![identity],
             None => {
                 eprintln!("error: can not find identity to verify message");
                 std::process::exit(1);
@@ -40,16 +40,16 @@ pub(crate) fn verify_message_signature(
         it
     } else {
         return Err(SignatureError {
-            message: format!("Can not read message"),
+            message: "Can not read message".to_string(),
         });
     };
 
     if message.meta.signature.is_none() {
-        return Err(SignatureError {
+        Err(SignatureError {
             message: format!("Can not find signature in the message"),
-        });
+        })
     } else {
-        for identity in identities.into_iter() {
+        for identity in identities.iter() {
             match &identity.public_key {
                 Some(key) => {
                     if Decryptor::verify_signature(&message, &key) {

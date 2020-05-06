@@ -146,10 +146,7 @@ pub unsafe extern "C" fn c_message_decryptor_decrypt_payload(
             let data = slice.as_ptr();
             let len = slice.len();
             std::mem::forget(slice);
-            Buffer {
-                data: data,
-                len: len,
-            }
+            Buffer { data, len }
         }
         None => Buffer {
             data: std::ptr::null_mut(),

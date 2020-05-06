@@ -95,10 +95,10 @@ fn main() {
     }
     let public_key_file = output_file.with_extension(DEFAULT_PUBLIC_KEY_SUFFIX);
     let private_key_file = output_file.with_extension(DEFAULT_PRIVATE_KEY_SUFFIX);
-    if let Err(_) = create_file_and_write(public_key_file, public_key_content) {
+    if create_file_and_write(public_key_file, public_key_content).is_err() {
         exit(1);
     }
-    if let Err(_) = create_file_and_write(private_key_file, private_key_content) {
+    if create_file_and_write(private_key_file, private_key_content).is_err() {
         exit(1);
     }
 }
