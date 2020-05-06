@@ -31,9 +31,9 @@ internal object Ntge {
     external fun messageDecryptorVerifySignature(message_ptr: Long, public_key_ptr: Long): Boolean
     external fun ed25519PublicKeyToX25519(ptr: Long): Long
     external fun ed25519PrivateKeyToX25519(ptr: Long): Long
-    external fun array_new_for_x25519_public_key(): Long
-    external fun array_destroy_x25519_public_key(ptr: Long)
-    external fun array_push_x25519_public_key(array_ptr: Long, element_ptr: Long)
+    external fun newArrayForX25519PublicKey(): Long
+    external fun destroyArrayX25519PublicKey(ptr: Long)
+    external fun pushArrayX25519PublicKey(array_ptr: Long, element_ptr: Long)
     external fun newMessageEncryptor(keys_ptr: Long): Long
     external fun destroyMessageEncryptor(ptr: Long)
     external fun encryptPlaintext(encryptor_ptr: Long, input: ByteArray, signature_key_ptr: Long): Long

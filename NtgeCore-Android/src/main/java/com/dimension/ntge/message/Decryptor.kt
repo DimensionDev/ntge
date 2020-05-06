@@ -22,8 +22,8 @@ class Decryptor internal constructor(
         return X25519FileKey(Ntge.messageDecryptorDecryptFileKey(ptr, privateKey.ptr))
     }
 
-    fun decryptPayload(fileKey: X25519FileKey): ByteArray {
-        return Ntge.messageDecryptorDecryptPayload(ptr, fileKey.ptr)
+    fun decryptPayload(fileKey: X25519FileKey): String {
+        return Ntge.messageDecryptorDecryptPayload(ptr, fileKey.ptr).toString(Charsets.UTF_8)
     }
 
 

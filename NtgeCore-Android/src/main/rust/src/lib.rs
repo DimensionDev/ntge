@@ -51,7 +51,13 @@ pub mod android {
         let public_key = Ed25519PublicKey::deserialize(&encoded);
         match public_key {
             Ok(key) => Box::into_raw(Box::new(key)),
-            Err(_) => std::ptr::null_mut(),
+            Err(_) => {
+                let _ = _env.throw_new(
+                    "com/dimension/ntge/NtgeException",
+                    "Can not deserialize Ed25519PublicKey",
+                );
+                std::ptr::null_mut()
+            }
         }
     }
 
@@ -110,7 +116,13 @@ pub mod android {
         let private_key = Ed25519PrivateKey::deserialize(&encoded);
         match private_key {
             Ok(key) => Box::into_raw(Box::new(key)),
-            Err(_) => std::ptr::null_mut(),
+            Err(_) => {
+                let _ = _env.throw_new(
+                    "com/dimension/ntge/NtgeException",
+                    "Can not deserialize Ed25519PrivateKey",
+                );
+                std::ptr::null_mut()
+            }
         }
     }
 
@@ -217,7 +229,7 @@ pub mod android {
                     "com/dimension/ntge/NtgeException",
                     "Can not serialize message",
                 );
-                unreachable!();
+                std::ptr::null_mut()
             }
         }
     }
@@ -233,15 +245,13 @@ pub mod android {
             .expect("Couldn't get java string!")
             .into();
         match Message::deserialize_from_armor(&message) {
-            Ok(it) => {
-                Box::into_raw(Box::new(it))
-            }
+            Ok(it) => Box::into_raw(Box::new(it)),
             Err(_) => {
                 let _ = _env.throw_new(
                     "com/dimension/ntge/NtgeException",
                     "Can not deserialize message",
                 );
-                unreachable!();
+                std::ptr::null_mut()
             }
         }
     }
@@ -265,7 +275,6 @@ pub mod android {
         let decryptor = Decryptor::new(&message);
         Box::into_raw(Box::new(decryptor))
     }
-
     #[no_mangle]
     pub unsafe extern "system" fn Java_com_dimension_ntge_Ntge_messageDecryptorVerifyMessageMac(
         _env: JNIEnv,
@@ -287,9 +296,12 @@ pub mod android {
     ) -> *mut FileKey {
         let decryptor = &mut *decryptor;
         let private_key = &mut *private_key;
-        match decryptor.decrypt_file_key(private_key) {
+        match decryptor.decrypt_file_key(&private_key) {
             Some(file_key) => Box::into_raw(Box::new(file_key)),
-            None => std::ptr::null_mut(),
+            None => {
+                let _ = _env.throw_new("com/dimension/ntge/NtgeException", "Can not get fileKey");
+                std::ptr::null_mut()
+            }
         }
     }
 
@@ -309,7 +321,7 @@ pub mod android {
                     "com/dimension/ntge/NtgeException",
                     "Can not decrypt payload",
                 );
-                unreachable!();
+                std::ptr::null_mut()
             }
         }
     }
@@ -353,7 +365,7 @@ pub mod android {
     }
 
     #[no_mangle]
-    pub extern "system" fn Java_com_dimension_ntge_Ntge_array_new_for_x25519_public_key(
+    pub extern "system" fn Java_com_dimension_ntge_Ntge_newArrayForX25519PublicKey(
         _env: JNIEnv,
         _class: JClass,
     ) -> *mut Vec<X25519PublicKey> {
@@ -361,7 +373,7 @@ pub mod android {
         Box::into_raw(Box::new(array))
     }
     #[no_mangle]
-    pub unsafe extern "system" fn Java_com_dimension_ntge_Ntge_array_destroy_x25519_public_key(
+    pub unsafe extern "system" fn Java_com_dimension_ntge_Ntge_destroyArrayX25519PublicKey(
         _env: JNIEnv,
         _class: JClass,
         public_keys: *mut Vec<X25519PublicKey>,
@@ -369,7 +381,7 @@ pub mod android {
         let _ = Box::from_raw(public_keys);
     }
     #[no_mangle]
-    pub unsafe extern "system" fn Java_com_dimension_ntge_Ntge_array_push_x25519_public_key(
+    pub unsafe extern "system" fn Java_com_dimension_ntge_Ntge_pushArrayX25519PublicKey(
         _env: JNIEnv,
         _class: JClass,
         array: *mut Vec<X25519PublicKey>,
