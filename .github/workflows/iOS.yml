@@ -1,0 +1,19 @@
+name: iOS
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: macos-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Build
+      run: |
+        wget https://github.com/getditto/rust-bitcode/releases/download/v1.40.0/rust-ios-arm64-1.40.0.zip
+        unzip rust-ios-arm64-1.40.0.zip
+        cd rust-ios-arm64-1.40.0
+        ./install.sh
+        cd ..
+        pod lib lint --verbose

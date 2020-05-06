@@ -142,7 +142,7 @@ extension NtgeCoreTests_Message {
         var bytes = [UInt8](repeating: 0, count: length)
         let status = SecRandomCopyBytes(kSecRandomDefault, length, &bytes)
         if status == errSecSuccess {
-            return Data(bytes: bytes)
+            return Data(bytes)
         }
         
         fatalError()
