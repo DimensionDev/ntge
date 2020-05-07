@@ -89,18 +89,16 @@ class MessageTest {
 
     @Test
     fun it_encrypt_and_decrypt() {
-        Ed25519PublicKey.deserialize(test_publicKey).use { ed25519PublicKey ->
-            ed25519PublicKey.toX25519().use { x25519PublicKey ->
-                Encryptor.new(x25519PublicKey).use { encryptor ->
-                    encryptor.encryptPlaintext(message_to_enc).use { message ->
-                        assertTrue(message.ptr != 0L)
-                        Decryptor.new(message).use { decryptor ->
-                            Ed25519PrivateKey.deserialize(test_privateKey).use { ed25519PrivateKey ->
-                                ed25519PrivateKey.toX25519().use { x25519PrivateKey ->
-                                    decryptor.getFileKey(x25519PrivateKey).use { x25519FileKey ->
-                                        val result = decryptor.decryptPayload(x25519FileKey)
-                                        assertTrue(result == message_to_enc)
-                                    }
+        Ed25519PrivateKey.new().use { ed25519PrivateKey ->
+            ed25519PrivateKey.toX25519().use { x25519PrivateKey ->
+                ed25519PrivateKey.publicKey.toX25519().use { x25519PublicKey ->
+                    Encryptor.new(x25519PublicKey).use { encryptor ->
+                        encryptor.encryptPlaintext(message_to_enc).use { message ->
+                            assertTrue(message.ptr != 0L)
+                            Decryptor.new(message).use { decryptor ->
+                                decryptor.getFileKey(x25519PrivateKey).use { x25519FileKey ->
+                                    val result = decryptor.decryptPayload(x25519FileKey)
+                                    assertTrue(result == message_to_enc)
                                 }
                             }
                         }

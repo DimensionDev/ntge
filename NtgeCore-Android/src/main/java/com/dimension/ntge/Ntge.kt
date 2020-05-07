@@ -36,6 +36,6 @@ internal object Ntge {
     external fun pushArrayX25519PublicKey(array_ptr: Long, element_ptr: Long)
     external fun newMessageEncryptor(keys_ptr: Long): Long
     external fun destroyMessageEncryptor(ptr: Long)
-    external fun encryptPlaintext(encryptor_ptr: Long, input: ByteArray, signature_key_ptr: Long): Long
+    external fun encryptPlaintext(input: String, encryptor_ptr: Long, signature_key_ptr: Long): Long
 }
 

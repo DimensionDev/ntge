@@ -21,7 +21,7 @@ class Encryptor internal constructor(
     }
 
     fun encryptPlaintext(input: String, signatureKey: Ed25519PrivateKey? = null): Message {
-        return Ntge.encryptPlaintext(ptr, input.toByteArray(), signatureKey?.ptr
+        return Ntge.encryptPlaintext(input, ptr, signatureKey?.ptr
                 ?: 0).let {
             Message(it)
         }
