@@ -1,5 +1,4 @@
 use serde::{Deserialize, Serialize};
-use serde_bytes;
 use x25519_dalek::PublicKey;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

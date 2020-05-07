@@ -1,12 +1,10 @@
 use chrono::prelude::*;
-use ed25519_dalek;
 use hkdf::Hkdf;
 use hmac::{Hmac, Mac};
 use rand::rngs::OsRng;
 use rand::RngCore;
 use secrecy::ExposeSecret;
 use serde::{Deserialize, Serialize};
-use serde_bytes;
 use sha2::Sha256;
 
 use crate::{

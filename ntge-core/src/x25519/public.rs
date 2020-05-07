@@ -1,5 +1,3 @@
-use x25519_dalek;
-
 use crate::{ed25519::public::Ed25519PublicKey, key_utils};
 
 #[derive(Debug)]

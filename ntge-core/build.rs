@@ -1,13 +1,11 @@
-use cbindgen;
-
-use cbindgen::Language;
+use cbindgen::{Builder, Language};
 use std::env;
 
 #[allow(dead_code)]
 fn write_headers() {
     let crate_dir = env::var("CARGO_MANIFEST_DIR").unwrap();
 
-    let builder = cbindgen::Builder::new()
+    let builder = Builder::new()
         .with_crate(crate_dir)
         .with_language(Language::C)
         .with_tab_width(4);
