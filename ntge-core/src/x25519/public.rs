@@ -7,9 +7,7 @@ pub struct X25519PublicKey {
 
 impl Clone for X25519PublicKey {
     fn clone(&self) -> Self {
-        X25519PublicKey {
-            raw: self.raw.clone(),
-        }
+        X25519PublicKey { raw: self.raw }
     }
 }
 

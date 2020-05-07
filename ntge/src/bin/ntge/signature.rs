@@ -46,7 +46,7 @@ pub(crate) fn verify_message_signature(
 
     if message.meta.signature.is_none() {
         Err(SignatureError {
-            message: format!("Can not find signature in the message"),
+            message: "Can not find signature in the message".to_string(),
         })
     } else {
         for identity in identities.iter() {

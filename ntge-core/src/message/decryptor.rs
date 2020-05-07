@@ -78,10 +78,7 @@ impl Decryptor {
             Err(_) => return false,
         };
 
-        match ed25519::public::verify(&public_key.raw, &message.payload.ciphertext, &signature) {
-            Ok(_) => true,
-            Err(_) => false,
-        }
+        ed25519::public::verify(&public_key.raw, &message.payload.ciphertext, &signature).is_ok()
     }
 }
 

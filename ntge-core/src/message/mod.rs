@@ -136,7 +136,7 @@ impl Message {
         }
     }
 
-    fn deserialize_from_bson_bytes(bytes: &Vec<u8>) -> Result<Message, CoreError> {
+    fn deserialize_from_bson_bytes(bytes: &[u8]) -> Result<Message, CoreError> {
         let document = match bson::decode_document(&mut std::io::Cursor::new(&bytes[..])) {
             Ok(document) => document,
             Err(_) => {
