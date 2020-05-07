@@ -20,7 +20,7 @@ pub mod android {
     pub unsafe extern "system" fn Java_com_dimension_ntge_Ntge_destroyEd25519PublicKey(
         _env: JNIEnv,
         _class: JClass,
-        public_key: &mut Ed25519PublicKey,
+        public_key: *mut Ed25519PublicKey,
     ) {
         let _ = Box::from_raw(public_key);
     }
@@ -74,7 +74,7 @@ pub mod android {
     pub unsafe extern "system" fn Java_com_dimension_ntge_Ntge_destroyEd25519PrivateKey(
         _env: JNIEnv,
         _class: JClass,
-        private_key: &mut Ed25519PrivateKey,
+        private_key: *mut Ed25519PrivateKey,
     ) {
         let _ = Box::from_raw(private_key);
     }
@@ -180,7 +180,7 @@ pub mod android {
     pub unsafe extern "system" fn Java_com_dimension_ntge_Ntge_destroyX25519PrivateKey(
         _env: JNIEnv,
         _class: JClass,
-        private_key: &mut X25519PrivateKey,
+        private_key: *mut X25519PrivateKey,
     ) {
         let _ = Box::from_raw(private_key);
     }
@@ -189,7 +189,7 @@ pub mod android {
     pub unsafe extern "system" fn Java_com_dimension_ntge_Ntge_destroyX25519PublicKey(
         _env: JNIEnv,
         _class: JClass,
-        public_key: &mut X25519PublicKey,
+        public_key: *mut X25519PublicKey,
     ) {
         let _ = Box::from_raw(public_key);
     }
@@ -296,7 +296,7 @@ pub mod android {
     ) -> *mut FileKey {
         let decryptor = &mut *decryptor;
         let private_key = &mut *private_key;
-        match decryptor.decrypt_file_key(&private_key) {
+        match decryptor.decrypt_file_key(private_key) {
             Some(file_key) => Box::into_raw(Box::new(file_key)),
             None => {
                 let _ = _env.throw_new("com/dimension/ntge/NtgeException", "Can not get fileKey");
@@ -416,12 +416,16 @@ pub mod android {
     pub unsafe extern "system" fn Java_com_dimension_ntge_Ntge_encryptPlaintext(
         _env: JNIEnv,
         _class: JClass,
+        input: JString,
         encryptor: *mut Encryptor,
-        input: jbyteArray,
         signature_key: *mut Ed25519PrivateKey,
     ) -> *mut Message {
+        let encoded: String = _env
+            .get_string(input)
+            .expect("Couldn't get java string!")
+            .into();
+        let data = encoded.as_bytes();
         let encryptor = &mut *encryptor;
-        let data = _env.convert_byte_array(input).unwrap();
         let signature_key = signature_key.as_ref();
         let message = encryptor.encrypt(&data[..], signature_key);
         Box::into_raw(Box::new(message))
