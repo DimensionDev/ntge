@@ -13,7 +13,7 @@ on:
 jobs:
   build:
 
-    runs-on: macos-latest
+    runs-on: self-hosted
 
     steps:
       - uses: actions/checkout@v1
@@ -28,7 +28,7 @@ jobs:
         run: chmod +x ./gradlew
       - name: build
         working-directory: ./NtgeCore-Android
-        run: ./gradlew clean cargoBuild copyNtgeNativeLib build
+        run: ./gradlew clean build
       - name: run tests
         uses: reactivecircus/android-emulator-runner@v2
         with:
