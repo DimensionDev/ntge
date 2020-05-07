@@ -4,7 +4,7 @@ pub mod android {
     extern crate jni;
     use self::jni::objects::{JClass, JString};
     use self::jni::JNIEnv;
-    use jni::sys::{jboolean, jbyteArray, jstring};
+    use jni::sys::{jboolean, jbyteArray, jstring, jlong};
     use ntge_core::ed25519::keypair::Ed25519Keypair;
     use ntge_core::ed25519::private::Ed25519PrivateKey;
     use ntge_core::ed25519::public::Ed25519PublicKey;
@@ -20,20 +20,20 @@ pub mod android {
     pub unsafe extern "system" fn Java_com_dimension_ntge_Ntge_destroyEd25519PublicKey(
         _env: JNIEnv,
         _class: JClass,
-        public_key: *mut Ed25519PublicKey,
+        public_key: jlong,
     ) {
-        let _ = Box::from_raw(public_key);
+        let _ = Box::from_raw(public_key as *mut Ed25519PublicKey);
     }
 
     #[no_mangle]
     pub unsafe extern "system" fn Java_com_dimension_ntge_Ntge_serializeEd25519PublicKey(
         _env: JNIEnv,
         _class: JClass,
-        public_key: *mut Ed25519PublicKey,
+        public_key: jlong,
     ) -> jstring {
-        let public_key = &mut *public_key;
+        let public_key = public_key as *mut Ed25519PublicKey;
         let output = _env
-            .new_string(public_key.serialize())
+            .new_string((*public_key).serialize())
             .expect("Couldn't create java string!");
         output.into_inner()
     }
@@ -74,19 +74,19 @@ pub mod android {
     pub unsafe extern "system" fn Java_com_dimension_ntge_Ntge_destroyEd25519PrivateKey(
         _env: JNIEnv,
         _class: JClass,
-        private_key: *mut Ed25519PrivateKey,
+        private_key: jlong,
     ) {
-        let _ = Box::from_raw(private_key);
+        let _ = Box::from_raw(private_key as *mut Ed25519PrivateKey);
     }
 
     #[no_mangle]
     pub unsafe extern "system" fn Java_com_dimension_ntge_Ntge_getPublicKeyFromEd25519PrivateKey(
         _env: JNIEnv,
         _class: JClass,
-        private_key: *mut Ed25519PrivateKey,
+        private_key: jlong,
     ) -> *mut Ed25519PublicKey {
-        let private_key = &mut *private_key;
-        let public_key = private_key.get_public_key();
+        let private_key = private_key as *mut Ed25519PrivateKey;
+        let public_key = (*private_key).get_public_key();
         Box::into_raw(Box::new(public_key))
     }
 
@@ -94,11 +94,11 @@ pub mod android {
     pub unsafe extern "system" fn Java_com_dimension_ntge_Ntge_serializeEd25519PrivateKey(
         _env: JNIEnv,
         _class: JClass,
-        private_key: *mut Ed25519PrivateKey,
+        private_key: jlong,
     ) -> jstring {
-        let private_key = &mut *private_key;
+        let private_key = private_key as *mut Ed25519PrivateKey;
         let output = _env
-            .new_string(private_key.serialize())
+            .new_string((*private_key).serialize())
             .expect("Couldn't create java string!");
         output.into_inner()
     }
@@ -139,19 +139,19 @@ pub mod android {
     pub unsafe extern "system" fn Java_com_dimension_ntge_Ntge_destroyEd25519Keypair(
         _env: JNIEnv,
         _class: JClass,
-        keypair: *mut Ed25519Keypair,
+        keypair: jlong,
     ) {
-        let _ = Box::from_raw(keypair);
+        let _ = Box::from_raw(keypair as *mut Ed25519Keypair);
     }
 
     #[no_mangle]
     pub unsafe extern "system" fn Java_com_dimension_ntge_Ntge_getPrivateKeyFromEd25519Keypair(
         _env: JNIEnv,
         _class: JClass,
-        keypair: *mut Ed25519Keypair,
+        keypair: jlong,
     ) -> *mut Ed25519PrivateKey {
-        let keypair = &mut *keypair;
-        let private_key = keypair.get_private_key();
+        let keypair = keypair as *mut Ed25519Keypair;
+        let private_key = (*keypair).get_private_key();
         Box::into_raw(Box::new(private_key))
     }
 
@@ -159,20 +159,21 @@ pub mod android {
     pub unsafe extern "system" fn Java_com_dimension_ntge_Ntge_getPublicKeyFromEd25519Keypair(
         _env: JNIEnv,
         _class: JClass,
-        keypair: *mut Ed25519Keypair,
+        keypair: jlong,
     ) -> *mut Ed25519PublicKey {
-        let keypair = &mut *keypair;
-        let public_key = keypair.get_public_key();
+        let keypair = keypair as *mut Ed25519Keypair;
+        let public_key = (*keypair).get_public_key();
         Box::into_raw(Box::new(public_key))
     }
 
     #[no_mangle]
-    pub extern "system" fn Java_com_dimension_ntge_Ntge_getEd25519KeypairFromPrivateKey(
+    pub unsafe extern "system" fn Java_com_dimension_ntge_Ntge_getEd25519KeypairFromPrivateKey(
         _env: JNIEnv,
         _class: JClass,
-        private_key: &Ed25519PrivateKey,
+        private_key: jlong,
     ) -> *mut Ed25519Keypair {
-        let keypair = Ed25519Keypair::construct_from_private_key(&private_key);
+        let private_key = private_key as *mut Ed25519PrivateKey;
+        let keypair = Ed25519Keypair::construct_from_private_key(&*private_key);
         Box::into_raw(Box::new(keypair))
     }
 
@@ -180,46 +181,46 @@ pub mod android {
     pub unsafe extern "system" fn Java_com_dimension_ntge_Ntge_destroyX25519PrivateKey(
         _env: JNIEnv,
         _class: JClass,
-        private_key: *mut X25519PrivateKey,
+        private_key: jlong,
     ) {
-        let _ = Box::from_raw(private_key);
+        let _ = Box::from_raw(private_key as *mut X25519PrivateKey);
     }
 
     #[no_mangle]
     pub unsafe extern "system" fn Java_com_dimension_ntge_Ntge_destroyX25519PublicKey(
         _env: JNIEnv,
         _class: JClass,
-        public_key: *mut X25519PublicKey,
+        public_key: jlong,
     ) {
-        let _ = Box::from_raw(public_key);
+        let _ = Box::from_raw(public_key as *mut X25519PublicKey);
     }
 
     #[no_mangle]
     pub unsafe extern "system" fn Java_com_dimension_ntge_Ntge_destroyX25519FileKey(
         _env: JNIEnv,
         _class: JClass,
-        file_key: *mut FileKey,
+        file_key: jlong,
     ) {
-        let _ = Box::from_raw(file_key);
+        let _ = Box::from_raw(file_key as *mut FileKey);
     }
 
     #[no_mangle]
     pub unsafe extern "system" fn Java_com_dimension_ntge_Ntge_destroyMessage(
         _env: JNIEnv,
         _class: JClass,
-        message: *mut Message,
+        message: jlong,
     ) {
-        let _ = Box::from_raw(message);
+        let _ = Box::from_raw(message as *mut Message);
     }
 
     #[no_mangle]
     pub unsafe extern "system" fn Java_com_dimension_ntge_Ntge_serializeMessage(
         _env: JNIEnv,
         _class: JClass,
-        message: *mut Message,
+        message: jlong,
     ) -> jstring {
-        let message = &mut *message;
-        match message.serialize_to_armor() {
+        let message = message as *mut Message;
+        match (*message).serialize_to_armor() {
             Ok(text) => {
                 let output = _env.new_string(text).expect("Couldn't create java string!");
                 output.into_inner()
@@ -260,43 +261,43 @@ pub mod android {
     pub unsafe extern "system" fn Java_com_dimension_ntge_Ntge_destroyMessageDecryptor(
         _env: JNIEnv,
         _class: JClass,
-        decryptor: *mut Decryptor,
+        decryptor: jlong,
     ) {
-        let _ = Box::from_raw(decryptor);
+        let _ = Box::from_raw(decryptor as *mut Decryptor);
     }
 
     #[no_mangle]
     pub unsafe extern "system" fn Java_com_dimension_ntge_Ntge_newMessageDecryptor(
         _env: JNIEnv,
         _class: JClass,
-        message: *mut Message,
+        message: jlong,
     ) -> *mut Decryptor {
-        let message = &mut *message;
-        let decryptor = Decryptor::new(&message);
+        let message = message as *mut Message;
+        let decryptor = Decryptor::new(&*message);
         Box::into_raw(Box::new(decryptor))
     }
     #[no_mangle]
     pub unsafe extern "system" fn Java_com_dimension_ntge_Ntge_messageDecryptorVerifyMessageMac(
         _env: JNIEnv,
         _class: JClass,
-        decryptor: *mut Decryptor,
-        file_key: *mut FileKey,
+        decryptor: jlong,
+        file_key: jlong,
     ) -> jboolean {
-        let decryptor = &mut *decryptor;
-        let file_key = &mut *file_key;
-        decryptor.verify_message_mac(&file_key) as u8
+        let decryptor = decryptor as *mut Decryptor;
+        let file_key = file_key as *mut FileKey;
+        (*decryptor).verify_message_mac(&*file_key) as u8
     }
 
     #[no_mangle]
     pub unsafe extern "system" fn Java_com_dimension_ntge_Ntge_messageDecryptorDecryptFileKey(
         _env: JNIEnv,
         _class: JClass,
-        decryptor: *mut Decryptor,
-        private_key: *mut X25519PrivateKey,
+        decryptor: jlong,
+        private_key: jlong,
     ) -> *mut FileKey {
-        let decryptor = &mut *decryptor;
-        let private_key = &mut *private_key;
-        match decryptor.decrypt_file_key(private_key) {
+        let decryptor = decryptor as *mut Decryptor;
+        let private_key = private_key as *mut X25519PrivateKey;
+        match (*decryptor).decrypt_file_key(&*private_key) {
             Some(file_key) => Box::into_raw(Box::new(file_key)),
             None => {
                 let _ = _env.throw_new("com/dimension/ntge/NtgeException", "Can not get fileKey");
@@ -309,12 +310,12 @@ pub mod android {
     pub unsafe extern "system" fn Java_com_dimension_ntge_Ntge_messageDecryptorDecryptPayload(
         _env: JNIEnv,
         _class: JClass,
-        decryptor: *mut Decryptor,
-        file_key: *mut FileKey,
+        decryptor: jlong,
+        file_key: jlong,
     ) -> jbyteArray {
-        let decryptor = &mut *decryptor;
-        let file_key = &mut *file_key;
-        match decryptor.decrypt_payload(&file_key) {
+        let decryptor = decryptor as *mut Decryptor;
+        let file_key = file_key as *mut FileKey;
+        match (*decryptor).decrypt_payload(&*file_key) {
             Some(bytes) => _env.byte_array_from_slice(&bytes).unwrap(),
             None => {
                 let _ = _env.throw_new(
@@ -330,24 +331,24 @@ pub mod android {
     pub unsafe extern "system" fn Java_com_dimension_ntge_Ntge_messageDecryptorVerifySignature(
         _env: JNIEnv,
         _class: JClass,
-        message: *mut Message,
-        public_key: *mut Ed25519PublicKey,
+        message: jlong,
+        public_key: jlong,
     ) -> jboolean {
-        let message = &mut *message;
-        let public_key = &mut *public_key;
+        let message = message as *mut Message;
+        let public_key = public_key as *mut Ed25519PublicKey;
 
-        Decryptor::verify_signature(&message, &public_key) as u8
+        Decryptor::verify_signature(&*message, &*public_key) as u8
     }
 
     #[no_mangle]
     pub unsafe extern "system" fn Java_com_dimension_ntge_Ntge_ed25519PublicKeyToX25519(
         _env: JNIEnv,
         _class: JClass,
-        public_key: *mut Ed25519PublicKey,
+        public_key: jlong,
     ) -> *mut X25519PublicKey {
-        let ed25519_public_key = &mut *public_key;
+        let ed25519_public_key = public_key as *mut Ed25519PublicKey;
         let x25519_public_key = X25519PublicKey {
-            raw: ed25519_public_key_to_x25519(&ed25519_public_key.raw),
+            raw: ed25519_public_key_to_x25519(&(*ed25519_public_key).raw),
         };
         Box::into_raw(Box::new(x25519_public_key))
     }
@@ -355,11 +356,11 @@ pub mod android {
     pub unsafe extern "system" fn Java_com_dimension_ntge_Ntge_ed25519PrivateKeyToX25519(
         _env: JNIEnv,
         _class: JClass,
-        private_key: *mut Ed25519PrivateKey,
+        private_key: jlong,
     ) -> *mut X25519PrivateKey {
-        let ed25519_private_key = &mut *private_key;
+        let ed25519_private_key = private_key as *mut Ed25519PrivateKey;
         let x25519_private_key = X25519PrivateKey {
-            raw: ed25519_private_key_to_x25519(&ed25519_private_key.raw),
+            raw: ed25519_private_key_to_x25519(&(*ed25519_private_key).raw),
         };
         Box::into_raw(Box::new(x25519_private_key))
     }
@@ -376,30 +377,30 @@ pub mod android {
     pub unsafe extern "system" fn Java_com_dimension_ntge_Ntge_destroyArrayX25519PublicKey(
         _env: JNIEnv,
         _class: JClass,
-        public_keys: *mut Vec<X25519PublicKey>,
+        public_keys: jlong,
     ) {
-        let _ = Box::from_raw(public_keys);
+        let _ = Box::from_raw(public_keys as *mut Vec<X25519PublicKey>);
     }
     #[no_mangle]
     pub unsafe extern "system" fn Java_com_dimension_ntge_Ntge_pushArrayX25519PublicKey(
         _env: JNIEnv,
         _class: JClass,
-        array: *mut Vec<X25519PublicKey>,
-        element: *mut X25519PublicKey,
+        array: jlong,
+        element: jlong,
     ) {
-        let array = &mut *array;
-        let element = &mut *element;
-        array.push((*element).clone());
+        let array = array as *mut Vec<X25519PublicKey>;
+        let element = element as *mut X25519PublicKey;
+        (*array).push((*element).clone());
     }
 
     #[no_mangle]
     pub unsafe extern "system" fn Java_com_dimension_ntge_Ntge_newMessageEncryptor(
         _env: JNIEnv,
         _class: JClass,
-        x25519_public_keys: *mut Vec<X25519PublicKey>,
+        x25519_public_keys: jlong,
     ) -> *mut Encryptor {
-        let x25519_public_keys = &mut *x25519_public_keys;
-        let encryptor = Encryptor::new(&x25519_public_keys);
+        let x25519_public_keys = x25519_public_keys as *mut Vec<X25519PublicKey>;
+        let encryptor = Encryptor::new(&*x25519_public_keys);
         Box::into_raw(Box::new(encryptor))
     }
 
@@ -407,9 +408,9 @@ pub mod android {
     pub unsafe extern "system" fn Java_com_dimension_ntge_Ntge_destroyMessageEncryptor(
         _env: JNIEnv,
         _class: JClass,
-        encryptor: *mut Encryptor,
+        encryptor: jlong,
     ) {
-        let _ = Box::from_raw(encryptor);
+        let _ = Box::from_raw(encryptor as *mut Encryptor);
     }
 
     #[no_mangle]
@@ -417,17 +418,17 @@ pub mod android {
         _env: JNIEnv,
         _class: JClass,
         input: JString,
-        encryptor: *mut Encryptor,
-        signature_key: *mut Ed25519PrivateKey,
+        encryptor: jlong,
+        signature_key: jlong,
     ) -> *mut Message {
         let encoded: String = _env
             .get_string(input)
             .expect("Couldn't get java string!")
             .into();
         let data = encoded.as_bytes();
-        let encryptor = &mut *encryptor;
-        let signature_key = signature_key.as_ref();
-        let message = encryptor.encrypt(&data[..], signature_key);
+        let encryptor = encryptor as *mut Encryptor;
+        let signature_key = signature_key as *mut Ed25519PrivateKey;
+        let message = (*encryptor).encrypt(&data[..], signature_key.as_ref());
         Box::into_raw(Box::new(message))
     }
 }
