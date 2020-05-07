@@ -1,18 +1,12 @@
-import org.jetbrains.kotlin.gradle.internal.ensureParentDirsCreated
+import com.android.build.gradle.internal.tasks.factory.dependsOn
 
 val kotlinVersion = "1.3.72"
-
-repositories {
-    google()
-    jcenter()
-    mavenCentral()
-    maven("https://jitpack.io")
-}
 
 plugins {
     id("com.android.library") version "3.6.1"
     kotlin("android") version "1.3.72"
     id("org.mozilla.rust-android-gradle.rust-android") version "0.8.3"
+    id("digital.wup.android-maven-publish").version("3.6.2")
 }
 
 android {
@@ -25,7 +19,6 @@ android {
         versionName = "1.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
-
     buildTypes {
         getByName("release") {
             isMinifyEnabled = false
@@ -41,6 +34,13 @@ cargo {
     profile = "release"
 }
 
+repositories {
+    google()
+    jcenter()
+    mavenCentral()
+    maven("https://jitpack.io")
+}
+
 dependencies {
     implementation(kotlin("stdlib-jdk8", kotlinVersion))
     testImplementation("junit:junit:4.13")
@@ -48,35 +48,50 @@ dependencies {
     androidTestImplementation("androidx.test.espresso:espresso-core:3.2.0")
 }
 
-afterEvaluate {
-    // The `cargoBuild` task isn't available until after evaluation.
-    android.libraryVariants.forEach { variant ->
-        var productFlavor = ""
-        variant.productFlavors.forEach {
-            productFlavor += it.name.capitalize()
+tasks.register<Exec>("cargoClean") {
+    executable("cargo")
+    args("clean")
+    workingDir("$projectDir/${cargo.module}")
+}
+tasks.preBuild.dependsOn("cargoBuild")
+tasks.clean.dependsOn("cargoClean")
+
+publishing {
+    repositories {
+        maven {
+            name = "Github"
+            url = uri(getConfiguration("source", ""))
+            credentials {
+                username = getConfiguration("user", "")
+                password = getConfiguration("token", "")
+            }
         }
-        val buildType = variant.buildType.name.capitalize()
-        tasks["generate${productFlavor}${buildType}Assets"].dependsOn(tasks["copyNtgeNativeLib"])
+    }
+    publications {
+        create<MavenPublication>("mavenAar") {
+            groupId = "com.dimension"
+            artifactId = "ntge"
+            version = getConfiguration("versionName", "0.0.0")
+            from(components["android"])
+        }
     }
 }
 
-tasks.register("copyNtgeNativeLib") {
-    dependsOn(":cargoBuild")
-    doLast {
-        val libName = "libntgedroid.so"
-        val target = mapOf(
-                "aarch64-linux-android" to "arm64-v8a",
-                "armv7-linux-androideabi" to "armeabi-v7a",
-                "i686-linux-android" to "x86",
-                "x86_64-linux-android" to "x86_64"
-        )
-        target.forEach {
-            val targetFile = File("${projectDir.absolutePath}/src/main/jniLibs/${it.value}/${libName}")
-            targetFile.ensureParentDirsCreated()
-            if (!targetFile.exists()) {
-                targetFile.createNewFile()
+inline fun <reified T : Any> Project.getConfiguration(name: String, defaultValue: T): T {
+    return (if (project.hasProperty(name)) {
+        val property = project.property(name)
+        if (property == null) {
+            defaultValue
+        } else {
+            when (defaultValue) {
+                is String -> property
+                is Boolean -> property.toString().toBoolean()
+                is Int -> property.toString().toInt()
+                is Double -> property.toString().toDouble()
+                else -> property
             }
-            File("${projectDir.absolutePath}/build/rust/${it.key}/release/${libName}").copyTo(targetFile, overwrite = true)
         }
-    }
+    } else {
+        defaultValue
+    }) as T
 }

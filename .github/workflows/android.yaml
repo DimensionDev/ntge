@@ -2,9 +2,13 @@ name: Android
 
 on:
   push:
-    branches: [ master ]
+    paths:
+      - "ntge-core/**"
+      - "NtgeCore-Android/**"
   pull_request:
-    branches: [ master ]
+    paths:
+      - "ntge-core/**"
+      - "NtgeCore-Android/**"
 
 jobs:
   build:
