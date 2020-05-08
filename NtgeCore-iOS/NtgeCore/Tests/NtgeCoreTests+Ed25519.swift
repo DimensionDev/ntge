@@ -18,18 +18,6 @@ class NtgeCoreTests_Ed25519: XCTestCase {
         // Put teardown code here. This method is called after the invocation of each test method in the class.
     }
 
-    func testExample() throws {
-        // This is an example of a functional test case.
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
-    }
-
-    func testPerformanceExample() throws {
-        // This is an example of a performance test case.
-        self.measure {
-            // Put the code you want to measure the time of here.
-        }
-    }
-
     func testSmoke() { }
     
 }
@@ -72,8 +60,39 @@ extension NtgeCoreTests_Ed25519 {
 
 extension NtgeCoreTests_Ed25519 {
     
-    func testEncryptor() {
-        
+    func testPerformance_CreateKeypair_x1() throws {
+        // x1
+        self.measure {
+            let _ = Ed25519.Keypair()
+        }
+    }
+    
+    func testPerformance_CreateKeypair_x100() throws {
+        // x100
+        self.measure {
+            for _ in 0..<100 {
+                let _ = Ed25519.Keypair()
+            }
+        }
+    }
+     
+    func testPerformance_CreateKeypair_x1000() throws {
+        // x1000
+        self.measure {
+            for _ in 0..<1000 {
+                let _ = Ed25519.Keypair()
+            }
+        }
+    }
+    
+    func testPerformance_CreateKeypair_x10000() throws {
+        // x10000
+        self.measure {
+            for _ in 0..<10000 {
+                let _ = Ed25519.Keypair()
+            }
+        }
     }
     
 }
+

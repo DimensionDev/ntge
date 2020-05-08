@@ -3,16 +3,16 @@ PODS:
   - NtgeCore/Tests (0.1.0)
 
 DEPENDENCIES:
-  - NtgeCore (from `../`)
-  - NtgeCore/Tests (from `../`)
+  - NtgeCore (from `../../`)
+  - NtgeCore/Tests (from `../../`)
 
 EXTERNAL SOURCES:
   NtgeCore:
-    :path: "../"
+    :path: "../../"
 
 SPEC CHECKSUMS:
-  NtgeCore: 82ad56edc2a9cc525572449940fc0d022fd50824
+  NtgeCore: 3c8370ccbb3ba755468c14a6d5d53aed732d34c8
 
-PODFILE CHECKSUM: 6aea79da9212c697a87df814904b4f23fd12670f
+PODFILE CHECKSUM: a55684a56778f3181680d144b681a2bb28297293
 
 COCOAPODS: 1.9.1
