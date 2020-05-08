@@ -8,9 +8,10 @@ edition = "2018"
 
 [lib]
 name = "ntge_core"
-crate-type = ["dylib"]
+crate-type = ["cdylib"]
 
 [dependencies]
 ntge-core = { path = "../../ntge-core" }
+libc = "0.2.69"
 
 [workspace]

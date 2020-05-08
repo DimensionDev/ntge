@@ -382,6 +382,7 @@ dependencies = [
 name = "ntge-dotnet"
 version = "0.1.0"
 dependencies = [
+ "libc",
  "ntge-core",
 ]
 
