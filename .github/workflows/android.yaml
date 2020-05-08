@@ -5,6 +5,8 @@ on:
     paths:
       - "ntge-core/**"
       - "NtgeCore-Android/**"
+    tags:
+      - "*.*.*"
   pull_request:
     paths:
       - "ntge-core/**"
@@ -35,4 +37,10 @@ jobs:
           working-directory: ./NtgeCore-Android
           api-level: 29
           script: ./gradlew connectedCheck
+      - name: deploy to github packages
+        working-directory: ./NtgeCore-Android
+        if: github.event_name == 'push' && github.event.ref_type == 'tag'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: ./gradlew publish -PversionName="${GITHUB_REF:10}" -Ptoken=${GITHUB_TOKEN} -Puser=DimensionDev -Psource="https://maven.pkg.github.com/DimensionDev"
 
