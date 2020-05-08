@@ -5,7 +5,7 @@ namespace NtgeCore.Net
 {
     public class Native
     {
-        const string LIB_NAME = "ntge_core.dll";
+        const string LIB_NAME = "ntge_core";
 
         [DllImport(LIB_NAME)]
         public static extern void free_string(IntPtr ptr);
