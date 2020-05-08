@@ -1,0 +1,30 @@
+name: iOS
+
+on:
+  push:
+    paths:
+      - "ntge-core/**"
+      - "NtgeCore-iOS/**"
+
+jobs:
+  build:
+
+    runs-on: macos-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Build
+      run: |
+        # setup cargo
+        rustup target add aarch64-apple-ios x86_64-apple-ios
+        rustup show
+        # install cargo-lipo
+        cargo install cargo-lipo
+        # install rust-bitcode
+        wget https://github.com/getditto/rust-bitcode/releases/download/v1.40.0/rust-ios-arm64-1.40.0.zip
+        unzip rust-ios-arm64-1.40.0.zip
+        cd rust-ios-arm64-1.40.0
+        ./install.sh
+        cd ..
+        # lint cocoapod library
+        pod lib lint --verbose
