@@ -1,0 +1,9 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.dimension.ntge.test">
+    <application
+        android:debuggable="false"
+        android:requestLegacyExternalStorage="true"
+        tools:ignore="HardcodedDebugMode"
+        tools:replace="android:debuggable"/>
+</manifest>
