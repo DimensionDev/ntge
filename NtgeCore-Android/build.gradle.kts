@@ -3,10 +3,11 @@ import com.android.build.gradle.internal.tasks.factory.dependsOn
 val kotlinVersion = "1.3.72"
 
 plugins {
-    id("com.android.library") version "3.6.1"
+    id("com.android.library") version "3.6.3"
+    id("androidx.benchmark") version "1.0.0"
     kotlin("android") version "1.3.72"
     id("org.mozilla.rust-android-gradle.rust-android") version "0.8.3"
-    id("digital.wup.android-maven-publish").version("3.6.2")
+    id("digital.wup.android-maven-publish") version "3.6.2"
 }
 
 android {
@@ -16,15 +17,29 @@ android {
         minSdkVersion(21)
         targetSdkVersion(29)
         versionCode = 1
-        versionName = "1.0"
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        versionName = getConfiguration("versionName", "0.0.0")
+        testInstrumentationRunner = "androidx.benchmark.junit4.AndroidBenchmarkRunner"
+        testInstrumentationRunnerArgument(
+                "androidx.benchmark.suppressErrors",
+                listOf(
+                        "EMULATOR",
+                        "UNLOCKED"
+                ).joinToString(",")
+        )
     }
+    testBuildType = "release"
     buildTypes {
         getByName("release") {
-            isMinifyEnabled = false
+            isDefault.set(true)
+            isMinifyEnabled = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+            signingConfig = signingConfigs.getByName("debug")
         }
     }
+}
+
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
+    kotlinOptions.jvmTarget = "1.8"
 }
 
 cargo {
@@ -44,6 +59,7 @@ repositories {
 dependencies {
     implementation(kotlin("stdlib-jdk8", kotlinVersion))
     testImplementation("junit:junit:4.13")
+    androidTestImplementation("androidx.benchmark:benchmark-junit4:1.0.0")
     androidTestImplementation("androidx.test.ext:junit:1.1.1")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.2.0")
 }
