@@ -1,0 +1,32 @@
+name: .NET Core
+
+on:
+  push:
+    paths:
+      - "ntge-core/**"
+      - "NtgeCore.Net/**"
+  pull_request:
+    paths:
+      - "ntge-core/**"
+      - "NtgeCore.Net/**"
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 3.1.101
+    - name: Install dependencies
+      working-directory: ./NtgeCore.Net
+      run: dotnet restore
+    - name: Build
+      working-directory: ./NtgeCore.Net
+      run: dotnet build --configuration Release --no-restore
+    - name: Test
+      working-directory: ./NtgeCore.Net
+      run: dotnet test --no-restore --verbosity normal
