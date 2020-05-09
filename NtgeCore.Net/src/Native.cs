@@ -3,7 +3,7 @@ using System.Runtime.InteropServices;
 
 namespace NtgeCore.Net
 {
-    public class Native
+    internal class Native
     {
         const string LIB_NAME = "ntge_core";
 
@@ -13,8 +13,8 @@ namespace NtgeCore.Net
         [DllImport(LIB_NAME)]
         public static extern void destroyEd25519PublicKey(IntPtr ptr);
 
-        [DllImport(LIB_NAME)]
-        public static extern IntPtr deserializeEd25519PublicKey(string str);
+        [DllImport(LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr deserializeEd25519PublicKey([In] byte[] str);
 
         [DllImport(LIB_NAME)]
         public static extern StringHandle serializeEd25519PublicKey(IntPtr ptr);
@@ -31,8 +31,8 @@ namespace NtgeCore.Net
         [DllImport(LIB_NAME)]
         public static extern StringHandle serializeEd25519PrivateKey(IntPtr ptr);
 
-        [DllImport(LIB_NAME)]
-        public static extern IntPtr deserializeEd25519PrivateKey(string ptr);
+        [DllImport(LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr deserializeEd25519PrivateKey([In] byte[] ptr);
 
         [DllImport(LIB_NAME)]
         public static extern IntPtr newEd25519Keypair();
@@ -64,14 +64,14 @@ namespace NtgeCore.Net
         [DllImport(LIB_NAME)]
         public static extern StringHandle serializeMessage(IntPtr ptr);
 
-        [DllImport(LIB_NAME)]
-        public static extern IntPtr deserializeMessage(string ptr);
+        [DllImport(LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr deserializeMessage([In] byte[] ptr);
 
         [DllImport(LIB_NAME)]
         public static extern void destroyMessageDecryptor(IntPtr ptr);
 
         [DllImport(LIB_NAME)]
-        public static extern IntPtr newMessageDecryptor();
+        public static extern IntPtr newMessageDecryptor(IntPtr message_ptr);
 
         [DllImport(LIB_NAME)]
         [return: MarshalAs(UnmanagedType.I1)]
@@ -85,7 +85,7 @@ namespace NtgeCore.Net
 
         [DllImport(LIB_NAME)]
         [return: MarshalAs(UnmanagedType.I1)]
-        public static extern bool messageDecryptorVerifySignature(IntPtr decryptor_ptr, IntPtr public_key_ptr);
+        public static extern bool messageDecryptorVerifySignature(IntPtr message_ptr, IntPtr public_key_ptr);
 
         [DllImport(LIB_NAME)]
         public static extern IntPtr ed25519PublicKeyToX25519(IntPtr ptr);
@@ -108,7 +108,7 @@ namespace NtgeCore.Net
         [DllImport(LIB_NAME)]
         public static extern void destroyMessageEncryptor(IntPtr ptr);
 
-        [DllImport(LIB_NAME)]
-        public static extern IntPtr encryptPlaintext(string input, IntPtr encryptor_ptr, IntPtr signature_key_ptr);
+        [DllImport(LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr encryptPlaintext([In] byte[] input, IntPtr encryptor_ptr, IntPtr signature_key_ptr);
     }
 }

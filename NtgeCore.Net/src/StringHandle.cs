@@ -4,27 +4,30 @@ using System.Text;
 
 namespace NtgeCore.Net
 {
-    public class StringHandle : SafeHandle
+    internal class StringHandle : SafeHandle
     {
-        public StringHandle() : base(IntPtr.Zero, true) { }
-
-        public override bool IsInvalid
+        public StringHandle() : base(IntPtr.Zero, true)
         {
-            get { return false; }
+
         }
+
+        public override bool IsInvalid => false;
 
         public string AsString()
         {
-            int len = 0;
-            while (Marshal.ReadByte(handle,len) != 0) { ++len; }
-            byte[] buffer = new byte[len];
+            var len = 0;
+            while (Marshal.ReadByte(handle, len) != 0)
+            {
+                ++len;
+            }
+            var buffer = new byte[len];
             Marshal.Copy(handle, buffer, 0, buffer.Length);
             return Encoding.UTF8.GetString(buffer);
         }
 
         protected override bool ReleaseHandle()
         {
-            
+
             Native.free_string(handle);
             return true;
         }
