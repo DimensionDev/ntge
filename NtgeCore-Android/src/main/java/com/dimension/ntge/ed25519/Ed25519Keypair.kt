@@ -15,12 +15,14 @@ class Ed25519Keypair internal constructor(
         }
     }
 
-    val privateKey = Ed25519PrivateKey(Ntge.getPrivateKeyFromEd25519Keypair(ptr))
-    val publicKey = Ed25519PublicKey(Ntge.getPublicKeyFromEd25519Keypair(ptr))
+    val privateKey by lazy {
+        Ed25519PrivateKey(Ntge.getPrivateKeyFromEd25519Keypair(ptr))
+    }
+    val publicKey by lazy {
+        Ed25519PublicKey(Ntge.getPublicKeyFromEd25519Keypair(ptr))
+    }
 
     override fun close() {
         Ntge.destroyEd25519Keypair(ptr)
-        privateKey.close()
-        publicKey.close()
     }
 }

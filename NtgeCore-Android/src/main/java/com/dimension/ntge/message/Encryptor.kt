@@ -6,8 +6,7 @@ import com.dimension.ntge.x25519.X25519PublicKey
 
 class Encryptor internal constructor(
         internal val ptr: Long,
-        private val keys_ptr: Long,
-        val keys: List<X25519PublicKey>
+        private val keys_ptr: Long
 ) : AutoCloseable {
 
     companion object {
@@ -16,7 +15,7 @@ class Encryptor internal constructor(
             x25519PublicKey.forEach {
                 Ntge.pushArrayX25519PublicKey(keyPtr, it.ptr)
             }
-            return Encryptor(Ntge.newMessageEncryptor(keyPtr), keyPtr, x25519PublicKey.toList())
+            return Encryptor(Ntge.newMessageEncryptor(keyPtr), keyPtr)
         }
     }
 
@@ -30,9 +29,6 @@ class Encryptor internal constructor(
     override fun close() {
         Ntge.destroyMessageEncryptor(ptr)
         Ntge.destroyArrayX25519PublicKey(keys_ptr)
-        keys.forEach {
-            it.close()
-        }
     }
 
 }
