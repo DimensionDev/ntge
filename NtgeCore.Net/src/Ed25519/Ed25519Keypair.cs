@@ -4,8 +4,8 @@ namespace NtgeCore.Net.Ed25519
 {
     public class Ed25519Keypair : RustObject
     {
-        private Ed25519PrivateKey _privateKey;
-        private Ed25519PublicKey _publicKey;
+        private Ed25519PrivateKey? _privateKey;
+        private Ed25519PublicKey? _publicKey;
 
         internal Ed25519Keypair(IntPtr ptr) : base(ptr)
         {

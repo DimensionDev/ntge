@@ -6,7 +6,7 @@ namespace NtgeCore.Net.Ed25519
 {
     public class Ed25519PrivateKey : RustObject
     {
-        private Ed25519PublicKey _publicKey;
+        private Ed25519PublicKey? _publicKey;
         internal Ed25519PrivateKey(IntPtr ptr) : base(ptr)
         {
         }
