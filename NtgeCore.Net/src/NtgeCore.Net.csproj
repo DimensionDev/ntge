@@ -9,19 +9,21 @@
     <RustRootDirectory>../rust</RustRootDirectory>
   </PropertyGroup>
 
-  <Target Name="CargoBuildDebug" BeforeTargets="PreBuildEvent"  Condition=" '$(Configuration)' == 'Debug' ">
-    <Exec Command="cargo build" WorkingDirectory="$(RustRootDirectory)"/>
+  <Target Name="CargoBuildDebug" BeforeTargets="PreBuildEvent" Condition=" '$(Configuration)' == 'Debug' ">
+    <Exec Command="cargo build" WorkingDirectory="$(RustRootDirectory)" />
     <ItemGroup Condition=" '$(Configuration)' == 'Debug' ">
-        <Content Include="$(RustRootDirectory)/target/debug/*ntge_core.*">
+      <Content Include="$(RustRootDirectory)/target/debug/*ntge_dotnet.*">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </Content>
+        <PackagePath>.\lib</PackagePath>
+      </Content>
     </ItemGroup>
   </Target>
   <Target Name="CargoBuildRelease" BeforeTargets="PreBuildEvent" Condition=" '$(Configuration)' == 'Release' ">
-    <Exec Command="cargo build --release" WorkingDirectory="$(RustRootDirectory)"/>
+    <Exec Command="cargo build --release" WorkingDirectory="$(RustRootDirectory)" />
     <ItemGroup Condition=" '$(Configuration)' == 'Release' ">
-      <Content Include="$(RustRootDirectory)/target/release/*ntge_core.*">
+      <Content Include="$(RustRootDirectory)/target/release/*ntge_dotnet.*">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <PackagePath>.\lib</PackagePath>
       </Content>
     </ItemGroup>
   </Target>
