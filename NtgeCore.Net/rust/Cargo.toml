@@ -1,0 +1,17 @@
+[package]
+name = "ntge-dotnet"
+version = "0.1.0"
+authors = ["Tlaster <tlaster@outlook.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[lib]
+name = "ntge_dotnet"
+crate-type = ["cdylib"]
+
+[dependencies]
+ntge-core = { path = "../../ntge-core" }
+libc = "0.2.69"
+
+[workspace]
