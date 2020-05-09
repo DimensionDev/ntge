@@ -16,6 +16,10 @@ namespace NtgeApp.DataSource
         private KeySource()
         {
             var path = Path.Combine(Consts.HomeDir, Consts.NtgeFolder);
+            if (!Directory.Exists(path))
+            {
+                Directory.CreateDirectory(path);
+            }
             var files = Directory.GetFiles(path);
             foreach (var file in files)
             {
