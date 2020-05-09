@@ -105,9 +105,7 @@ impl<'a> From<&'a Ed25519PrivateKey> for Ed25519PublicKey {
 
 impl Clone for Ed25519PublicKey {
     fn clone(&self) -> Self {
-        Ed25519PublicKey {
-            raw: self.raw.clone(),
-        }
+        Ed25519PublicKey { raw: self.raw }
     }
 }
 

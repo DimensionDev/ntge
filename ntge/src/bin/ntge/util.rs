@@ -11,14 +11,13 @@ pub(crate) fn read_input_bytes(arg_matches: &clap::ArgMatches) -> Vec<u8> {
     if let Some(path) = arg_matches.value_of("path") {
         // read from file
         let file_path = Path::new(path);
-        let file_bytes = match fs::read(&file_path) {
+        match fs::read(&file_path) {
             Ok(content) => content,
             Err(e) => {
                 eprintln!("error: can not read file {}.\nreason: {}", path, e);
                 std::process::exit(1);
             }
-        };
-        file_bytes
+        }
     } else {
         // read from stdin
         let mut input = String::new();
@@ -37,14 +36,13 @@ pub(crate) fn read_input_str(arg_matches: &clap::ArgMatches) -> String {
     if let Some(path) = arg_matches.value_of("path") {
         // read from file
         let file_path = Path::new(path);
-        let file_str = match fs::read_to_string(&file_path) {
+        match fs::read_to_string(&file_path) {
             Ok(content) => content,
             Err(e) => {
                 eprintln!("error: can not read file {}.\nreason: {}", path, e);
                 std::process::exit(1);
             }
-        };
-        file_str
+        }
     } else {
         // read from stdin
         let mut input = String::new();

@@ -2,10 +2,7 @@ pub mod decryptor;
 pub mod encryptor;
 pub mod recipient;
 
-use bs58;
-use bson;
 use serde::{Deserialize, Serialize};
-use serde_bytes;
 
 #[cfg(target_os = "ios")]
 use crate::strings;
@@ -139,7 +136,7 @@ impl Message {
         }
     }
 
-    fn deserialize_from_bson_bytes(bytes: &Vec<u8>) -> Result<Message, CoreError> {
+    fn deserialize_from_bson_bytes(bytes: &[u8]) -> Result<Message, CoreError> {
         let document = match bson::decode_document(&mut std::io::Cursor::new(&bytes[..])) {
             Ok(document) => document,
             Err(_) => {

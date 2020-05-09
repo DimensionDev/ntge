@@ -14,7 +14,7 @@ use crate::{
     ed25519::CURVE_NAME_ED25519, error,
 };
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct Ed25519PrivateKey {
     pub raw: ed25519_dalek::SecretKey,
 }
@@ -124,7 +124,7 @@ impl Drop for Ed25519PrivateKey {
 
 impl Clone for Ed25519PrivateKey {
     fn clone(&self) -> Self {
-        let bytes = self.raw.as_bytes().clone();
+        let bytes = *self.raw.as_bytes();
         Ed25519PrivateKey {
             raw: ed25519_dalek::SecretKey::from_bytes(&bytes)
                 .expect("should generate a new raw key from its bytes"),
