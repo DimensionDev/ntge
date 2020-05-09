@@ -1,14 +1,20 @@
-﻿namespace NtgeApp.ViewModels
+﻿using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Media;
+using NtgeApp.Models;
+using NtgeApp.Views;
+
+namespace NtgeApp.ViewModels
 {
-    class MainViewModel : ViewModelBase
+    internal class MainViewModel : ViewModelBase
     {
-        public string[] Menus { get; } = new[]
+        public TabItemModel[] Tabs { get; } =
         {
-            "Keys",
-            "Encrypt",
-            "Decrypt",
-            "Sign",
-            "Verify"
+            new TabItemModel("Keys", Application.Current.FindResource("BoxIcons.RegularKey") as GeometryDrawing,
+                new KeysView()),
+            new TabItemModel("Encrypt",
+                Application.Current.FindResource("MaterialDesign.EnhancedEncryption") as GeometryDrawing,
+                new EncryptView())
         };
     }
 }

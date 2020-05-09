@@ -5,61 +5,69 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:viewModels="clr-namespace:NtgeApp.ViewModels"
     xmlns:views="clr-namespace:NtgeApp.Views"
+    xmlns:models="clr-namespace:NtgeApp.Models"
     mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
     x:Class="NtgeApp.MainWindow"
     Title="NtgeApp">
     <Window.Styles>
         <Style Selector="TabControl">
-            <Setter Property="Background" Value="#F0F0F0"/>
+            <Setter Property="Background" Value="#F0F0F0" />
         </Style>
-        <Style Selector="TabControl WrapPanel">
-            <Setter Property="Background" Value="#2B579A"/>
+        <Style Selector="TabControl /template/ ItemsPresenter#PART_ItemsPresenter > WrapPanel">
+            <Setter Property="Background" Value="{DynamicResource PrimaryColorBrush}" />
         </Style>
-
         <Style Selector="TabItem">
-            <Setter Property="Background" Value="#2B579A"/>
-            <Setter Property="FontSize" Value="16"/>
-            <Setter Property="Foreground" Value="#F0F0F0"/>
-            <Setter Property="Margin" Value="0 0 0 0"/>
-            <Setter Property="Padding" Value="32 16"/>
+            <Setter Property="Background" Value="{DynamicResource PrimaryColorBrush}" />
+            <Setter Property="FontSize" Value="16" />
+            <Setter Property="Foreground" Value="#F0F0F0" />
+            <Setter Property="Opacity" Value="0.66" />
+            <Setter Property="Margin" Value="0 0 0 0" />
+            <Setter Property="Padding" Value="32 16" />
         </Style>
         <Style Selector="TabItem:pointerover /template/ ContentPresenter#PART_ContentPresenter">
-            <Setter Property="Background" Value="#124078"/>
+            <Setter Property="Background" Value="#55000000" />
         </Style>
-
         <Style Selector="TabItem:focus">
-            <Setter Property="Foreground" Value="#2B579A"/>
+            <Setter Property="Opacity" Value="0.87" />
         </Style>
         <Style Selector="TabItem:focus /template/ ContentPresenter#PART_ContentPresenter">
-            <Setter Property="Background" Value="#f0f0f0"/>
+            <!-- <Setter Property="Background" Value="#f0f0f0" /> -->
         </Style>
 
         <Style Selector="TabItem:selected">
-            <Setter Property="Foreground" Value="#2B579A"/>
+            <Setter Property="Opacity" Value="1" />
+            <Setter Property="Background" Value="#77000000" />
+            <!-- <Setter Property="Foreground" Value="#2B579A" /> -->
         </Style>
         <Style Selector="TabItem:selected /template/ ContentPresenter#PART_ContentPresenter">
-            <Setter Property="Background" Value="#f0f0f0"/>
+            <Setter Property="Opacity" Value="1" />
+            <!-- <Setter Property="Background" Value="#f0f0f0" /> -->
         </Style>
 
     </Window.Styles>
 
     <Window.DataContext>
-        <viewModels:MainViewModel/>
+        <viewModels:MainViewModel />
     </Window.DataContext>
     <Grid>
-        <TabControl TabStripPlacement="Left">
-            <TabItem Header="Keys">
-                <views:KeysView/>
-            </TabItem>
-            <TabItem Header="Encrypt">
-                <views:EncryptView/>
-            </TabItem>
-            <TabItem Header="Decrypt">
-            </TabItem>
-            <TabItem Header="Sign">
-            </TabItem>
-            <TabItem Header="Verify">
-            </TabItem>
+        <TabControl Items="{Binding Tabs}" TabStripPlacement="Left">
+            <TabControl.ContentTemplate>
+                <DataTemplate DataType="models:TabItemModel">
+                    <ContentPresenter Content="{Binding Content}" />
+                </DataTemplate>
+            </TabControl.ContentTemplate>
+            <TabControl.ItemTemplate>
+                <DataTemplate DataType="models:TabItemModel">
+                    <StackPanel Orientation="Horizontal">
+                        <Image Height="24" Width="24">
+                            <Image.Source>
+                                <DrawingImage Drawing="{Binding Icon}" />
+                            </Image.Source>
+                        </Image>
+                        <TextBlock VerticalAlignment="Center" Margin="8,0,0,0" Text="{Binding Title}" />
+                    </StackPanel>
+                </DataTemplate>
+            </TabControl.ItemTemplate>
         </TabControl>
     </Grid>
 </Window>

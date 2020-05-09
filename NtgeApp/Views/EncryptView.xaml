@@ -6,35 +6,50 @@
     xmlns:viewModels="clr-namespace:NtgeApp.ViewModels"
     mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
     x:Class="NtgeApp.Views.EncryptView">
-    
+
     <UserControl.DataContext>
-        <viewModels:EncryptViewModel/>
+        <viewModels:EncryptViewModel />
     </UserControl.DataContext>
-    
+
     <Grid Margin="8">
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="2*"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="2*"/>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="2*" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="2*" />
         </Grid.RowDefinitions>
         <StackPanel Margin="8" Orientation="Horizontal">
-            <TextBlock Text="Recipient" VerticalAlignment="Center"/>
+            <TextBlock Text="Recipient" VerticalAlignment="Center" />
             <Button Margin="8,0,0,0" Click="OnAddClick">
-                <TextBlock Text="+" Padding="16,0"/>
+                <TextBlock Text="+" Padding="16,0" />
             </Button>
         </StackPanel>
-        <ListBox Grid.Row="1" Items="{Binding Keys}">
+        <ListBox ScrollViewer.HorizontalScrollBarVisibility="Disabled" Grid.Row="1" Items="{Binding Keys}">
+            <ListBox.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <WrapPanel />
+                </ItemsPanelTemplate>
+            </ListBox.ItemsPanel>
             <ListBox.ItemTemplate>
                 <DataTemplate>
-                    <TextBlock Margin="8" Text="{Binding}"/>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Margin="8" Text="{Binding}" />
+                        <Button Classes="Transparent" Click="OnRemoveClick" DataContext="{Binding}">
+                            <Image Width="16" Height="16">
+                                <Image.Source>
+                                    <DrawingImage Drawing="{DynamicResource CloseCircleOutlineiOS}" />
+                                </Image.Source>
+                            </Image>
+                        </Button>
+                    </StackPanel>
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>
-        <TextBox Text="{Binding Input, Mode=TwoWay}" Margin="8" Grid.Row="2" TextWrapping="Wrap" AcceptsReturn="True"></TextBox>
-        <TextBlock Margin="8" Grid.Row="3" Text="Result"/>
-        <TextBox TextWrapping="Wrap" Text="{Binding Output}" Margin="8" Grid.Row="4" IsReadOnly="True" AcceptsReturn="True"></TextBox>
+        <TextBox Text="{Binding Input, Mode=TwoWay}" Margin="8" Grid.Row="2" TextWrapping="Wrap" AcceptsReturn="True" />
+        <TextBlock Margin="8" Grid.Row="3" Text="Result" />
+        <TextBox TextWrapping="Wrap" Text="{Binding Output}" Margin="8" Grid.Row="4" IsReadOnly="True"
+                 AcceptsReturn="True" />
     </Grid>
-    
+
 </UserControl>

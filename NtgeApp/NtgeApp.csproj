@@ -2,12 +2,17 @@
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>netcoreapp3.1</TargetFramework>
+    <LangVersion>preview</LangVersion>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
     <Compile Update="**\*.xaml.cs">
       <DependentUpon>%(Filename)</DependentUpon>
     </Compile>
     <AvaloniaResource Include="**\*.xaml">
+      <SubType>Designer</SubType>
+    </AvaloniaResource>
+    <AvaloniaResource Update="Resources\Icons.xaml">
       <SubType>Designer</SubType>
     </AvaloniaResource>
   </ItemGroup>
@@ -22,6 +27,5 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Views" />
-    <Folder Include="Dialogs" />
   </ItemGroup>
 </Project>

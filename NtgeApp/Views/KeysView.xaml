@@ -7,33 +7,34 @@
     xmlns:models="clr-namespace:NtgeApp.Models"
     mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
     x:Class="NtgeApp.Views.KeysView">
-    
+
     <UserControl.DataContext>
         <viewModels:KeysViewModel />
     </UserControl.DataContext>
-    
+
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
         </Grid.RowDefinitions>
         <StackPanel Orientation="Horizontal" Margin="8,0">
-            <TextBlock VerticalAlignment="Center" Text="Manage your keys" Margin="8,0"></TextBlock>
-            <Button Click="OnCreateClicked" HorizontalAlignment="Right" Classes="PrimaryButton" Margin="8" Padding="16,8">
-                <TextBlock Text="Create"></TextBlock>
+            <TextBlock VerticalAlignment="Center" Text="Manage your keys" Margin="8,0" />
+            <Button Click="OnCreateClicked" HorizontalAlignment="Right" Classes="PrimaryButton" Margin="8"
+                    Padding="16,8">
+                <TextBlock Text="Create" />
             </Button>
         </StackPanel>
-        <AutoCompleteBox Grid.Row="1" Margin="16"></AutoCompleteBox>
+        <AutoCompleteBox Grid.Row="1" Margin="16" />
         <ListBox Grid.Row="2" Items="{Binding Items}">
             <ListBox.ItemTemplate>
                 <DataTemplate DataType="models:KeyModel">
                     <Grid Margin="8">
-                        <TextBlock Text="{Binding Name}"/>
+                        <TextBlock Text="{Binding Name}" />
                     </Grid>
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>
     </Grid>
-    
+
 </UserControl>

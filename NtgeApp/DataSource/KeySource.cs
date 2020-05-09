@@ -9,53 +9,60 @@ namespace NtgeApp.DataSource
 {
     public class KeySource
     {
-        public static KeySource Instance { get; } = new KeySource();
         private readonly FileSystemWatcher _watcher;
-        public ObservableCollection<KeyModel> Items { get;  } = new ObservableCollection<KeyModel>();
 
         private KeySource()
         {
-            var path = Path.Combine(Consts.HomeDir, Consts.NtgeFolder);
-            if (!Directory.Exists(path))
-            {
-                Directory.CreateDirectory(path);
-            }
-            var files = Directory.GetFiles(path);
-            foreach (var file in files)
-            {
-                Items.Add(new KeyModel(file));
-            }
+            LoadKeys();
 
             _watcher = new FileSystemWatcher();
             _watcher.NotifyFilter = NotifyFilters.FileName | NotifyFilters.CreationTime | NotifyFilters.LastWrite;
-            _watcher.Path = path;
+            _watcher.Path = Path.Combine(Consts.HomeDir, Consts.NtgeFolder);
             _watcher.Renamed += WatcherOnRenamed;
             _watcher.Created += WatcherOnCreated;
             _watcher.Deleted += WatcherOnDeleted;
             _watcher.EnableRaisingEvents = true;
         }
-        
+
+        public static KeySource Instance { get; } = new KeySource();
+        public ObservableCollection<KeyModel> Items { get; } = new ObservableCollection<KeyModel>();
+
+        private void LoadKeys()
+        {
+            Items.Clear();
+            var path = Path.Combine(Consts.HomeDir, Consts.NtgeFolder);
+            if (!Directory.Exists(path))
+            {
+                Directory.CreateDirectory(path);
+            }
+
+            var files = Directory.GetFiles(path)
+                .Select(it => (path: it, name: Path.GetFileNameWithoutExtension(it)))
+                .Where(it => !string.IsNullOrEmpty(it.name))
+                .GroupBy(it => it.name)
+                .Where(it => it.Count() == 2 && File.Exists(it.FirstOrDefault().path + ".pub"))
+                .SelectMany(it => it.Where(tuple => !tuple.path.EndsWith(".pub")))
+                .Select(it => it.path);
+
+            foreach (var file in files)
+            {
+                Items.Add(new KeyModel(file));
+            }
+        }
+
         private void WatcherOnDeleted(object sender, FileSystemEventArgs e)
         {
-            var item = Items.FirstOrDefault(it => it.Path == e.FullPath);
-            if (item != null)
-            {
-                Dispatcher.UIThread.Post(() => Items.Remove(item));
-            }
+            Dispatcher.UIThread.Post(LoadKeys);
         }
 
         private void WatcherOnCreated(object sender, FileSystemEventArgs e)
         {
-            Dispatcher.UIThread.Post(() => Items.Add(new KeyModel(e.FullPath)));
+            Dispatcher.UIThread.Post(LoadKeys);
         }
 
         private void WatcherOnRenamed(object sender, RenamedEventArgs e)
         {
-            var item = Items.FirstOrDefault(it => it.Path == e.OldFullPath);
-            if (item != null)
-            {
-                Dispatcher.UIThread.Post(() => item.Path = e.FullPath);
-            }
+            Dispatcher.UIThread.Post(LoadKeys);
         }
     }
 }

@@ -1,3 +1,4 @@
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Interactivity;
@@ -17,13 +18,13 @@ namespace NtgeApp.Views
 
         private async void OnCreateClicked(object? sender, RoutedEventArgs e)
         {
-            if (App.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+            if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
             {
                 var dialog = new CreateKeyDialog();
                 await dialog.ShowDialog(desktop.MainWindow);
             }
         }
-        
+
         private void InitializeComponent()
         {
             AvaloniaXamlLoader.Load(this);
