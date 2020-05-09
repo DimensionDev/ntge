@@ -1,0 +1,40 @@
+<UserControl
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:viewModels="clr-namespace:NtgeApp.ViewModels"
+    mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+    x:Class="NtgeApp.Views.EncryptView">
+    
+    <UserControl.DataContext>
+        <viewModels:EncryptViewModel/>
+    </UserControl.DataContext>
+    
+    <Grid Margin="8">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="2*"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="2*"/>
+        </Grid.RowDefinitions>
+        <StackPanel Margin="8" Orientation="Horizontal">
+            <TextBlock Text="Recipient" VerticalAlignment="Center"/>
+            <Button Margin="8,0,0,0" Click="OnAddClick">
+                <TextBlock Text="+" Padding="16,0"/>
+            </Button>
+        </StackPanel>
+        <ListBox Grid.Row="1" Items="{Binding Keys}">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock Margin="8" Text="{Binding}"/>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+        <TextBox Text="{Binding Input, Mode=TwoWay}" Margin="8" Grid.Row="2" TextWrapping="Wrap" AcceptsReturn="True"></TextBox>
+        <TextBlock Margin="8" Grid.Row="3" Text="Result"/>
+        <TextBox TextWrapping="Wrap" Text="{Binding Output}" Margin="8" Grid.Row="4" IsReadOnly="True" AcceptsReturn="True"></TextBox>
+    </Grid>
+    
+</UserControl>

@@ -1,0 +1,34 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        Height="300"
+        Width="400"
+        x:Class="NtgeApp.Dialogs.CreateKeyDialog"
+        WindowStartupLocation="CenterOwner"
+        Title="Create key">
+        
+    <Grid Margin="8">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <TextBlock Margin="8" Text="Key name"/>
+        <TextBox Margin="8" Name="CreateKeyTextBox" Grid.Row="1"></TextBox>
+        <Grid Grid.Row="3">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Button Margin="8" Click="OnCancelClicked">
+                <TextBlock Text="Cancel"/>
+            </Button>
+            <Button Margin="8" Click="OnOkClicked" Grid.Column="1" Classes="PrimaryButton">
+                <TextBlock Text="Ok"/>
+            </Button>
+        </Grid>
+    </Grid>
+</Window>

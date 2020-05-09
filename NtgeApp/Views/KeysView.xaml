@@ -1,0 +1,39 @@
+<UserControl
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:viewModels="clr-namespace:NtgeApp.ViewModels"
+    xmlns:models="clr-namespace:NtgeApp.Models"
+    mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+    x:Class="NtgeApp.Views.KeysView">
+    
+    <UserControl.DataContext>
+        <viewModels:KeysViewModel />
+    </UserControl.DataContext>
+    
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <StackPanel Orientation="Horizontal" Margin="8,0">
+            <TextBlock VerticalAlignment="Center" Text="Manage your keys" Margin="8,0"></TextBlock>
+            <Button Click="OnCreateClicked" HorizontalAlignment="Right" Classes="PrimaryButton" Margin="8" Padding="16,8">
+                <TextBlock Text="Create"></TextBlock>
+            </Button>
+        </StackPanel>
+        <AutoCompleteBox Grid.Row="1" Margin="16"></AutoCompleteBox>
+        <ListBox Grid.Row="2" Items="{Binding Items}">
+            <ListBox.ItemTemplate>
+                <DataTemplate DataType="models:KeyModel">
+                    <Grid Margin="8">
+                        <TextBlock Text="{Binding Name}"/>
+                    </Grid>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+    </Grid>
+    
+</UserControl>
