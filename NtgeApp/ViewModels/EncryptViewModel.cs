@@ -1,8 +1,13 @@
-﻿using System.Collections.ObjectModel;
+﻿using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Linq;
+using NtgeApp.Models;
+using NtgeCore.Net;
 using NtgeCore.Net.Ed25519;
 using NtgeCore.Net.Message;
+using NtgeCore.Net.X25519;
 using PropertyChanged;
 
 namespace NtgeApp.ViewModels
@@ -14,7 +19,7 @@ namespace NtgeApp.ViewModels
             Keys.CollectionChanged += KeysOnCollectionChanged;
         }
 
-        public ObservableCollection<string> Keys { get; } = new ObservableCollection<string>();
+        public ObservableCollection<EncryptKeyModel> Keys { get; } = new ObservableCollection<EncryptKeyModel>();
 
         public string? Input { get; set; }
 
@@ -28,14 +33,38 @@ namespace NtgeApp.ViewModels
                     return string.Empty;
                 }
 
-                return Encryptor.New(Keys.Select(it => Ed25519PublicKey.Deserialize(it).ToX25519()).ToArray())
-                    .EncryptPlaintext(Input).Serialize();
+                using var encryptor = Encryptor.New(Keys.Select(it => it.X25519PublicKey).ToArray());
+                using var message = encryptor.EncryptPlaintext(Input);
+                return message.Serialize();
             }
         }
 
         private void KeysOnCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
             OnPropertyChanged(Output);
+        }
+
+        public void AddKey(string publicKey)
+        {
+            if (Keys.Any(it => it.Content == publicKey))
+            {
+                return;
+            }
+
+            try
+            {
+                using var ed25519PublicKey = Ed25519PublicKey.Deserialize(publicKey);
+                Keys.Add(new EncryptKeyModel(publicKey, ed25519PublicKey.ToX25519()));
+            }
+            catch (NtgeException e)
+            {
+            }
+        }
+
+        public void RemoveKey(EncryptKeyModel publicKey)
+        {
+            Keys.Remove(publicKey);
+            publicKey?.Dispose();
         }
     }
 }

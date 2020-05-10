@@ -3,6 +3,7 @@ using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
+using Avalonia.Media;
 using NtgeApp.Dialogs;
 using NtgeApp.Models;
 using NtgeApp.ViewModels;
@@ -25,9 +26,9 @@ namespace NtgeApp.Views
                 return;
             }
 
-            if (sender is Button button && button.DataContext is string value)
+            if (sender is Button button && button.DataContext is EncryptKeyModel value)
             {
-                viewModel.Keys.Remove(value);
+                viewModel.RemoveKey(value);
             }
         }
 
@@ -41,15 +42,19 @@ namespace NtgeApp.Views
             var dialog = new KeyPickerDialog();
             if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
             {
-                var result = await dialog.ShowDialog<KeyModel>(desktop.MainWindow);
-                if (result != null)
+                var result = await dialog.ShowDialog<object>(desktop.MainWindow);
+                switch (result)
                 {
-                    await result.EnsurePublicKeyContent();
-                    if (!string.IsNullOrEmpty(result.PublicKeyContent) &&
-                        !viewModel.Keys.Contains(result.PublicKeyContent))
-                    {
-                        viewModel.Keys.Add(result.PublicKeyContent);
-                    }
+                    case KeyModel keyModel:
+                        await keyModel.EnsurePublicKeyContent();
+                        if (!string.IsNullOrEmpty(keyModel.PublicKeyContent))
+                        {
+                            viewModel.AddKey(keyModel.PublicKeyContent);
+                        }
+                        break;
+                    case string key: 
+                        viewModel.AddKey(key);
+                        break;
                 }
             }
         }

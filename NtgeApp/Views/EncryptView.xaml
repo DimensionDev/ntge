@@ -4,6 +4,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:viewModels="clr-namespace:NtgeApp.ViewModels"
+    xmlns:models="clr-namespace:NtgeApp.Models"
     mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
     x:Class="NtgeApp.Views.EncryptView">
 
@@ -19,10 +20,10 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="2*" />
         </Grid.RowDefinitions>
-        <StackPanel Margin="8" Orientation="Horizontal">
-            <TextBlock Text="Recipient" VerticalAlignment="Center" />
-            <Button Margin="8,0,0,0" Click="OnAddClick">
-                <TextBlock Text="+" Padding="16,0" />
+        <StackPanel Orientation="Horizontal">
+            <TextBlock Text="Recipient" VerticalAlignment="Center" Margin="8,0" />
+            <Button Margin="8,0,0,0" MinWidth="100" Click="OnAddClick">
+                <TextBlock Text="+" />
             </Button>
         </StackPanel>
         <ListBox ScrollViewer.HorizontalScrollBarVisibility="Disabled" Grid.Row="1" Items="{Binding Keys}">
@@ -32,9 +33,9 @@
                 </ItemsPanelTemplate>
             </ListBox.ItemsPanel>
             <ListBox.ItemTemplate>
-                <DataTemplate>
+                <DataTemplate DataType="models:EncryptKeyModel">
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock Margin="8" Text="{Binding}" />
+                        <TextBlock Margin="8" Text="{Binding Content}" />
                         <Button Classes="Transparent" Click="OnRemoveClick" DataContext="{Binding}">
                             <Image Width="16" Height="16">
                                 <Image.Source>
