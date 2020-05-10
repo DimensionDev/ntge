@@ -1,0 +1,44 @@
+<UserControl
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:viewModels="clr-namespace:NtgeApp.ViewModels"
+    xmlns:models="clr-namespace:NtgeApp.Models"
+    mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+    x:Class="NtgeApp.Views.DecryptView">
+    <UserControl.DataContext>
+        <viewModels:DecryptViewModel />
+    </UserControl.DataContext>
+
+    <Grid Margin="8">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <Grid >
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="Decrypt with" VerticalAlignment="Center" Margin="8,0" />
+                <Button Margin="8,0,0,0" MinWidth="100" Click="OnSelectKeyClick">
+                    <TextBlock Text="Select Key.." />
+                </Button>
+            </StackPanel>
+            <TextBlock Grid.Row="1" Text="{Binding DecryptKeyModel.Content}" VerticalAlignment="Center" Margin="8,8,8,0" />
+            <TextBox Margin="8" AcceptsReturn="True" TextWrapping="Wrap" Grid.Row="2" Text="{Binding Input, Mode=TwoWay}"/>
+        </Grid>
+        <Grid Grid.Column="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <TextBlock Grid.Row="0" Text="Result" VerticalAlignment="Center" Margin="8,8,8,0" />
+            <TextBox Margin="8" TextWrapping="Wrap" Text="{Binding Output}" Grid.Row="1" IsReadOnly="True" />
+        </Grid>
+    </Grid>
+
+</UserControl>

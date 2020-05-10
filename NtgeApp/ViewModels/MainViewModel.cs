@@ -14,7 +14,10 @@ namespace NtgeApp.ViewModels
                 new KeysView()),
             new TabItemModel("Encrypt",
                 Application.Current.FindResource("MaterialDesign.EnhancedEncryption") as GeometryDrawing,
-                new EncryptView())
+                new EncryptView()),
+            new TabItemModel("Decrypt",
+                Application.Current.FindResource("Ionicons.UnlockiOS") as GeometryDrawing,
+                new DecryptView())
         };
     }
 }
