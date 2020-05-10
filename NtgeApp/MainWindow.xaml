@@ -4,14 +4,13 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:viewModels="clr-namespace:NtgeApp.ViewModels"
-    xmlns:views="clr-namespace:NtgeApp.Views"
     xmlns:models="clr-namespace:NtgeApp.Models"
     mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
     x:Class="NtgeApp.MainWindow"
     Title="NtgeApp">
     <Window.Styles>
-        <Style Selector="TabControl">
-            <Setter Property="Background" Value="#F0F0F0" />
+        <Style Selector="TabControl[TabStripPlacement=Left]">
+            <Setter Property="Padding" Value="0"/>
         </Style>
         <Style Selector="TabControl /template/ ItemsPresenter#PART_ItemsPresenter > WrapPanel">
             <Setter Property="Background" Value="{DynamicResource PrimaryColorBrush}" />
@@ -23,24 +22,27 @@
             <Setter Property="Opacity" Value="0.66" />
             <Setter Property="Margin" Value="0 0 0 0" />
             <Setter Property="Padding" Value="32 16" />
+            <Setter Property="Transitions">
+                <Transitions>
+                    <DoubleTransition Property="Opacity" Duration="0:0:0.2"/>
+                </Transitions>
+            </Setter>
         </Style>
         <Style Selector="TabItem:pointerover /template/ ContentPresenter#PART_ContentPresenter">
             <Setter Property="Background" Value="#55000000" />
         </Style>
-        <Style Selector="TabItem:focus">
+        <Style Selector="TabItem:pointerover">
             <Setter Property="Opacity" Value="0.87" />
         </Style>
-        <Style Selector="TabItem:focus /template/ ContentPresenter#PART_ContentPresenter">
-            <!-- <Setter Property="Background" Value="#f0f0f0" /> -->
+        <Style Selector="TabItem:focus">
+            <Setter Property="Opacity" Value="0.87" />
         </Style>
 
         <Style Selector="TabItem:selected">
             <Setter Property="Opacity" Value="1" />
             <Setter Property="Background" Value="#77000000" />
-            <!-- <Setter Property="Foreground" Value="#2B579A" /> -->
         </Style>
         <Style Selector="TabItem:selected /template/ ContentPresenter#PART_ContentPresenter">
-            <Setter Property="Opacity" Value="1" />
             <!-- <Setter Property="Background" Value="#f0f0f0" /> -->
         </Style>
 
