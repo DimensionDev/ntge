@@ -21,13 +21,23 @@ namespace NtgeCore.Net.Message
 
         public X25519FileKey GetFileKey(X25519PrivateKey privateKey)
         {
-            return new X25519FileKey(Native.messageDecryptorDecryptFileKey(Ptr, privateKey.Ptr));
+            var ptr = Native.messageDecryptorDecryptFileKey(Ptr, privateKey.Ptr);
+            if (ptr == IntPtr.Zero)
+            {
+                throw new NtgeException("Can not get file key");
+            }
+            return new X25519FileKey(ptr);
         }
 
         public string DecryptPayload(X25519FileKey fileKey)
         {
-            using var result = Native.messageDecryptorDecryptPayload(Ptr, fileKey.Ptr);
-            return result.AsString();
+            var ptr = Native.messageDecryptorDecryptPayload(Ptr, fileKey.Ptr);
+            if (ptr == IntPtr.Zero)
+            {
+                throw new NtgeException("Can not decrypt payload");
+            }
+            using var stringHandle = new StringHandle(ptr);
+            return stringHandle.AsString();
         }
 
         public override void Dispose()

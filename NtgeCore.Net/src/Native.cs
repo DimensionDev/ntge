@@ -81,7 +81,7 @@ namespace NtgeCore.Net
         public static extern IntPtr messageDecryptorDecryptFileKey(IntPtr decryptor_ptr, IntPtr private_key_ptr);
 
         [DllImport(LIB_NAME)]
-        public static extern StringHandle messageDecryptorDecryptPayload(IntPtr decryptor_ptr, IntPtr file_key_ptr);
+        public static extern IntPtr messageDecryptorDecryptPayload(IntPtr decryptor_ptr, IntPtr file_key_ptr);
 
         [DllImport(LIB_NAME)]
         [return: MarshalAs(UnmanagedType.I1)]
