@@ -75,5 +75,5 @@ jobs:
     - name: Archive publish artifacts
       uses: actions/upload-artifact@v1
       with:
-        name: NtgeApp_osx-64
+        name: NtgeApp_osx-x64
         path: NtgeApp/bin/Release/netcoreapp3.1/osx-x64/publish
