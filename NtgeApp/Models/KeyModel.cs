@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
@@ -15,8 +16,12 @@ namespace NtgeApp.Models
 
         public string Path { get; set; }
 
-        [DependsOn(nameof(Path))] public string Name => System.IO.Path.GetFileName(Path);
+        [DependsOn(nameof(Path))] 
+        public string Name => System.IO.Path.GetFileName(Path);
 
+        [DependsOn(nameof(Path))]
+        public FileInfo FileInfo => new FileInfo(Path);
+        
         // public string Content { get; set; }
 
         public string? PublicKeyContent { get; set; }
@@ -38,7 +43,7 @@ namespace NtgeApp.Models
             if (string.IsNullOrEmpty(PrivateKeyContent))
             {
                 var result = await File.ReadAllTextAsync(Path);
-                PublicKeyContent = result.Trim();
+                PrivateKeyContent = result.Trim();
             }
         }
 
