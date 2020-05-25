@@ -110,5 +110,8 @@ namespace NtgeCore.Net
 
         [DllImport(LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
         public static extern IntPtr encryptPlaintext([In] byte[] input, IntPtr encryptor_ptr, IntPtr signature_key_ptr);
+
+        [DllImport(LIB_NAME)]
+        public static extern StringHandle publicKeyKeyId(IntPtr public_key);
     }
 }

@@ -273,4 +273,11 @@ pub mod net_core {
         let message = (*encryptor).encrypt(&data[..], signature_key.as_ref());
         Box::into_raw(Box::new(message))
     }
+
+    #[no_mangle]
+    pub unsafe extern "C" fn publicKeyKeyId(public_key: *mut Ed25519PublicKey) -> *mut c_char {
+        let public_key = &mut *public_key;
+        let key_id = public_key.key_id();
+        CString::new(key_id).unwrap().into_raw()
+    }
 }
