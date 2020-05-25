@@ -4,7 +4,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.dimension.ntge.ed25519.Ed25519Keypair
 import com.dimension.ntge.ed25519.Ed25519PrivateKey
 import com.dimension.ntge.ed25519.Ed25519PublicKey
-import org.junit.Assert.assertTrue
+import org.junit.Assert.*
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -121,6 +121,13 @@ class KeyTest {
             ed25519PrivateKey.toX25519().use { x25519PrivateKey ->
                 assertTrue(x25519PrivateKey.ptr != 0L)
             }
+        }
+    }
+
+    @Test
+    fun it_get_Ed25519PublicKey_KeyId() {
+        Ed25519PublicKey.deserialize(test_publicKey).use { publicKey ->
+            assertFalse(publicKey.keyId.isNullOrEmpty())
         }
     }
 }

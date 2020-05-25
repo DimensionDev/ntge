@@ -13,6 +13,10 @@ class Ed25519PublicKey internal constructor(
         }
     }
 
+    val keyId by lazy {
+        Ntge.publicKeyKeyId(ptr)
+    }
+
     fun serialize(): String {
         return Ntge.serializeEd25519PublicKey(ptr)
     }
