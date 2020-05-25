@@ -56,6 +56,15 @@ extension NtgeCoreTests_Ed25519 {
         _ = Ed25519.PublicKey.deserialize(serialized: serializedPublicKey)
     }
     
+    func testPublicKey_keyID() {
+        let publicKey = Ed25519.PrivateKey().publicKey
+        let keyID = publicKey.keyID()
+        let keyID2 = publicKey.keyID()
+        print(keyID)
+        XCTAssert(!keyID.isEmpty)
+        XCTAssertEqual(keyID, keyID2)
+    }
+    
 }
 
 extension NtgeCoreTests_Ed25519 {
