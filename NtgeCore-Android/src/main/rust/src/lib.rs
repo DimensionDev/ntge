@@ -4,7 +4,7 @@ pub mod android {
     extern crate jni;
     use self::jni::objects::{JClass, JString};
     use self::jni::JNIEnv;
-    use jni::sys::{jboolean, jbyteArray, jstring, jlong};
+    use jni::sys::{jboolean, jbyteArray, jlong, jstring};
     use ntge_core::ed25519::keypair::Ed25519Keypair;
     use ntge_core::ed25519::private::Ed25519PrivateKey;
     use ntge_core::ed25519::public::Ed25519PublicKey;
@@ -430,5 +430,18 @@ pub mod android {
         let signature_key = signature_key as *mut Ed25519PrivateKey;
         let message = (*encryptor).encrypt(&data[..], signature_key.as_ref());
         Box::into_raw(Box::new(message))
+    }
+
+    #[no_mangle]
+    pub unsafe extern "system" fn Java_com_dimension_ntge_Ntge_publicKeyKeyId(
+        _env: JNIEnv,
+        _class: JClass,
+        public_key: jlong,
+    ) -> jstring {
+        let public_key = public_key as *mut Ed25519PublicKey;
+        let output = _env
+            .new_string((*public_key).key_id())
+            .expect("Couldn't create java string!");
+        output.into_inner()
     }
 }

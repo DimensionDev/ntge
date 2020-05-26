@@ -89,5 +89,12 @@ namespace NtgeCore.Net.Test
             using var x25519Key = privateKey.ToX25519();
             Assert.True(x25519Key.Ptr != IntPtr.Zero);
         }
+
+        [Fact]
+        public void GetEd25519PublicKeyId()
+        {
+            using var publicKey = Ed25519PublicKey.Deserialize(test_publicKey);
+            Assert.True(!string.IsNullOrEmpty(publicKey.KeyId));
+        }
     }
 }

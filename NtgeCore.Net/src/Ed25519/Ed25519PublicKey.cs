@@ -6,6 +6,7 @@ namespace NtgeCore.Net.Ed25519
 {
     public class Ed25519PublicKey : RustObject
     {
+        private String? _keyId;
         internal Ed25519PublicKey(IntPtr ptr) : base(ptr)
         {
         }
@@ -18,6 +19,19 @@ namespace NtgeCore.Net.Ed25519
                 throw new NtgeException("Can not deserialize private key");
             }
             return new Ed25519PublicKey(ptr);
+        }
+
+        public String KeyId 
+        {
+            get 
+            {
+                if (_keyId == null)
+                {
+                    using var handle = Native.publicKeyKeyId(Ptr);
+                    _keyId = handle.AsString();
+                }
+                return _keyId;
+            }
         }
 
         public string Serialize()
