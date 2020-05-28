@@ -358,7 +358,7 @@ mod tests {
 
         // create decryptor
         let decryptor = decryptor::Decryptor::new(&message);
-        // get file keycar
+        // get file key
         let file_key = decryptor
             .decrypt_file_key(&alice_secret_key_x25519)
             .expect("could decrypt file key");
