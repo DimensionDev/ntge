@@ -173,6 +173,29 @@ pub unsafe extern "C" fn c_message_decryptor_decrypt_payload(
 
 #[no_mangle]
 #[cfg(target_os = "ios")]
+pub unsafe extern "C" fn c_message_decryptor_decrypt_extra(
+    decryptor: *mut Decryptor,
+    file_key: *mut FileKey,
+) -> Buffer {
+    let decryptor = &mut *decryptor;
+    let file_key = &mut *file_key;
+    match decryptor.decrypt_extra(&file_key) {
+        Some(bytes) => {
+            let slice = bytes.into_boxed_slice();
+            let data = slice.as_ptr();
+            let len = slice.len();
+            std::mem::forget(slice);
+            Buffer { data, len }
+        }
+        None => Buffer {
+            data: std::ptr::null_mut(),
+            len: 0,
+        },
+    }
+}
+
+#[no_mangle]
+#[cfg(target_os = "ios")]
 pub unsafe extern "C" fn c_message_decryptor_verify_signature(
     message: *mut Message,
     public_key: *mut Ed25519PublicKey,

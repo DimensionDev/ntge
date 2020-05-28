@@ -217,3 +217,19 @@ pub unsafe extern "C" fn c_message_encryptor_encrypt_plaintext(
     let message = encryptor.encrypt(&data[..], signature_key);
     Box::into_raw(Box::new(message))
 }
+
+#[no_mangle]
+#[cfg(target_os = "ios")]
+pub unsafe extern "C" fn c_message_encryptor_encrypt_plaintext_and_extra(
+    encryptor: *mut Encryptor,
+    plaintext_buffer: Buffer,
+    extra_plaintext_buffer: Buffer,
+    signature_key: *mut Ed25519PrivateKey,
+) -> *mut message::Message {
+    let encryptor = &mut *encryptor;
+    let data = plaintext_buffer.to_bytes();
+    let extra_data = extra_plaintext_buffer.to_bytes();
+    let signature_key = signature_key.as_ref();
+    let message = encryptor.encrypt_with_extra(&data[..], Some(&extra_data[..]), signature_key);
+    Box::into_raw(Box::new(message))
+}
