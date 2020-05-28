@@ -64,6 +64,25 @@ impl Decryptor {
             Err(_) => None,
         }
     }
+
+    pub fn decrypt_extra(&self, file_key: &FileKey) -> Option<Vec<u8>> {
+        let nonce = &self.message.payload.nonce;
+        // create payload key
+        let mut payload_key = [0; 32];
+        Hkdf::<Sha256>::new(Some(&nonce), file_key.0.expose_secret())
+            .expand(message::PAYLOAD_KEY_LABEL, &mut payload_key)
+            .expect("payload_key is the correct length");
+        let extra_ciphertext = match &self.message.payload.extra {
+            Some(extra) => &extra.ciphertext,
+            None => return None,
+        };
+        let mut nonce = [0; 12];
+        nonce[0] = 1;
+        match aead::aead_decrypt_with_nonce(&payload_key, &nonce, &extra_ciphertext) {
+            Ok(plaintext) => Some(plaintext),
+            Err(_) => None,
+        }
+    }
 }
 
 impl Decryptor {

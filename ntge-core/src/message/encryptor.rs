@@ -49,6 +49,15 @@ impl Encryptor {
         plaintext: &[u8],
         signature_key: Option<&Ed25519PrivateKey>,
     ) -> message::Message {
+        self.encrypt_with_extra(plaintext, None, signature_key)
+    }
+
+    pub fn encrypt_with_extra(
+        &self,
+        plaintext: &[u8],
+        extra_plaintext: Option<&[u8]>,
+        signature_key: Option<&Ed25519PrivateKey>,
+    ) -> message::Message {
         // 1. create new file key
         let file_key = FileKey::new();
         // 2. wrap file key for recipients
@@ -81,9 +90,24 @@ impl Encryptor {
                 signature: None,
             },
         };
+        let extra: Option<message::MessageExtra> = match extra_plaintext {
+            Some(plaintext) => {
+                let mut nonce = [0; 12];
+                nonce[0] = 1;
+                let ciphertext = aead::aead_encrypt_with_nonce(&payload_key, &nonce, &plaintext);
+                Some(message::MessageExtra {
+                    ciphertext: ciphertext,
+                })
+            }
+            None => None,
+        };
         let mac = Encryptor::calculate_mac(&recipient_headers, &meta, &file_key);
         let nonce = nonce.to_vec();
-        let payload = message::MessagePayload { nonce, ciphertext };
+        let payload = message::MessagePayload {
+            nonce,
+            ciphertext,
+            extra,
+        };
         // 6. construct message
         let mac = message::MessageMac { mac: mac.to_vec() };
         message::Message {
