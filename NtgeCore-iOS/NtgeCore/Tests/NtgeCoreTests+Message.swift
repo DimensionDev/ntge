@@ -159,7 +159,9 @@ extension NtgeCoreTests_Message {
         
         // 1MB to 10 Recipient
         self.measure {
-            _ = encryptor.encrypt(plaintext: plaintext)
+            autoreleasepool {
+                _ = encryptor.encrypt(plaintext: plaintext)
+            }
         }
     }
     
