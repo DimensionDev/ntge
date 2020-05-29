@@ -68,10 +68,44 @@ extension NtgeCoreTests_Message {
         let decryptedString = String(data: payload!, encoding: .utf8)
         XCTAssertEqual(plaintext, decryptedString)
         
+        let extraPayload = decryptor.decryptExtra(fileKey: fileKey!)
+        XCTAssertNil(extraPayload)
+        
         let signatureVerified = Message.Decryptor.verifySignature(for: message, use: Ed25519PublicKey)
         XCTAssertTrue(signatureVerified)
         
         let signatureShouldNotVerified = Message.Decryptor.verifySignature(for: message, use: Ed25519.PrivateKey().publicKey)
+        XCTAssertFalse(signatureShouldNotVerified)
+    }
+    
+    func testEncryptAndDecrypt_withExtra_withoutSignature() throws {
+        let keypair = Ed25519.Keypair()
+        let Ed25519PrivateKey = keypair.privateKey
+        let Ed25519PublicKey = keypair.publicKey
+        let x25519PrivateKey = Ed25519PrivateKey.toX25519()
+        let x25519PublicKey = Ed25519PrivateKey.publicKey.toX25519()
+        let encryptor = Message.Encryptor(publicKeys: [x25519PublicKey])
+        
+        let plaintext = "Hello, World!"
+        let plaintextData = Data(plaintext.utf8)
+        let extraPlaintext = "Hello, Extra!"
+        let extraPlaintextData = Data(extraPlaintext.utf8)
+        let message = encryptor.encrypt(plaintext: plaintextData, extraPlaintext: extraPlaintextData)
+        
+        let decryptor = Message.Decryptor(message: message)
+        let fileKey = decryptor.decryptFileKey(privateKey: x25519PrivateKey)
+        XCTAssertNotNil(fileKey)
+        let payload = decryptor.decryptPayload(fileKey: fileKey!)
+        XCTAssertNotNil(payload)
+        let decryptedString = String(data: payload!, encoding: .utf8)
+        XCTAssertEqual(plaintext, decryptedString)
+
+        let extraPayload = decryptor.decryptExtra(fileKey: fileKey!)
+        XCTAssertNotNil(payload)
+        let decryptedExtraString = String(data: extraPayload!, encoding: .utf8)
+        XCTAssertEqual(extraPlaintext, decryptedExtraString)
+        
+        let signatureShouldNotVerified = Message.Decryptor.verifySignature(for: message, use: Ed25519PublicKey)
         XCTAssertFalse(signatureShouldNotVerified)
     }
     
@@ -125,7 +159,9 @@ extension NtgeCoreTests_Message {
         
         // 1MB to 10 Recipient
         self.measure {
-            _ = encryptor.encrypt(plaintext: plaintext)
+            autoreleasepool {
+                _ = encryptor.encrypt(plaintext: plaintext)
+            }
         }
     }
     

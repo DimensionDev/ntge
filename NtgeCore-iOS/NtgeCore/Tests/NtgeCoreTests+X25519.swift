@@ -36,7 +36,9 @@ extension NtgeCoreTests_X25519 {
         // x10000
         self.measure {
             for _ in 0..<10000 {
-                _ = ed25519.toX25519()
+                autoreleasepool {
+                    _ = ed25519.toX25519()
+                }
             }
         }
     }
@@ -46,7 +48,9 @@ extension NtgeCoreTests_X25519 {
         // x10000
         self.measure {
             for _ in 0..<10000 {
-                _ = ed25519.toX25519()
+                autoreleasepool {
+                    _ = ed25519.toX25519()
+                }
             }
         }
     }

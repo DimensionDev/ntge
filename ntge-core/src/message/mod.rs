@@ -28,11 +28,18 @@ pub struct MessageMac {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct MessageExtra {
+    #[serde(with = "serde_bytes")]
+    pub ciphertext: Vec<u8>, // extra content for external useage
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MessagePayload {
     #[serde(with = "serde_bytes")]
     pub nonce: Vec<u8>, // 16 bytes
     #[serde(with = "serde_bytes")]
     pub ciphertext: Vec<u8>,
+    pub extra: Option<MessageExtra>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -253,6 +260,38 @@ mod tests {
             .decrypt_payload(&file_key)
             .expect("could decrypt payload");
         assert_eq!(decrypted_plaintext, plaintext);
+    }
+
+    #[test]
+    fn it_encrypts_and_decrypts_a_message_with_extra_to_alice() {
+        let plaintext = b"Hello, World!";
+        // alice
+        let alice_keypair = Ed25519Keypair::new();
+        let alice_secret_key: X25519PrivateKey = (&alice_keypair.get_private_key()).into();
+        let alice_public_key: X25519PublicKey = (&alice_keypair.get_public_key()).into();
+
+        let encryptor = encryptor::Encryptor::new(&vec![alice_public_key]);
+        let extra_plaintext = b"This is extra content";
+        let message = encryptor.encrypt_with_extra(plaintext, Some(extra_plaintext), None);
+
+        // create decryptor
+        let decryptor = decryptor::Decryptor::new(&message);
+        // get file key
+        let file_key = decryptor
+            .decrypt_file_key(&alice_secret_key)
+            .expect("could decrypt file key");
+        // check mac
+        assert_eq!(decryptor.verify_message_mac(&file_key), true);
+        // decrypt message payload
+        let decrypted_plaintext = decryptor
+            .decrypt_payload(&file_key)
+            .expect("could decrypt payload");
+        assert_eq!(decrypted_plaintext, plaintext);
+        // decrypt message extra
+        let decrypted_extra_plaintext = decryptor
+            .decrypt_extra(&file_key)
+            .expect("could decrypt extra");
+        assert_eq!(decrypted_extra_plaintext, extra_plaintext);
     }
 
     #[test]

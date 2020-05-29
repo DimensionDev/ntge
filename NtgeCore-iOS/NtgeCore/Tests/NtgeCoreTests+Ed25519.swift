@@ -89,7 +89,9 @@ extension NtgeCoreTests_Ed25519 {
         // x1000
         self.measure {
             for _ in 0..<1000 {
-                let _ = Ed25519.Keypair()
+                autoreleasepool {
+                    let _ = Ed25519.Keypair()
+                }
             }
         }
     }
@@ -98,7 +100,9 @@ extension NtgeCoreTests_Ed25519 {
         // x10000
         self.measure {
             for _ in 0..<10000 {
-                let _ = Ed25519.Keypair()
+                autoreleasepool {
+                    let _ = Ed25519.Keypair()
+                }
             }
         }
     }
