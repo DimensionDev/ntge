@@ -95,9 +95,7 @@ impl Encryptor {
                 let mut nonce = [0; 12];
                 nonce[0] = 1;
                 let ciphertext = aead::aead_encrypt_with_nonce(&payload_key, &nonce, &plaintext);
-                Some(message::MessageExtra {
-                    ciphertext: ciphertext,
-                })
+                Some(message::MessageExtra { ciphertext })
             }
             None => None,
         };

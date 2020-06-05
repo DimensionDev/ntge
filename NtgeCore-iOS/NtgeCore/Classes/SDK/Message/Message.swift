@@ -27,7 +27,7 @@ public class Message: RustObject {
 
 extension Message {
     
-    public func serialize_to_armor() throws -> String? {
+    public func serialize() throws -> String? {
         var armor: UnsafeMutablePointer<Int8>? = nil
         
         _ = c_message_serialize_to_armor(raw, &armor)
@@ -42,6 +42,12 @@ extension Message {
         }
         
         return String(cString: text)
+    }
+    
+    public static func deserialize(from armor: String) -> Message? {
+        return armor
+            .withCString { cstring in c_message_deserialize_from_armor(cstring) }
+            .flatMap { pointer in Message(raw: pointer) }
     }
     
 }
