@@ -51,8 +51,8 @@ extension Ed25519.PrivateKey {
         return String(cString: text!)
     }
     
-    public static func deserialize(serialized text: String) -> Ed25519.PrivateKey? {
-        return text
+    public static func deserialize(from serialized: String) -> Ed25519.PrivateKey? {
+        return serialized
             .withCString { cstring in c_ed25519_private_key_deserialize(cstring) }
             .flatMap { pointer in Ed25519.PrivateKey(raw: pointer) }
     }
@@ -61,7 +61,7 @@ extension Ed25519.PrivateKey {
 
 extension Ed25519.PrivateKey {
     
-    public func toX25519() -> X25519.PrivateKey {
+    public var x25519: X25519.PrivateKey {
         X25519.PrivateKey(raw: c_key_utils_ed25519_private_key_to_x25519(raw))
     }
     

@@ -197,6 +197,17 @@ pub unsafe extern "C" fn c_message_serialize_to_armor(
     }
 }
 
+#[no_mangle]
+#[cfg(target_os = "ios")]
+pub unsafe extern "C" fn c_message_deserialize_from_armor(armor: *const c_char) -> *mut Message {
+    let armor = strings::c_char_to_string(armor);
+    let message = Message::deserialize_from_armor(&armor);
+    match message {
+        Ok(message) => Box::into_raw(Box::new(message)),
+        Err(_) => std::ptr::null_mut(),
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use crate::{

@@ -24,7 +24,7 @@ extension NtgeCoreTests_X25519 {
     
     func testPublicKeyConvertFromEd25519() {
         let ed25519PublicKey = Ed25519.Keypair().publicKey
-        _ = ed25519PublicKey.toX25519()
+        _ = ed25519PublicKey.x25519
     }
     
 }
@@ -37,7 +37,7 @@ extension NtgeCoreTests_X25519 {
         self.measure {
             for _ in 0..<10000 {
                 autoreleasepool {
-                    _ = ed25519.toX25519()
+                    _ = ed25519.x25519
                 }
             }
         }
@@ -49,7 +49,7 @@ extension NtgeCoreTests_X25519 {
         self.measure {
             for _ in 0..<10000 {
                 autoreleasepool {
-                    _ = ed25519.toX25519()
+                    _ = ed25519.x25519
                 }
             }
         }

@@ -28,15 +28,18 @@ extension NtgeCoreTests_Message {
         let keypair = Ed25519.Keypair()
         let Ed25519PrivateKey = keypair.privateKey
         let Ed25519PublicKey = keypair.publicKey
-        let x25519PrivateKey = Ed25519PrivateKey.toX25519()
-        let x25519PublicKey = Ed25519PrivateKey.publicKey.toX25519()
+        let x25519PrivateKey = Ed25519PrivateKey.x25519
+        let x25519PublicKey = Ed25519PrivateKey.publicKey.x25519
         let encryptor = Message.Encryptor(publicKeys: [x25519PublicKey])
         
         let plaintext = "Hello, World!"
         let plaintextData = Data(plaintext.utf8)
         let message = encryptor.encrypt(plaintext: plaintextData)
+        let armor = try? message.serialize()
+        XCTAssertNotNil(armor)
+        let deserializedMessage = Message.deserialize(from: armor ?? "")
         
-        let decryptor = Message.Decryptor(message: message)
+        let decryptor = Message.Decryptor(message: deserializedMessage!)
         let fileKey = decryptor.decryptFileKey(privateKey: x25519PrivateKey)
         XCTAssertNotNil(fileKey)
         let payload = decryptor.decryptPayload(fileKey: fileKey!)
@@ -52,8 +55,8 @@ extension NtgeCoreTests_Message {
         let keypair = Ed25519.Keypair()
         let Ed25519PrivateKey = keypair.privateKey
         let Ed25519PublicKey = keypair.publicKey
-        let x25519PrivateKey = Ed25519PrivateKey.toX25519()
-        let x25519PublicKey = Ed25519PrivateKey.publicKey.toX25519()
+        let x25519PrivateKey = Ed25519PrivateKey.x25519
+        let x25519PublicKey = Ed25519PrivateKey.publicKey.x25519
         let encryptor = Message.Encryptor(publicKeys: [x25519PublicKey])
         
         let plaintext = "Hello, World!"
@@ -82,8 +85,8 @@ extension NtgeCoreTests_Message {
         let keypair = Ed25519.Keypair()
         let Ed25519PrivateKey = keypair.privateKey
         let Ed25519PublicKey = keypair.publicKey
-        let x25519PrivateKey = Ed25519PrivateKey.toX25519()
-        let x25519PublicKey = Ed25519PrivateKey.publicKey.toX25519()
+        let x25519PrivateKey = Ed25519PrivateKey.x25519
+        let x25519PublicKey = Ed25519PrivateKey.publicKey.x25519
         let encryptor = Message.Encryptor(publicKeys: [x25519PublicKey])
         
         let plaintext = "Hello, World!"
@@ -170,7 +173,7 @@ extension NtgeCoreTests_Message {
 extension NtgeCoreTests_Message {
     
     private func newEncryptor(recipientCount: Int) -> Message.Encryptor {
-        let recipientKeys = [0..<recipientCount].map { _ in Ed25519.Keypair().publicKey.toX25519() }
+        let recipientKeys = [0..<recipientCount].map { _ in Ed25519.Keypair().publicKey.x25519 }
         return Message.Encryptor(publicKeys: recipientKeys)
     }
     
