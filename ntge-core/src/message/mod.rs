@@ -217,11 +217,13 @@ mod tests {
         x25519::{filekey::FileKey, private::X25519PrivateKey, public::X25519PublicKey},
     };
 
+    use basex_rs::{BaseX, Encode, BITCOIN};
     use hkdf::Hkdf;
     use rand::rngs::OsRng;
     use rand::RngCore;
     use secrecy::ExposeSecret;
     use sha2::Sha256;
+    use std::time::SystemTime;
 
     #[allow(dead_code)]
     fn encrypt_plaintext(file_key: &FileKey, plaintext: &[u8]) -> Vec<u8> {
@@ -245,6 +247,55 @@ mod tests {
         // pass file key to encrypt plaintext
         let ciphertext = encrypt_plaintext(&file_key, plaintext);
         print!("{:?}", ciphertext);
+    }
+    #[test]
+    fn it_benchmark_encrypt_20k_plaintext() {
+        let mut plaintext: Vec<u8> = Vec::with_capacity(20 * 1024);
+        for _ in 0..plaintext.capacity() {
+            plaintext.push(rand::random());
+        }
+        // alice
+        let alice_keypair = Ed25519Keypair::new();
+        // let alice_secret_key: X25519PrivateKey = (&alice_keypair.get_private_key()).into();
+        let alice_public_key: X25519PublicKey = (&alice_keypair.get_public_key()).into();
+        let encryptor = encryptor::Encryptor::new(&vec![alice_public_key]);
+        let start_encrypt = SystemTime::now();
+        let message = encryptor.encrypt(&plaintext, None);
+        let end_encrypt = SystemTime::now();
+        println!(
+            "encrypt cost: {:?}s",
+            end_encrypt
+                .duration_since(start_encrypt)
+                .unwrap()
+                .as_secs_f32()
+        );
+        let bson_bytes = message.serialize_to_bson_bytes().unwrap();
+        let end_encode_bson_bytes = SystemTime::now();
+        println!(
+            "encode bson bytes cost: {:?}s",
+            end_encode_bson_bytes
+                .duration_since(end_encrypt)
+                .unwrap()
+                .as_secs_f32()
+        );
+        let _base58 = bs58::encode(&bson_bytes).into_string();
+        let end_to_base58 = SystemTime::now();
+        println!(
+            "encode base58 cost: {:?}s",
+            end_to_base58
+                .duration_since(end_encode_bson_bytes)
+                .unwrap()
+                .as_secs_f32()
+        );
+        let _base58_2 = BaseX::new(BITCOIN).encode(&bson_bytes);
+        let end_to_base58_2 = SystemTime::now();
+        println!(
+            "encode base58_2 cost: {:?}s",
+            end_to_base58_2
+                .duration_since(end_to_base58)
+                .unwrap()
+                .as_secs_f32()
+        );
     }
 
     #[test]
