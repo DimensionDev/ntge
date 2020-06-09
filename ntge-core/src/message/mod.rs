@@ -217,7 +217,6 @@ mod tests {
         x25519::{filekey::FileKey, private::X25519PrivateKey, public::X25519PublicKey},
     };
 
-    use basex_rs::{BaseX, Encode, BITCOIN};
     use hkdf::Hkdf;
     use rand::rngs::OsRng;
     use rand::RngCore;
@@ -249,8 +248,8 @@ mod tests {
         print!("{:?}", ciphertext);
     }
     #[test]
-    fn it_benchmark_encrypt_20k_plaintext() {
-        let mut plaintext: Vec<u8> = Vec::with_capacity(20 * 1024);
+    fn it_benchmark_encrypt_20m_plaintext() {
+        let mut plaintext: Vec<u8> = Vec::with_capacity(20 * 1024 * 1024);
         for _ in 0..plaintext.capacity() {
             plaintext.push(rand::random());
         }
@@ -278,21 +277,12 @@ mod tests {
                 .unwrap()
                 .as_secs_f32()
         );
-        let _base58 = bs58::encode(&bson_bytes).into_string();
-        let end_to_base58 = SystemTime::now();
+        let _base58 = base58_monero::encode(&bson_bytes).unwrap();
+        let end_to_base58_monero = SystemTime::now();
         println!(
-            "encode base58 cost: {:?}s",
-            end_to_base58
+            "encode base58_3 cost: {:?}s",
+            end_to_base58_monero
                 .duration_since(end_encode_bson_bytes)
-                .unwrap()
-                .as_secs_f32()
-        );
-        let _base58_2 = BaseX::new(BITCOIN).encode(&bson_bytes);
-        let end_to_base58_2 = SystemTime::now();
-        println!(
-            "encode base58_2 cost: {:?}s",
-            end_to_base58_2
-                .duration_since(end_to_base58)
                 .unwrap()
                 .as_secs_f32()
         );
