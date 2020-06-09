@@ -84,7 +84,8 @@ impl Message {
 impl Message {
     pub fn serialize_to_base58(&self) -> Result<String, CoreError> {
         self.serialize_to_msgpack_bytes()
-            .map(|bytes| bs58::encode(bytes).into_string())
+            .map(|bytes| base58_monero::encode(&bytes))
+            .unwrap()
             .map_err(|_| CoreError::MessageSerializationError {
                 name: "Message",
                 reason: "cannot encode message bytes to base58",
@@ -92,7 +93,7 @@ impl Message {
     }
 
     pub fn deserialize_from_base58(text: &str) -> Result<Message, CoreError> {
-        let bytes = match bs58::decode(text).into_vec() {
+        let bytes = match base58_monero::decode(text) {
             Ok(bytes) => bytes,
             Err(_) => {
                 let e = CoreError::MessageSerializationError {
