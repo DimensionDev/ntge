@@ -2,7 +2,9 @@ pub mod decryptor;
 pub mod encryptor;
 pub mod recipient;
 
+use rmp_serde::{Deserializer, Serializer};
 use serde::{Deserialize, Serialize};
+use std::io::Cursor;
 
 #[cfg(target_os = "ios")]
 use crate::strings;
@@ -54,19 +56,19 @@ pub struct Message {
 impl Message {
     pub fn serialize_to_armor(&self) -> Result<String, CoreError> {
         match self.serialize_to_base58() {
-            Ok(base58) => Ok(format!("MsgBegin_{}_EndMsg", base58)),
+            Ok(base58) => Ok(format!("MsgBeginIIIII{}IIIIIEndMsg", base58)),
             Err(e) => Err(e),
         }
     }
 
     pub fn deserialize_from_armor(text: &str) -> Result<Message, CoreError> {
         let text = text.trim();
-        let has_prefix = text.starts_with("MsgBegin_");
-        let has_suffix = text.ends_with("_EndMsg");
+        let has_prefix = text.starts_with("MsgBeginIIIII");
+        let has_suffix = text.ends_with("IIIIIEndMsg");
 
         if has_prefix && has_suffix {
-            let text = text.trim_start_matches("MsgBegin_");
-            let text = text.trim_end_matches("_EndMsg");
+            let text = text.trim_start_matches("MsgBeginIIIII");
+            let text = text.trim_end_matches("IIIIIEndMsg");
             Message::deserialize_from_base58(text)
         } else {
             // no armor
@@ -81,7 +83,7 @@ impl Message {
 
 impl Message {
     pub fn serialize_to_base58(&self) -> Result<String, CoreError> {
-        self.serialize_to_bson_bytes()
+        self.serialize_to_msgpack_bytes()
             .map(|bytes| bs58::encode(bytes).into_string())
             .map_err(|_| CoreError::MessageSerializationError {
                 name: "Message",
@@ -101,51 +103,30 @@ impl Message {
             }
         };
 
-        Message::deserialize_from_bson_bytes(&bytes)
+        Message::deserialize_from_msgpack_bytes(&bytes)
     }
 }
 
 #[allow(dead_code)]
 impl Message {
-    fn serialize_to_bson_bytes(&self) -> Result<Vec<u8>, CoreError> {
-        let document = match bson::to_bson(&self) {
-            Ok(encoded) => {
-                if let bson::Bson::Document(document) = encoded {
-                    document
-                } else {
-                    let e = CoreError::MessageSerializationError {
-                        name: "Message",
-                        reason: "cannot encode message to bson",
-                    };
-                    return Err(e);
-                }
-            }
-            Err(err) => {
-                print!("{:?}", err);
+    fn serialize_to_msgpack_bytes(&self) -> Result<Vec<u8>, CoreError> {
+        let mut buf = Vec::new();
+        match self.serialize(&mut Serializer::new(&mut buf)) {
+            Ok(_) => Ok(buf),
+            Err(_) => {
                 let e = CoreError::MessageSerializationError {
                     name: "Message",
-                    reason: "cannot encode message to bson",
-                };
-                return Err(e);
-            }
-        };
-
-        let mut bytes = Vec::new();
-        match bson::encode_document(&mut bytes, &document) {
-            Ok(_) => Ok(bytes),
-            Err(_) => {
-                let e = CoreError::KeyDeserializeError {
-                    name: "Message",
-                    reason: "cannot encode message bson document to bytes",
+                    reason: "cannot encode message to msgpack",
                 };
                 Err(e)
             }
         }
     }
 
-    fn deserialize_from_bson_bytes(bytes: &[u8]) -> Result<Message, CoreError> {
-        let document = match bson::decode_document(&mut std::io::Cursor::new(&bytes[..])) {
-            Ok(document) => document,
+    fn deserialize_from_msgpack_bytes(bytes: &[u8]) -> Result<Message, CoreError> {
+        let mut de = Deserializer::new(Cursor::new(&bytes));
+        let output = match Deserialize::deserialize(&mut de) {
+            Ok(output) => output,
             Err(_) => {
                 let e = CoreError::KeyDeserializeError {
                     name: "Message",
@@ -154,12 +135,7 @@ impl Message {
                 return Err(e);
             }
         };
-
-        let result: Result<Message, _> = bson::from_bson(bson::Bson::Document(document));
-        result.map_err(|_| CoreError::KeyDeserializeError {
-            name: "Message",
-            reason: "cannot decode message document to message",
-        })
+        Ok(output)
     }
 }
 
@@ -359,6 +335,7 @@ mod tests {
         // encode
         let encoded_message = message.serialize_to_armor().expect("could serialize");
         print!("{:?}", encoded_message);
+
         let decoded_message =
             Message::deserialize_from_armor(&encoded_message).expect("could deserialize");
         assert_eq!(decoded_message.mac.mac, message.mac.mac);
