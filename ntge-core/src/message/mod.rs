@@ -83,13 +83,21 @@ impl Message {
 
 impl Message {
     pub fn serialize_to_base58(&self) -> Result<String, CoreError> {
-        self.serialize_to_msgpack_bytes()
-            .map(|bytes| base58_monero::encode(&bytes))
-            .unwrap()
-            .map_err(|_| CoreError::MessageSerializationError {
-                name: "Message",
-                reason: "cannot encode message bytes to base58",
-            })
+        let msgpack_bytes = match self.serialize_to_msgpack_bytes() {
+            Ok(bytes) => bytes,
+            Err(_) => {
+                let e = CoreError::MessageSerializationError {
+                    name: "Message",
+                    reason: "cannot encode message bytes to base58",
+                };
+                return Err(e);
+            }
+        };
+
+        base58_monero::encode(&msgpack_bytes).map_err(|_| CoreError::MessageSerializationError {
+            name: "Message",
+            reason: "cannot encode message bytes to base58",
+        })
     }
 
     pub fn deserialize_from_base58(text: &str) -> Result<Message, CoreError> {
@@ -226,7 +234,7 @@ mod tests {
     }
     #[test]
     fn it_benchmark_encrypt_20m_plaintext() {
-        let mut plaintext: Vec<u8> = Vec::with_capacity(200 * 1024 * 1024);
+        let mut plaintext: Vec<u8> = Vec::with_capacity(20 * 1024 * 1024);
         for _ in 0..plaintext.capacity() {
             plaintext.push(rand::random());
         }
@@ -257,7 +265,7 @@ mod tests {
         let _base58 = base58_monero::encode(&msgpack_bytes).unwrap();
         let end_to_base58_monero = SystemTime::now();
         println!(
-            "encode base58_3 cost: {:?}s",
+            "encode base58 monero cost: {:?}s",
             end_to_base58_monero
                 .duration_since(end_encode_msgpack_bytes)
                 .unwrap()
