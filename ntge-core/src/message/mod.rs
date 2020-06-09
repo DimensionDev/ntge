@@ -225,7 +225,7 @@ mod tests {
     }
     #[test]
     fn it_benchmark_encrypt_20m_plaintext() {
-        let mut plaintext: Vec<u8> = Vec::with_capacity(20 * 1024 * 1024);
+        let mut plaintext: Vec<u8> = Vec::with_capacity(200 * 1024 * 1024);
         for _ in 0..plaintext.capacity() {
             plaintext.push(rand::random());
         }
@@ -244,21 +244,21 @@ mod tests {
                 .unwrap()
                 .as_secs_f32()
         );
-        let bson_bytes = message.serialize_to_bson_bytes().unwrap();
-        let end_encode_bson_bytes = SystemTime::now();
+        let msgpack_bytes = message.serialize_to_msgpack_bytes().unwrap();
+        let end_encode_msgpack_bytes = SystemTime::now();
         println!(
-            "encode bson bytes cost: {:?}s",
-            end_encode_bson_bytes
+            "encode msgpack bytes cost: {:?}s",
+            end_encode_msgpack_bytes
                 .duration_since(end_encrypt)
                 .unwrap()
                 .as_secs_f32()
         );
-        let _base58 = base58_monero::encode(&bson_bytes).unwrap();
+        let _base58 = base58_monero::encode(&msgpack_bytes).unwrap();
         let end_to_base58_monero = SystemTime::now();
         println!(
             "encode base58_3 cost: {:?}s",
             end_to_base58_monero
-                .duration_since(end_encode_bson_bytes)
+                .duration_since(end_encode_msgpack_bytes)
                 .unwrap()
                 .as_secs_f32()
         );
