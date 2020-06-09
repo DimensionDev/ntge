@@ -3,6 +3,7 @@ pub mod encryptor;
 pub mod recipient;
 
 use serde::{Deserialize, Serialize};
+use base64;
 
 #[cfg(target_os = "ios")]
 use crate::strings;
@@ -53,8 +54,8 @@ pub struct Message {
 #[allow(dead_code)]
 impl Message {
     pub fn serialize_to_armor(&self) -> Result<String, CoreError> {
-        match self.serialize_to_base58() {
-            Ok(base58) => Ok(format!("MsgBegin_{}_EndMsg", base58)),
+        match self.serialize_to_base64() {
+            Ok(base64) => Ok(format!("MsgBegin_{}_EndMsg", base64)),
             Err(e) => Err(e),
         }
     }
@@ -67,7 +68,7 @@ impl Message {
         if has_prefix && has_suffix {
             let text = text.trim_start_matches("MsgBegin_");
             let text = text.trim_end_matches("_EndMsg");
-            Message::deserialize_from_base58(text)
+            Message::deserialize_from_base64(text)
         } else {
             // no armor
             let e = CoreError::MessageSerializationError {
@@ -79,23 +80,25 @@ impl Message {
     }
 }
 
+
 impl Message {
-    pub fn serialize_to_base58(&self) -> Result<String, CoreError> {
+    
+    pub fn serialize_to_base64(&self) -> Result<String, CoreError> {
         self.serialize_to_bson_bytes()
-            .map(|bytes| bs58::encode(bytes).into_string())
+            .map(|bytes| base64::encode(bytes))
             .map_err(|_| CoreError::MessageSerializationError {
                 name: "Message",
-                reason: "cannot encode message bytes to base58",
+                reason: "cannot encode message bytes to base64",
             })
     }
 
-    pub fn deserialize_from_base58(text: &str) -> Result<Message, CoreError> {
-        let bytes = match bs58::decode(text).into_vec() {
+    pub fn deserialize_from_base64(text: &str) -> Result<Message, CoreError> {
+        let bytes = match base64::decode(text) {
             Ok(bytes) => bytes,
             Err(_) => {
                 let e = CoreError::MessageSerializationError {
                     name: "Message",
-                    reason: "cannot decode message base58 text",
+                    reason: "cannot decode message base64 text",
                 };
                 return Err(e);
             }
