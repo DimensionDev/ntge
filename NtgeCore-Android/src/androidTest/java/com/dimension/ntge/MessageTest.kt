@@ -128,6 +128,36 @@ class MessageTest {
         }
     }
 
+    
+    @Test
+    fun it_encrypt_and_decrypt_with_extra() {
+        Ed25519PrivateKey.new().use { ed25519PrivateKey ->
+            ed25519PrivateKey.toX25519().use { x25519PrivateKey ->
+                ed25519PrivateKey.publicKey.use { ed25519PublicKey ->
+                    ed25519PublicKey.toX25519().use { x25519PublicKey ->
+                        Encryptor.new(x25519PublicKey).use { encryptor ->
+                            encryptor.encryptPlaintextWithExtra(message_to_enc, extra_message_to_enc).use { message ->
+                                assertTrue(message.ptr != 0L)
+                                val msgString = message.serialize()
+                                assertTrue(msgString.isNotEmpty())
+                                Message.deserialize(msgString).use { dec_message ->
+                                    Decryptor.new(dec_message).use { decryptor ->
+                                        decryptor.getFileKey(x25519PrivateKey).use { x25519FileKey ->
+                                            val result = decryptor.decryptPayload(x25519FileKey)
+                                            val extraResult = decryptor.decryptPayloadExtra(x25519FileKey)
+                                            assertTrue(result == message_to_enc)
+                                            assertTrue(extraResult == extra_message_to_enc)
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
 //    @Test
 //    fun it_verify_message_signature() {
 //        Message.deserialize(message_with_sign).use { message ->
