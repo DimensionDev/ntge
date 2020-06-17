@@ -477,7 +477,7 @@ mod tests {
 
         let timestamp = &message.meta.timestamp.as_ref().unwrap().clone();
 
-        assert_eq!(timestamp[timestamp.len() - 3..].to_string(), "UTC");
+        assert_eq!(timestamp[timestamp.len() - 1..].to_string(), "Z");
         println!("{:?}", timestamp);
     }
 }
