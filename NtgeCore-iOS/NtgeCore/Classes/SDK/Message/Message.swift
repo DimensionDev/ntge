@@ -27,6 +27,32 @@ public class Message: RustObject {
 
 extension Message {
     
+    public var timestamp: Date? {
+        var timestampText: UnsafeMutablePointer<Int8>? = nil
+        defer {
+            if timestampText != nil {
+                c_strings_destroy_c_char(&timestampText)
+            }
+        }
+        guard c_message_timestamp(raw, &timestampText) == 0, let text = timestampText else {
+            return nil
+        }
+        
+        let string = String(cString: text)
+        let formatter = ISO8601DateFormatter()
+        formatter.formatOptions.insert(.withFractionalSeconds)
+        guard let date = formatter.date(from: string) else {
+            assertionFailure()
+            return nil
+        }
+        
+        return date
+    }
+    
+}
+
+extension Message {
+    
     public func serialize() throws -> String? {
         var armor: UnsafeMutablePointer<Int8>? = nil
         

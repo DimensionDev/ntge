@@ -116,6 +116,22 @@ extension NtgeCoreTests_Message {
 
 extension NtgeCoreTests_Message {
     
+    func testMessageTimestamp() throws {
+        let encryptor = self.newEncryptor(recipientCount: 1)
+        
+        let lengthInBytes = Measurement(value: 1, unit: UnitInformationStorage.megabytes).converted(to: .bytes).value
+        let plaintext = randomData(ofLength: Int(lengthInBytes))
+        
+        let message = encryptor.encrypt(plaintext: plaintext)
+        
+        let date = message.timestamp
+        XCTAssertNotNil(date)
+    }
+    
+}
+
+extension NtgeCoreTests_Message {
+    
     func testPerformance_encrypt_1MB_10Recipient() throws {
         let encryptor = self.newEncryptor(recipientCount: 10)
 
