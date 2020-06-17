@@ -81,12 +81,12 @@ impl Encryptor {
             Some(private_key) => {
                 let signature = Encryptor::sign(&private_key.raw, &ciphertext);
                 message::MessageMeta {
-                    timestamp: Some(Utc::now().to_string()),
+                    timestamp: Some(Utc::now().to_rfc3339_opts(SecondsFormat::Millis, true)),
                     signature: Some(Signature::new(signature.to_vec())),
                 }
             }
             None => message::MessageMeta {
-                timestamp: Some(Utc::now().to_string()),
+                timestamp: Some(Utc::now().to_rfc3339_opts(SecondsFormat::Millis, true)),
                 signature: None,
             },
         };
