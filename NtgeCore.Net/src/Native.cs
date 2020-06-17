@@ -104,7 +104,7 @@ namespace NtgeCore.Net
 
         [DllImport(LIB_NAME)]
         public static extern IntPtr newMessageEncryptor(IntPtr array_ptr);
-        
+
         [DllImport(LIB_NAME)]
         public static extern void destroyMessageEncryptor(IntPtr ptr);
 
@@ -119,5 +119,8 @@ namespace NtgeCore.Net
 
         [DllImport(LIB_NAME)]
         public static extern IntPtr encryptPlaintextWithExtra(IntPtr encryptor, [In] byte[] plaintext_buffer, [In] byte[] extra_plaintext_buffer, IntPtr signature_key_ptr);
+
+        [DllImport(LIB_NAME)]
+        public static extern StringHandle messageTimestamp(IntPtr message);
     }
 }

@@ -46,6 +46,17 @@ namespace NtgeCore.Net.Test
         }
 
         [Fact]
+        public void TestTimestamp()
+        {
+            using var ed25519PublicKey = Ed25519PublicKey.Deserialize(test_publicKey);
+            using var x25519PublicKey = ed25519PublicKey.ToX25519();
+            using var encryptor = Encryptor.New(x25519PublicKey);
+            using var message = encryptor.EncryptPlaintext(message_to_enc);
+            Assert.True(message.Ptr != IntPtr.Zero);
+            Assert.True(message.Timestamp != default);
+        }
+
+        [Fact]
         public void ShouldGetMessageFileKey()
         {
             using var message = NtgeMessage.Deserialize(message_to_dec);

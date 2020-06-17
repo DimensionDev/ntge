@@ -311,4 +311,13 @@ pub mod net_core {
         let message = encryptor.encrypt_with_extra(&data[..], Some(&extra_data[..]), signature_key);
         Box::into_raw(Box::new(message))
     }
+
+    #[no_mangle]
+    pub unsafe extern "C" fn messageTimestamp(message: *mut Message) -> *mut c_char {
+        let message = &mut *message;
+        match &message.meta.timestamp {
+            Some(text) => CString::new(text.clone()).unwrap().into_raw(),
+            None => std::ptr::null_mut(),
+        }
+    }
 }
