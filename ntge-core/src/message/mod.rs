@@ -193,6 +193,25 @@ pub unsafe extern "C" fn c_message_deserialize_from_armor(armor: *const c_char) 
     }
 }
 
+#[no_mangle]
+#[cfg(target_os = "ios")]
+pub unsafe extern "C" fn c_message_timestamp(
+    message: *mut Message,
+    timestamp: *mut *mut c_char,
+) -> i32 {
+    let message = &mut *message;
+    match &message.meta.timestamp {
+        Some(text) => {
+            let result = strings::string_to_c_char(text.clone());
+            *timestamp = result;
+            return 0;
+        }
+        None => {
+            return 1;
+        }
+    };
+}
+
 #[cfg(test)]
 mod tests {
     use crate::{
@@ -470,5 +489,22 @@ mod tests {
             &message,
             &alice_public_key,
         ));
+    }
+
+    #[test]
+    fn it_retrieve_message_timestamp() {
+        let plaintext = b"Hello, World!";
+        // alice
+        let alice_keypair = Ed25519Keypair::new();
+        let alice_private_key = alice_keypair.get_private_key();
+        let alice_public_key = alice_keypair.get_public_key();
+        let alice_public_key_x25519: X25519PublicKey = (&alice_public_key).into();
+        let encryptor = encryptor::Encryptor::new(&[alice_public_key_x25519]);
+        let message = encryptor.encrypt(plaintext, Some(&alice_private_key));
+
+        let timestamp = &message.meta.timestamp.as_ref().unwrap().clone();
+
+        assert_eq!(timestamp[timestamp.len() - 1..].to_string(), "Z");
+        println!("{:?}", timestamp);
     }
 }

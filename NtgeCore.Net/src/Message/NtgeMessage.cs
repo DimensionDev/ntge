@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using System.Text;
 using NtgeCore.Net.Ed25519;
 
@@ -8,6 +9,15 @@ namespace NtgeCore.Net.Message
     {
         internal NtgeMessage(IntPtr ptr) : base(ptr)
         {
+        }
+
+        public DateTime Timestamp
+        {
+            get
+            {
+                using var result = Native.messageTimestamp(Ptr);
+                return DateTimeOffset.Parse(result.AsString().Replace("UTC", "")).DateTime;
+            }
         }
 
         public static NtgeMessage Deserialize(string input)
