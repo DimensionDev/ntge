@@ -113,5 +113,11 @@ namespace NtgeCore.Net
 
         [DllImport(LIB_NAME)]
         public static extern StringHandle publicKeyKeyId(IntPtr public_key);
+
+        [DllImport(LIB_NAME)]
+        public static extern StringHandle decryptMessageExtra(IntPtr decryptor, IntPtr file_key);
+
+        [DllImport(LIB_NAME)]
+        public static extern IntPtr encryptPlaintextWithExtra(IntPtr encryptor, [In] byte[] plaintext_buffer, [In] byte[] extra_plaintext_buffer, IntPtr signature_key_ptr);
     }
 }
