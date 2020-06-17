@@ -26,6 +26,14 @@ class Encryptor internal constructor(
         }
     }
 
+    
+    fun encryptPlaintextWithExtra(input: String, extra: String, signatureKey: Ed25519PrivateKey? = null): Message {
+        return Ntge.encryptPlaintextWithExtra(ptr, input, extra, signatureKey?.ptr
+                ?: 0).let {
+            Message(it)
+        }
+    }
+
     override fun close() {
         Ntge.destroyMessageEncryptor(ptr)
         Ntge.destroyArrayX25519PublicKey(keys_ptr)

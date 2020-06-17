@@ -280,4 +280,44 @@ pub mod net_core {
         let key_id = public_key.key_id();
         CString::new(key_id).unwrap().into_raw()
     }
+
+    #[no_mangle]
+    pub unsafe extern "C" fn decryptMessageExtra(
+        decryptor: *mut Decryptor,
+        file_key: *mut FileKey,
+    ) -> *mut c_char {
+        let decryptor = &mut *decryptor;
+        let file_key = &mut *file_key;
+        match decryptor.decrypt_extra(&file_key) {
+            Some(bytes) => match std::str::from_utf8(&bytes) {
+                Ok(v) => CString::new(v).unwrap().into_raw(),
+                Err(_) => std::ptr::null_mut(),
+            },
+            None => std::ptr::null_mut(),
+        }
+    }
+
+    #[no_mangle]
+    pub unsafe extern "C" fn encryptPlaintextWithExtra(
+        encryptor: *mut Encryptor,
+        plaintext_buffer: *const c_char,
+        extra_plaintext_buffer: *const c_char,
+        signature_key: *mut Ed25519PrivateKey,
+    ) -> *mut Message {
+        let encryptor = &mut *encryptor;
+        let data = CStr::from_ptr(plaintext_buffer).to_bytes();
+        let extra_data = CStr::from_ptr(extra_plaintext_buffer).to_bytes();
+        let signature_key = signature_key.as_ref();
+        let message = encryptor.encrypt_with_extra(&data[..], Some(&extra_data[..]), signature_key);
+        Box::into_raw(Box::new(message))
+    }
+
+    #[no_mangle]
+    pub unsafe extern "C" fn messageTimestamp(message: *mut Message) -> *mut c_char {
+        let message = &mut *message;
+        match &message.meta.timestamp {
+            Some(text) => CString::new(text.clone()).unwrap().into_raw(),
+            None => std::ptr::null_mut(),
+        }
+    }
 }
