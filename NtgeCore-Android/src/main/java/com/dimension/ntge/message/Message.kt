@@ -13,6 +13,9 @@ class Message internal constructor(
         }
     }
 
+    val timestamp: String
+        get() = Ntge.messageTimestamp(ptr)
+
     fun verifySignature(publicKey: Ed25519PublicKey): Boolean {
         return Ntge.messageDecryptorVerifySignature(ptr, publicKey.ptr)
     }

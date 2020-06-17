@@ -39,6 +39,21 @@ class MessageTest {
             }
         }
     }
+    
+
+    @Test
+    fun it_has_message_timestamp() {
+        Ed25519PublicKey.deserialize(test_publicKey).use { ed25519PublicKey ->
+            ed25519PublicKey.toX25519().use { x25519PublicKey ->
+                Encryptor.new(x25519PublicKey).use { encryptor ->
+                    encryptor.encryptPlaintext(message_to_enc).use { message ->
+                        assertTrue(message.ptr != 0L)
+                        assertTrue(message.timestamp.isNotEmpty())
+                    }
+                }
+            }
+        }
+    }
 
     @Test
     fun it_should_get_message_file_key() {

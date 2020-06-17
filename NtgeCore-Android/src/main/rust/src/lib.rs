@@ -490,4 +490,29 @@ pub mod android {
         let message = (*encryptor).encrypt_with_extra(&data[..], Some(&extra_data[..]), signature_key.as_ref());
         Box::into_raw(Box::new(message))
     }
+
+    #[no_mangle]
+    pub unsafe extern "system" fn Java_com_dimension_ntge_Ntge_messageTimestamp(
+        _env: JNIEnv,
+        _class: JClass,
+        message: jlong,
+    ) -> jstring {
+        let message = message as *mut Message;
+        match &(&*message).meta.timestamp {
+            Some(text) => {
+                let output = _env
+                    .new_string(text)
+                    .expect("Couldn't create java string!");
+                output.into_inner()
+            }
+            None => {
+                let _ = _env.throw_new(
+                    "com/dimension/ntge/NtgeException",
+                    "Can not get timestamp",
+                );
+                std::ptr::null_mut()
+            }
+        }
+    }
+    
 }
