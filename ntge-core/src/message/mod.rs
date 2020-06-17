@@ -2,7 +2,9 @@ pub mod decryptor;
 pub mod encryptor;
 pub mod recipient;
 
+use rmp_serde::{Deserializer, Serializer};
 use serde::{Deserialize, Serialize};
+use std::io::Cursor;
 
 #[cfg(target_os = "ios")]
 use crate::strings;
@@ -54,19 +56,19 @@ pub struct Message {
 impl Message {
     pub fn serialize_to_armor(&self) -> Result<String, CoreError> {
         match self.serialize_to_base58() {
-            Ok(base58) => Ok(format!("MsgBegin_{}_EndMsg", base58)),
+            Ok(base58) => Ok(format!("MsgBeginIIIII{}IIIIIEndMsg", base58)),
             Err(e) => Err(e),
         }
     }
 
     pub fn deserialize_from_armor(text: &str) -> Result<Message, CoreError> {
         let text = text.trim();
-        let has_prefix = text.starts_with("MsgBegin_");
-        let has_suffix = text.ends_with("_EndMsg");
+        let has_prefix = text.starts_with("MsgBeginIIIII");
+        let has_suffix = text.ends_with("IIIIIEndMsg");
 
         if has_prefix && has_suffix {
-            let text = text.trim_start_matches("MsgBegin_");
-            let text = text.trim_end_matches("_EndMsg");
+            let text = text.trim_start_matches("MsgBeginIIIII");
+            let text = text.trim_end_matches("IIIIIEndMsg");
             Message::deserialize_from_base58(text)
         } else {
             // no armor
@@ -81,16 +83,25 @@ impl Message {
 
 impl Message {
     pub fn serialize_to_base58(&self) -> Result<String, CoreError> {
-        self.serialize_to_bson_bytes()
-            .map(|bytes| bs58::encode(bytes).into_string())
-            .map_err(|_| CoreError::MessageSerializationError {
-                name: "Message",
-                reason: "cannot encode message bytes to base58",
-            })
+        let msgpack_bytes = match self.serialize_to_msgpack_bytes() {
+            Ok(bytes) => bytes,
+            Err(_) => {
+                let e = CoreError::MessageSerializationError {
+                    name: "Message",
+                    reason: "cannot encode message bytes to base58",
+                };
+                return Err(e);
+            }
+        };
+
+        base58_monero::encode(&msgpack_bytes).map_err(|_| CoreError::MessageSerializationError {
+            name: "Message",
+            reason: "cannot encode message bytes to base58",
+        })
     }
 
     pub fn deserialize_from_base58(text: &str) -> Result<Message, CoreError> {
-        let bytes = match bs58::decode(text).into_vec() {
+        let bytes = match base58_monero::decode(text) {
             Ok(bytes) => bytes,
             Err(_) => {
                 let e = CoreError::MessageSerializationError {
@@ -101,51 +112,30 @@ impl Message {
             }
         };
 
-        Message::deserialize_from_bson_bytes(&bytes)
+        Message::deserialize_from_msgpack_bytes(&bytes)
     }
 }
 
 #[allow(dead_code)]
 impl Message {
-    fn serialize_to_bson_bytes(&self) -> Result<Vec<u8>, CoreError> {
-        let document = match bson::to_bson(&self) {
-            Ok(encoded) => {
-                if let bson::Bson::Document(document) = encoded {
-                    document
-                } else {
-                    let e = CoreError::MessageSerializationError {
-                        name: "Message",
-                        reason: "cannot encode message to bson",
-                    };
-                    return Err(e);
-                }
-            }
-            Err(err) => {
-                print!("{:?}", err);
+    fn serialize_to_msgpack_bytes(&self) -> Result<Vec<u8>, CoreError> {
+        let mut buf = Vec::new();
+        match self.serialize(&mut Serializer::new(&mut buf)) {
+            Ok(_) => Ok(buf),
+            Err(_) => {
                 let e = CoreError::MessageSerializationError {
                     name: "Message",
-                    reason: "cannot encode message to bson",
-                };
-                return Err(e);
-            }
-        };
-
-        let mut bytes = Vec::new();
-        match bson::encode_document(&mut bytes, &document) {
-            Ok(_) => Ok(bytes),
-            Err(_) => {
-                let e = CoreError::KeyDeserializeError {
-                    name: "Message",
-                    reason: "cannot encode message bson document to bytes",
+                    reason: "cannot encode message to msgpack",
                 };
                 Err(e)
             }
         }
     }
 
-    fn deserialize_from_bson_bytes(bytes: &[u8]) -> Result<Message, CoreError> {
-        let document = match bson::decode_document(&mut std::io::Cursor::new(&bytes[..])) {
-            Ok(document) => document,
+    fn deserialize_from_msgpack_bytes(bytes: &[u8]) -> Result<Message, CoreError> {
+        let mut de = Deserializer::new(Cursor::new(&bytes));
+        let output = match Deserialize::deserialize(&mut de) {
+            Ok(output) => output,
             Err(_) => {
                 let e = CoreError::KeyDeserializeError {
                     name: "Message",
@@ -154,12 +144,7 @@ impl Message {
                 return Err(e);
             }
         };
-
-        let result: Result<Message, _> = bson::from_bson(bson::Bson::Document(document));
-        result.map_err(|_| CoreError::KeyDeserializeError {
-            name: "Message",
-            reason: "cannot decode message document to message",
-        })
+        Ok(output)
     }
 }
 
@@ -241,6 +226,7 @@ mod tests {
     use rand::RngCore;
     use secrecy::ExposeSecret;
     use sha2::Sha256;
+    use std::time::SystemTime;
 
     #[allow(dead_code)]
     fn encrypt_plaintext(file_key: &FileKey, plaintext: &[u8]) -> Vec<u8> {
@@ -264,6 +250,46 @@ mod tests {
         // pass file key to encrypt plaintext
         let ciphertext = encrypt_plaintext(&file_key, plaintext);
         print!("{:?}", ciphertext);
+    }
+    #[test]
+    fn it_benchmark_encrypt_20m_plaintext() {
+        let mut plaintext: Vec<u8> = Vec::with_capacity(20 * 1024 * 1024);
+        for _ in 0..plaintext.capacity() {
+            plaintext.push(rand::random());
+        }
+        // alice
+        let alice_keypair = Ed25519Keypair::new();
+        // let alice_secret_key: X25519PrivateKey = (&alice_keypair.get_private_key()).into();
+        let alice_public_key: X25519PublicKey = (&alice_keypair.get_public_key()).into();
+        let encryptor = encryptor::Encryptor::new(&vec![alice_public_key]);
+        let start_encrypt = SystemTime::now();
+        let message = encryptor.encrypt(&plaintext, None);
+        let end_encrypt = SystemTime::now();
+        println!(
+            "encrypt cost: {:?}s",
+            end_encrypt
+                .duration_since(start_encrypt)
+                .unwrap()
+                .as_secs_f32()
+        );
+        let msgpack_bytes = message.serialize_to_msgpack_bytes().unwrap();
+        let end_encode_msgpack_bytes = SystemTime::now();
+        println!(
+            "encode msgpack bytes cost: {:?}s",
+            end_encode_msgpack_bytes
+                .duration_since(end_encrypt)
+                .unwrap()
+                .as_secs_f32()
+        );
+        let _base58 = base58_monero::encode(&msgpack_bytes).unwrap();
+        let end_to_base58_monero = SystemTime::now();
+        println!(
+            "encode base58 monero cost: {:?}s",
+            end_to_base58_monero
+                .duration_since(end_encode_msgpack_bytes)
+                .unwrap()
+                .as_secs_f32()
+        );
     }
 
     #[test]
@@ -337,6 +363,7 @@ mod tests {
         // encode
         let encoded_message = message.serialize_to_armor().expect("could serialize");
         print!("{:?}", encoded_message);
+
         let decoded_message =
             Message::deserialize_from_armor(&encoded_message).expect("could deserialize");
         assert_eq!(decoded_message.mac.mac, message.mac.mac);
