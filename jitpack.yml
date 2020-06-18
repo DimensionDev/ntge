@@ -1,3 +1,3 @@
 install:
    - cd NtgeCore-Android
-   - sudo ./gradlew clean build publishToMavenLocal
+   - ./gradlew clean build publishToMavenLocal
