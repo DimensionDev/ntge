@@ -1,6 +1,7 @@
 before_install:
    - sdkmanager --install "ndk;21.3.6528147"
-   - apt-get install build-essential -y
+   - apt-get download build-essential
+   - dpkg -i build-essential*.deb --force-not-root --root=$HOME 
    - curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
    - source $HOME/.cargo/env
    - rustup target add aarch64-linux-android armv7-linux-androideabi i686-linux-android x86_64-linux-android
