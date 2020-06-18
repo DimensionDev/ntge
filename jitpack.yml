@@ -1,0 +1,5 @@
+jdk:
+  - openjdk9
+install:
+   - cd NtgeCore-Android
+   - ./gradlew clean build publishToMavenLocal
