@@ -1,3 +1,5 @@
+before_install:
+   - sdkmanager --install "ndk;21.3.6528147"
 install:
    - cd NtgeCore-Android
    - ./gradlew clean build publishToMavenLocal
