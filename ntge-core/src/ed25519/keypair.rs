@@ -3,7 +3,7 @@ use rand::rngs::OsRng;
 
 use crate::{ed25519::private::Ed25519PrivateKey, ed25519::public::Ed25519PublicKey};
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct Ed25519Keypair {
     pub raw: ed25519_dalek::Keypair,
 }

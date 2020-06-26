@@ -1,6 +1,7 @@
 use bech32::{self, FromBase32, ToBase32};
 use ed25519_dalek::Signature;
 use ed25519_dalek::{self, PublicKey};
+use sha3::{Digest, Sha3_256};
 
 use super::{error, private::Ed25519PrivateKey, CURVE_NAME_ED25519};
 
@@ -95,6 +96,18 @@ impl Ed25519PublicKey {
     }
 }
 
+impl Ed25519PublicKey {
+    pub fn key_id(&self) -> String {
+        let data = self.raw.to_bytes();
+        let base64_encoded_bytes: Vec<u8> = base64::encode(data).bytes().collect();
+        // use sha3-256 produce keyID from base64_encoded_bytes
+        let mut hasher = Sha3_256::new();
+        hasher.input(base64_encoded_bytes);
+        let result = hasher.result();
+        hex::encode(result)
+    }
+}
+
 impl<'a> From<&'a Ed25519PrivateKey> for Ed25519PublicKey {
     fn from(private_key: &Ed25519PrivateKey) -> Ed25519PublicKey {
         Ed25519PublicKey {
@@ -105,9 +118,7 @@ impl<'a> From<&'a Ed25519PrivateKey> for Ed25519PublicKey {
 
 impl Clone for Ed25519PublicKey {
     fn clone(&self) -> Self {
-        Ed25519PublicKey {
-            raw: self.raw.clone(),
-        }
+        Ed25519PublicKey { raw: self.raw }
     }
 }
 
@@ -242,9 +253,21 @@ pub unsafe extern "C" fn c_ed25519_public_key_deserialize(
     }
 }
 
+#[no_mangle]
+#[cfg(target_os = "ios")]
+pub unsafe extern "C" fn c_ed25519_public_key_key_id(
+    public_key: *mut Ed25519PublicKey,
+) -> *mut c_char {
+    let public_key = &mut *public_key;
+    let key_id = public_key.key_id();
+    strings::string_to_c_char(key_id)
+}
+
 #[cfg(test)]
 mod tests {
+    use super::Ed25519PublicKey;
     use crate::ed25519;
+    use sha3::{Digest, Sha3_256};
 
     #[test]
     fn it_deserializes_a_public_key() {
@@ -262,5 +285,33 @@ mod tests {
         let signature = ed25519::private::sign(&keypair.secret, message.as_bytes());
         let result = ed25519::public::verify(&keypair.public, message.as_bytes(), &signature);
         assert!(result.is_ok());
+    }
+
+    #[test]
+    fn it_generates_a_message_key_id() {
+        let keypair = ed25519::keypair::create_keypair();
+        let public_key = Ed25519PublicKey {
+            raw: keypair.public,
+        };
+        let key_id = public_key.key_id();
+        let key_id_2 = public_key.key_id();
+        println!("{}", key_id);
+        assert!(key_id.len() > 0);
+        assert_eq!(key_id, key_id_2);
+
+        // test stub
+        let stub_public_key = Ed25519PublicKey {
+            raw: ed25519_dalek::PublicKey::from_bytes(&[0; 32]).unwrap(),
+        };
+        let stub_key_id = stub_public_key.key_id();
+
+        let base64_encoded_32_zeros_bytes: Vec<u8> = base64::encode([0; 32]).bytes().collect();
+        let mut hasher = Sha3_256::new();
+        hasher.input(base64_encoded_32_zeros_bytes);
+        let result = hasher.result();
+        let calculated_stub_key_id = hex::encode(result);
+        println!("{}", stub_key_id);
+        println!("{}", calculated_stub_key_id);
+        assert_eq!(stub_key_id, calculated_stub_key_id);
     }
 }

@@ -1,5 +1,3 @@
-use x25519_dalek;
-
 use crate::{ed25519::public::Ed25519PublicKey, key_utils};
 
 #[derive(Debug)]
@@ -9,9 +7,7 @@ pub struct X25519PublicKey {
 
 impl Clone for X25519PublicKey {
     fn clone(&self) -> Self {
-        X25519PublicKey {
-            raw: self.raw.clone(),
-        }
+        X25519PublicKey { raw: self.raw }
     }
 }
 

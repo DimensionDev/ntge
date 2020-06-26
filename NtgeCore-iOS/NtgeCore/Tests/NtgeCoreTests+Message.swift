@@ -28,15 +28,18 @@ extension NtgeCoreTests_Message {
         let keypair = Ed25519.Keypair()
         let Ed25519PrivateKey = keypair.privateKey
         let Ed25519PublicKey = keypair.publicKey
-        let x25519PrivateKey = Ed25519PrivateKey.toX25519()
-        let x25519PublicKey = Ed25519PrivateKey.publicKey.toX25519()
+        let x25519PrivateKey = Ed25519PrivateKey.x25519
+        let x25519PublicKey = Ed25519PrivateKey.publicKey.x25519
         let encryptor = Message.Encryptor(publicKeys: [x25519PublicKey])
         
         let plaintext = "Hello, World!"
         let plaintextData = Data(plaintext.utf8)
         let message = encryptor.encrypt(plaintext: plaintextData)
+        let armor = try? message.serialize()
+        XCTAssertNotNil(armor)
+        let deserializedMessage = Message.deserialize(from: armor ?? "")
         
-        let decryptor = Message.Decryptor(message: message)
+        let decryptor = Message.Decryptor(message: deserializedMessage!)
         let fileKey = decryptor.decryptFileKey(privateKey: x25519PrivateKey)
         XCTAssertNotNil(fileKey)
         let payload = decryptor.decryptPayload(fileKey: fileKey!)
@@ -52,8 +55,8 @@ extension NtgeCoreTests_Message {
         let keypair = Ed25519.Keypair()
         let Ed25519PrivateKey = keypair.privateKey
         let Ed25519PublicKey = keypair.publicKey
-        let x25519PrivateKey = Ed25519PrivateKey.toX25519()
-        let x25519PublicKey = Ed25519PrivateKey.publicKey.toX25519()
+        let x25519PrivateKey = Ed25519PrivateKey.x25519
+        let x25519PublicKey = Ed25519PrivateKey.publicKey.x25519
         let encryptor = Message.Encryptor(publicKeys: [x25519PublicKey])
         
         let plaintext = "Hello, World!"
@@ -68,11 +71,61 @@ extension NtgeCoreTests_Message {
         let decryptedString = String(data: payload!, encoding: .utf8)
         XCTAssertEqual(plaintext, decryptedString)
         
+        let extraPayload = decryptor.decryptExtra(fileKey: fileKey!)
+        XCTAssertNil(extraPayload)
+        
         let signatureVerified = Message.Decryptor.verifySignature(for: message, use: Ed25519PublicKey)
         XCTAssertTrue(signatureVerified)
         
         let signatureShouldNotVerified = Message.Decryptor.verifySignature(for: message, use: Ed25519.PrivateKey().publicKey)
         XCTAssertFalse(signatureShouldNotVerified)
+    }
+    
+    func testEncryptAndDecrypt_withExtra_withoutSignature() throws {
+        let keypair = Ed25519.Keypair()
+        let Ed25519PrivateKey = keypair.privateKey
+        let Ed25519PublicKey = keypair.publicKey
+        let x25519PrivateKey = Ed25519PrivateKey.x25519
+        let x25519PublicKey = Ed25519PrivateKey.publicKey.x25519
+        let encryptor = Message.Encryptor(publicKeys: [x25519PublicKey])
+        
+        let plaintext = "Hello, World!"
+        let plaintextData = Data(plaintext.utf8)
+        let extraPlaintext = "Hello, Extra!"
+        let extraPlaintextData = Data(extraPlaintext.utf8)
+        let message = encryptor.encrypt(plaintext: plaintextData, extraPlaintext: extraPlaintextData)
+        
+        let decryptor = Message.Decryptor(message: message)
+        let fileKey = decryptor.decryptFileKey(privateKey: x25519PrivateKey)
+        XCTAssertNotNil(fileKey)
+        let payload = decryptor.decryptPayload(fileKey: fileKey!)
+        XCTAssertNotNil(payload)
+        let decryptedString = String(data: payload!, encoding: .utf8)
+        XCTAssertEqual(plaintext, decryptedString)
+
+        let extraPayload = decryptor.decryptExtra(fileKey: fileKey!)
+        XCTAssertNotNil(payload)
+        let decryptedExtraString = String(data: extraPayload!, encoding: .utf8)
+        XCTAssertEqual(extraPlaintext, decryptedExtraString)
+        
+        let signatureShouldNotVerified = Message.Decryptor.verifySignature(for: message, use: Ed25519PublicKey)
+        XCTAssertFalse(signatureShouldNotVerified)
+    }
+    
+}
+
+extension NtgeCoreTests_Message {
+    
+    func testMessageTimestamp() throws {
+        let encryptor = self.newEncryptor(recipientCount: 1)
+        
+        let lengthInBytes = Measurement(value: 1, unit: UnitInformationStorage.megabytes).converted(to: .bytes).value
+        let plaintext = randomData(ofLength: Int(lengthInBytes))
+        
+        let message = encryptor.encrypt(plaintext: plaintext)
+        
+        let date = message.timestamp
+        XCTAssertNotNil(date)
     }
     
 }
@@ -125,7 +178,9 @@ extension NtgeCoreTests_Message {
         
         // 1MB to 10 Recipient
         self.measure {
-            _ = encryptor.encrypt(plaintext: plaintext)
+            autoreleasepool {
+                _ = encryptor.encrypt(plaintext: plaintext)
+            }
         }
     }
     
@@ -134,7 +189,7 @@ extension NtgeCoreTests_Message {
 extension NtgeCoreTests_Message {
     
     private func newEncryptor(recipientCount: Int) -> Message.Encryptor {
-        let recipientKeys = [0..<recipientCount].map { _ in Ed25519.Keypair().publicKey.toX25519() }
+        let recipientKeys = [0..<recipientCount].map { _ in Ed25519.Keypair().publicKey.x25519 }
         return Message.Encryptor(publicKeys: recipientKeys)
     }
     

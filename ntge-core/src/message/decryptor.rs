@@ -64,6 +64,25 @@ impl Decryptor {
             Err(_) => None,
         }
     }
+
+    pub fn decrypt_extra(&self, file_key: &FileKey) -> Option<Vec<u8>> {
+        let nonce = &self.message.payload.nonce;
+        // create payload key
+        let mut payload_key = [0; 32];
+        Hkdf::<Sha256>::new(Some(&nonce), file_key.0.expose_secret())
+            .expand(message::PAYLOAD_KEY_LABEL, &mut payload_key)
+            .expect("payload_key is the correct length");
+        let extra_ciphertext = match &self.message.payload.extra {
+            Some(extra) => &extra.ciphertext,
+            None => return None,
+        };
+        let mut nonce = [0; 12];
+        nonce[0] = 1;
+        match aead::aead_decrypt_with_nonce(&payload_key, &nonce, &extra_ciphertext) {
+            Ok(plaintext) => Some(plaintext),
+            Err(_) => None,
+        }
+    }
 }
 
 impl Decryptor {
@@ -78,10 +97,7 @@ impl Decryptor {
             Err(_) => return false,
         };
 
-        match ed25519::public::verify(&public_key.raw, &message.payload.ciphertext, &signature) {
-            Ok(_) => true,
-            Err(_) => false,
-        }
+        ed25519::public::verify(&public_key.raw, &message.payload.ciphertext, &signature).is_ok()
     }
 }
 
@@ -146,10 +162,30 @@ pub unsafe extern "C" fn c_message_decryptor_decrypt_payload(
             let data = slice.as_ptr();
             let len = slice.len();
             std::mem::forget(slice);
-            Buffer {
-                data: data,
-                len: len,
-            }
+            Buffer { data, len }
+        }
+        None => Buffer {
+            data: std::ptr::null_mut(),
+            len: 0,
+        },
+    }
+}
+
+#[no_mangle]
+#[cfg(target_os = "ios")]
+pub unsafe extern "C" fn c_message_decryptor_decrypt_extra(
+    decryptor: *mut Decryptor,
+    file_key: *mut FileKey,
+) -> Buffer {
+    let decryptor = &mut *decryptor;
+    let file_key = &mut *file_key;
+    match decryptor.decrypt_extra(&file_key) {
+        Some(bytes) => {
+            let slice = bytes.into_boxed_slice();
+            let data = slice.as_ptr();
+            let len = slice.len();
+            std::mem::forget(slice);
+            Buffer { data, len }
         }
         None => Buffer {
             data: std::ptr::null_mut(),

@@ -104,11 +104,23 @@ namespace NtgeCore.Net
 
         [DllImport(LIB_NAME)]
         public static extern IntPtr newMessageEncryptor(IntPtr array_ptr);
-        
+
         [DllImport(LIB_NAME)]
         public static extern void destroyMessageEncryptor(IntPtr ptr);
 
         [DllImport(LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
         public static extern IntPtr encryptPlaintext([In] byte[] input, IntPtr encryptor_ptr, IntPtr signature_key_ptr);
+
+        [DllImport(LIB_NAME)]
+        public static extern StringHandle publicKeyKeyId(IntPtr public_key);
+
+        [DllImport(LIB_NAME)]
+        public static extern StringHandle decryptMessageExtra(IntPtr decryptor, IntPtr file_key);
+
+        [DllImport(LIB_NAME)]
+        public static extern IntPtr encryptPlaintextWithExtra(IntPtr encryptor, [In] byte[] plaintext_buffer, [In] byte[] extra_plaintext_buffer, IntPtr signature_key_ptr);
+
+        [DllImport(LIB_NAME)]
+        public static extern StringHandle messageTimestamp(IntPtr message);
     }
 }

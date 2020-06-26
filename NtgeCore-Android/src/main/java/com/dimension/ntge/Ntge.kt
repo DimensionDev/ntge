@@ -37,5 +37,9 @@ internal object Ntge {
     external fun newMessageEncryptor(keys_ptr: Long): Long
     external fun destroyMessageEncryptor(ptr: Long)
     external fun encryptPlaintext(input: String, encryptor_ptr: Long, signature_key_ptr: Long): Long
+    external fun publicKeyKeyId(public_key: Long): String
+    external fun decryptMessageExtra(decryptor_ptr: Long, file_key_ptr: Long): ByteArray
+    external fun encryptPlaintextWithExtra(encryptor_ptr: Long, input: String, extra: String, signature_key_ptr: Long): Long
+    external fun messageTimestamp(message_ptr: Long): String
 }
 

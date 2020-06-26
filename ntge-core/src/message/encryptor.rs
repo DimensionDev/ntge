@@ -1,12 +1,10 @@
 use chrono::prelude::*;
-use ed25519_dalek;
 use hkdf::Hkdf;
 use hmac::{Hmac, Mac};
 use rand::rngs::OsRng;
 use rand::RngCore;
 use secrecy::ExposeSecret;
 use serde::{Deserialize, Serialize};
-use serde_bytes;
 use sha2::Sha256;
 
 use crate::{
@@ -51,6 +49,15 @@ impl Encryptor {
         plaintext: &[u8],
         signature_key: Option<&Ed25519PrivateKey>,
     ) -> message::Message {
+        self.encrypt_with_extra(plaintext, None, signature_key)
+    }
+
+    pub fn encrypt_with_extra(
+        &self,
+        plaintext: &[u8],
+        extra_plaintext: Option<&[u8]>,
+        signature_key: Option<&Ed25519PrivateKey>,
+    ) -> message::Message {
         // 1. create new file key
         let file_key = FileKey::new();
         // 2. wrap file key for recipients
@@ -74,18 +81,31 @@ impl Encryptor {
             Some(private_key) => {
                 let signature = Encryptor::sign(&private_key.raw, &ciphertext);
                 message::MessageMeta {
-                    timestamp: Some(Utc::now().to_string()),
+                    timestamp: Some(Utc::now().to_rfc3339_opts(SecondsFormat::Millis, true)),
                     signature: Some(Signature::new(signature.to_vec())),
                 }
             }
             None => message::MessageMeta {
-                timestamp: Some(Utc::now().to_string()),
+                timestamp: Some(Utc::now().to_rfc3339_opts(SecondsFormat::Millis, true)),
                 signature: None,
             },
         };
+        let extra: Option<message::MessageExtra> = match extra_plaintext {
+            Some(plaintext) => {
+                let mut nonce = [0; 12];
+                nonce[0] = 1;
+                let ciphertext = aead::aead_encrypt_with_nonce(&payload_key, &nonce, &plaintext);
+                Some(message::MessageExtra { ciphertext })
+            }
+            None => None,
+        };
         let mac = Encryptor::calculate_mac(&recipient_headers, &meta, &file_key);
         let nonce = nonce.to_vec();
-        let payload = message::MessagePayload { nonce, ciphertext };
+        let payload = message::MessagePayload {
+            nonce,
+            ciphertext,
+            extra,
+        };
         // 6. construct message
         let mac = message::MessageMac { mac: mac.to_vec() };
         message::Message {
@@ -193,5 +213,21 @@ pub unsafe extern "C" fn c_message_encryptor_encrypt_plaintext(
     let data = plaintext_buffer.to_bytes();
     let signature_key = signature_key.as_ref();
     let message = encryptor.encrypt(&data[..], signature_key);
+    Box::into_raw(Box::new(message))
+}
+
+#[no_mangle]
+#[cfg(target_os = "ios")]
+pub unsafe extern "C" fn c_message_encryptor_encrypt_plaintext_and_extra(
+    encryptor: *mut Encryptor,
+    plaintext_buffer: Buffer,
+    extra_plaintext_buffer: Buffer,
+    signature_key: *mut Ed25519PrivateKey,
+) -> *mut message::Message {
+    let encryptor = &mut *encryptor;
+    let data = plaintext_buffer.to_bytes();
+    let extra_data = extra_plaintext_buffer.to_bytes();
+    let signature_key = signature_key.as_ref();
+    let message = encryptor.encrypt_with_extra(&data[..], Some(&extra_data[..]), signature_key);
     Box::into_raw(Box::new(message))
 }

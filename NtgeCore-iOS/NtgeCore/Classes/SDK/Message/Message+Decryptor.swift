@@ -58,6 +58,18 @@ extension Message.Decryptor {
         return Data(bytes: buffer.data, count: Int(buffer.len))
     }
     
+    public func decryptExtra(fileKey: X25519.FileKey) -> Data? {
+        let buffer = c_message_decryptor_decrypt_extra(raw, fileKey.intoRaw())
+        guard buffer.len > 0 else {
+            return nil
+        }
+        
+        defer {
+            c_buffer_destroy(buffer)
+        }
+        return Data(bytes: buffer.data, count: Int(buffer.len))
+    }
+    
 }
 
 extension Message.Decryptor {

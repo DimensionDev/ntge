@@ -46,11 +46,20 @@ extension Ed25519.PublicKey {
             .flatMap { pointer in Ed25519.PublicKey(raw: pointer) }
     }
     
+    public var keyID: String {
+        var text = c_ed25519_public_key_key_id(raw)
+        defer {
+            c_strings_destroy_c_char(&text)
+        }
+        
+        return String(cString: text!)
+    }
+    
 }
 
 extension Ed25519.PublicKey {
     
-    public func toX25519() -> X25519.PublicKey {
+    public var x25519: X25519.PublicKey {
         X25519.PublicKey(raw: c_key_utils_ed25519_public_key_to_x25519(raw))
     }
     

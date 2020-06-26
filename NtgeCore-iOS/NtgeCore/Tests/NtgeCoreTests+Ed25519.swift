@@ -44,7 +44,7 @@ extension NtgeCoreTests_Ed25519 {
         let serializedPrivateKey = privateKey.serialize()
         XCTAssertTrue(serializedPrivateKey.hasPrefix("pri"))
         XCTAssertTrue(serializedPrivateKey.hasSuffix("-Ed25519"))
-        _ = Ed25519.PrivateKey.deserialize(serialized: serializedPrivateKey)
+        _ = Ed25519.PrivateKey.deserialize(from: serializedPrivateKey)
     }
     
     func testPublicKey() {
@@ -54,6 +54,15 @@ extension NtgeCoreTests_Ed25519 {
         XCTAssertTrue(serializedPublicKey.hasPrefix("pub"))
         XCTAssertTrue(serializedPublicKey.hasSuffix("-Ed25519"))
         _ = Ed25519.PublicKey.deserialize(serialized: serializedPublicKey)
+    }
+    
+    func testPublicKey_keyID() {
+        let publicKey = Ed25519.PrivateKey().publicKey
+        let keyID = publicKey.keyID
+        let keyID2 = publicKey.keyID
+        print(keyID)
+        XCTAssert(!keyID.isEmpty)
+        XCTAssertEqual(keyID, keyID2)
     }
     
 }
@@ -80,7 +89,9 @@ extension NtgeCoreTests_Ed25519 {
         // x1000
         self.measure {
             for _ in 0..<1000 {
-                let _ = Ed25519.Keypair()
+                autoreleasepool {
+                    let _ = Ed25519.Keypair()
+                }
             }
         }
     }
@@ -89,7 +100,9 @@ extension NtgeCoreTests_Ed25519 {
         // x10000
         self.measure {
             for _ in 0..<10000 {
-                let _ = Ed25519.Keypair()
+                autoreleasepool {
+                    let _ = Ed25519.Keypair()
+                }
             }
         }
     }

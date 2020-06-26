@@ -40,6 +40,12 @@ namespace NtgeCore.Net.Message
             return stringHandle.AsString();
         }
 
+        public string DecryptPayloadExtra(X25519FileKey fileKey)
+        {
+            using var result = Native.decryptMessageExtra(Ptr, fileKey.Ptr);
+            return result.AsString();
+        }
+
         public override void Dispose()
         {
             Native.destroyMessageDecryptor(Ptr);

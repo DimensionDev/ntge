@@ -17,7 +17,9 @@ class Ed25519PrivateKey internal constructor(
         }
     }
 
-    val publicKey = Ed25519PublicKey(Ntge.getPublicKeyFromEd25519PrivateKey(ptr))
+    val publicKey by lazy {
+        Ed25519PublicKey(Ntge.getPublicKeyFromEd25519PrivateKey(ptr))
+    }
 
     fun serialize(): String {
         return Ntge.serializeEd25519PrivateKey(ptr)
@@ -29,6 +31,5 @@ class Ed25519PrivateKey internal constructor(
 
     override fun close() {
         Ntge.destroyEd25519PrivateKey(ptr)
-        publicKey.close()
     }
 }

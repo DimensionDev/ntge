@@ -26,6 +26,9 @@ class Decryptor internal constructor(
         return Ntge.messageDecryptorDecryptPayload(ptr, fileKey.ptr).toString(Charsets.UTF_8)
     }
 
+    fun decryptPayloadExtra(fileKey: X25519FileKey): String {
+        return Ntge.decryptMessageExtra(ptr, fileKey.ptr).toString(Charsets.UTF_8)
+    }
 
     override fun close() {
         Ntge.destroyMessageDecryptor(ptr)

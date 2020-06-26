@@ -28,6 +28,11 @@ namespace NtgeCore.Net.Message
             return new NtgeMessage(Native.encryptPlaintext(Encoding.UTF8.GetBytes(text), Ptr, signatureKey?.Ptr ?? IntPtr.Zero));
         }
 
+        public NtgeMessage EncryptPlaintextWithExtra(string text, string extra, Ed25519PrivateKey? signatureKey = null)
+        {
+            return new NtgeMessage(Native.encryptPlaintextWithExtra(Ptr, Encoding.UTF8.GetBytes(text), Encoding.UTF8.GetBytes(extra) , signatureKey?.Ptr ?? IntPtr.Zero));
+        }
+
         public override void Dispose()
         {
             Native.destroyMessageEncryptor(Ptr);

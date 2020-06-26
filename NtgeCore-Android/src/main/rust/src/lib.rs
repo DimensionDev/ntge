@@ -4,7 +4,7 @@ pub mod android {
     extern crate jni;
     use self::jni::objects::{JClass, JString};
     use self::jni::JNIEnv;
-    use jni::sys::{jboolean, jbyteArray, jstring, jlong};
+    use jni::sys::{jboolean, jbyteArray, jlong, jstring};
     use ntge_core::ed25519::keypair::Ed25519Keypair;
     use ntge_core::ed25519::private::Ed25519PrivateKey;
     use ntge_core::ed25519::public::Ed25519PublicKey;
@@ -431,4 +431,88 @@ pub mod android {
         let message = (*encryptor).encrypt(&data[..], signature_key.as_ref());
         Box::into_raw(Box::new(message))
     }
+
+    #[no_mangle]
+    pub unsafe extern "system" fn Java_com_dimension_ntge_Ntge_publicKeyKeyId(
+        _env: JNIEnv,
+        _class: JClass,
+        public_key: jlong,
+    ) -> jstring {
+        let public_key = public_key as *mut Ed25519PublicKey;
+        let output = _env
+            .new_string((*public_key).key_id())
+            .expect("Couldn't create java string!");
+        output.into_inner()
+    }
+
+    #[no_mangle]
+    pub unsafe extern "system" fn Java_com_dimension_ntge_Ntge_decryptMessageExtra(
+        _env: JNIEnv,
+        _class: JClass,
+        decryptor: jlong,
+        file_key: jlong,
+    ) -> jbyteArray {
+        let decryptor = decryptor as *mut Decryptor;
+        let file_key = file_key as *mut FileKey;
+        match (*decryptor).decrypt_extra(&*file_key) {
+            Some(bytes) => _env.byte_array_from_slice(&bytes).unwrap(),
+            None => {
+                let _ = _env.throw_new(
+                    "com/dimension/ntge/NtgeException",
+                    "Can not decrypt payload",
+                );
+                std::ptr::null_mut()
+            }
+        }
+    }
+
+    #[no_mangle]
+    pub unsafe extern "system" fn Java_com_dimension_ntge_Ntge_encryptPlaintextWithExtra(
+        _env: JNIEnv,
+        _class: JClass,
+        encryptor: jlong,
+        plaintext_buffer: JString,
+        extra_plaintext_buffer: JString,
+        signature_key: jlong,
+    ) -> *mut Message {
+        let encryptor = encryptor as *mut Encryptor;
+        let signature_key = signature_key as *mut Ed25519PrivateKey;
+        let plaintext_buffer: String = _env
+            .get_string(plaintext_buffer)
+            .expect("Couldn't get java string!")
+            .into();
+        let extra_plaintext_buffer: String = _env
+            .get_string(extra_plaintext_buffer)
+            .expect("Couldn't get java string!")
+            .into();
+        let data = plaintext_buffer.as_bytes();
+        let extra_data = extra_plaintext_buffer.as_bytes();
+        let message = (*encryptor).encrypt_with_extra(&data[..], Some(&extra_data[..]), signature_key.as_ref());
+        Box::into_raw(Box::new(message))
+    }
+
+    #[no_mangle]
+    pub unsafe extern "system" fn Java_com_dimension_ntge_Ntge_messageTimestamp(
+        _env: JNIEnv,
+        _class: JClass,
+        message: jlong,
+    ) -> jstring {
+        let message = message as *mut Message;
+        match &(&*message).meta.timestamp {
+            Some(text) => {
+                let output = _env
+                    .new_string(text)
+                    .expect("Couldn't create java string!");
+                output.into_inner()
+            }
+            None => {
+                let _ = _env.throw_new(
+                    "com/dimension/ntge/NtgeException",
+                    "Can not get timestamp",
+                );
+                std::ptr::null_mut()
+            }
+        }
+    }
+    
 }
