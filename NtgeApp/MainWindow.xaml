@@ -9,7 +9,7 @@
     x:Class="NtgeApp.MainWindow"
     Title="NtgeApp">
     <Window.Styles>
-        <Style Selector="TabControl[TabStripPlacement=Left]">
+        <!-- <Style Selector="TabControl[TabStripPlacement=Left]">
             <Setter Property="Padding" Value="0"/>
         </Style>
         <Style Selector="TabControl /template/ ItemsPresenter#PART_ItemsPresenter > WrapPanel">
@@ -43,8 +43,8 @@
             <Setter Property="Background" Value="#77000000" />
         </Style>
         <Style Selector="TabItem:selected /template/ ContentPresenter#PART_ContentPresenter">
-            <!-- <Setter Property="Background" Value="#f0f0f0" /> -->
-        </Style>
+            <Setter Property="Background" Value="#f0f0f0" />
+        </Style> -->
 
     </Window.Styles>
 
