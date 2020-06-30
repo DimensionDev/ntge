@@ -24,11 +24,16 @@ $ rustup target add aarch64-apple-ios x86_64-apple-ios
 $ cargo install cargo-lipo
 $ cargo install --force cbindgen
 
-$ wget https://github.com/getditto/rust-bitcode/releases/download/v1.40.0/rust-ios-arm64-1.40.0.zip
+$ wget https://github.com/getditto/rust-bitcode/releases/download/v1.43.0/rust-ios-arm64-1.43.0.zip
 $ unzip rust-ios-arm64-1.40.0.zip
 $ cd rust-ios-arm64-1.40.0
 $ ./install.sh
 ```
+
+| Rust version | Xcode version  | rust-bitcode |
+|:---|:---|:---|
+| 1.42 | 11.4 | [1.40](https://github.com/getditto/rust-bitcode/releases/download/v1.40.0/rust-ios-arm64-1.40.0.zip) |
+| 1.43 | 11.5 | [1.43](https://github.com/getditto/rust-bitcode/releases/download/v1.43.0/rust-ios-arm64-1.43.0.zip) |
 
 ## Installation
 
