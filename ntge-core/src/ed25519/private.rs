@@ -114,6 +114,17 @@ impl Ed25519PrivateKey {
     }
 }
 
+impl Ed25519PrivateKey {
+    pub fn sign(&self, message: &[u8]) -> [u8; 64] {
+        let private_key = &self.raw;
+        let expanded_private_key: ExpandedSecretKey = private_key.into();
+        let public_key: PublicKey = private_key.into();
+
+        let signature: Signature = expanded_private_key.sign(message, &public_key);
+        signature.to_bytes()
+    }
+}
+
 impl Drop for Ed25519PrivateKey {
     fn drop(&mut self) {
         if cfg!(feature = "drop-log-enable") {
@@ -130,92 +141,6 @@ impl Clone for Ed25519PrivateKey {
                 .expect("should generate a new raw key from its bytes"),
         }
     }
-}
-
-pub fn serialize_private_key(private_key: &SecretKey) -> String {
-    let data = private_key.to_bytes().to_base32();
-    let encoded = bech32::encode("pri", data).unwrap();
-    encoded + "-" + CURVE_NAME_ED25519
-}
-
-pub fn deserialize_private_key(encoded: &str) -> Result<SecretKey, error::CoreError> {
-    let components: Vec<&str> = encoded.trim().split('-').collect();
-    if components.len() != 2 {
-        // return Err if encoded text not have two components like:
-        // <bech32>-<curve_name>
-        let e = error::CoreError::KeyDeserializeError {
-            name: "PrivateKey",
-            reason: "cannot parse key from text",
-        };
-        Err(e)
-    } else {
-        let curve_name = components[1];
-
-        // 1. check curve name
-        if curve_name != CURVE_NAME_ED25519 {
-            let e = error::CoreError::KeyDeserializeError {
-                name: "PrivateKey",
-                reason: "cannot read key curve name",
-            };
-            return Err(e);
-        }
-
-        // 2. decode bech32 to base32
-        let bech32_encoded = components[0];
-        let (hrp, base32_encoded) = match bech32::decode(&bech32_encoded) {
-            Ok(tuple) => tuple,
-            Err(_) => {
-                let core_error = error::CoreError::KeyDeserializeError {
-                    name: "PrivateKey",
-                    reason: "cannot decode bech32 key payload",
-                };
-                return Err(core_error);
-            }
-        };
-
-        // 3. check hrp
-        if hrp != "pri" {
-            let e = error::CoreError::KeyDeserializeError {
-                name: "PrivateKey",
-                reason: "cannot read invalid key payload",
-            };
-            return Err(e);
-        }
-
-        // 4. decode base32 to bytes
-        let bytes = match Vec::<u8>::from_base32(&base32_encoded) {
-            Ok(bytes) => bytes,
-            Err(_) => {
-                let e = error::CoreError::KeyDeserializeError {
-                    name: "PrivateKey",
-                    reason: "cannot decode base32 key payload",
-                };
-                return Err(e);
-            }
-        };
-
-        // 5. restore key from bytes
-        let private_key = match SecretKey::from_bytes(&bytes) {
-            Ok(key) => key,
-            Err(_) => {
-                let e = error::CoreError::KeyDeserializeError {
-                    name: "PrivateKey",
-                    reason: "cannot restore key from payload",
-                };
-                return Err(e);
-            }
-        };
-
-        Ok(private_key)
-    }
-}
-
-pub fn sign(private_key: &SecretKey, message: &[u8]) -> Signature {
-    let expanded_private_key: ExpandedSecretKey = private_key.into();
-    let public_key: PublicKey = private_key.into();
-
-    let signature: Signature = expanded_private_key.sign(message, &public_key);
-    signature
 }
 
 #[no_mangle]
@@ -272,7 +197,7 @@ mod tests {
         let encoded_private_key =
             "pri1kq9sn9nyutfwsrauz2akl0d0qxzu38dnes6q47x6tnaf57ad7xnsg2fq6l-Ed25519";
         let deserialized_private_key =
-            ed25519::private::deserialize_private_key(&encoded_private_key);
+            ed25519::private::Ed25519PrivateKey::deserialize(&encoded_private_key);
         assert_eq!(true, deserialized_private_key.is_ok());
     }
 }

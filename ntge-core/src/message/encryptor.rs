@@ -9,7 +9,7 @@ use sha2::Sha256;
 
 use crate::{
     aead,
-    ed25519::{self, private::Ed25519PrivateKey},
+    ed25519::private::Ed25519PrivateKey,
     message,
     x25519::{filekey::FileKey, public::X25519PublicKey},
 };
@@ -79,7 +79,7 @@ impl Encryptor {
         // 4. calculate HMAC for recipient_headers + meta
         let meta: message::MessageMeta = match signature_key {
             Some(private_key) => {
-                let signature = Encryptor::sign(&private_key.raw, &ciphertext);
+                let signature = &private_key.sign(&ciphertext);
                 message::MessageMeta {
                     timestamp: Some(Utc::now().to_rfc3339_opts(SecondsFormat::Millis, true)),
                     signature: Some(Signature::new(signature.to_vec())),
@@ -151,14 +151,6 @@ impl Drop for Encryptor {
         if cfg!(feature = "drop-log-enable") {
             println!("{:?} is being deallocated", self);
         }
-    }
-}
-
-impl Encryptor {
-    pub(super) fn sign(private_key: &ed25519_dalek::SecretKey, message: &[u8]) -> [u8; 64] {
-        let signature: ed25519_dalek::Signature = ed25519::private::sign(private_key, message);
-
-        signature.to_bytes()
     }
 }
 

@@ -47,12 +47,6 @@ impl Drop for Ed25519Keypair {
     }
 }
 
-pub fn create_keypair() -> Keypair {
-    // a.k.a Cryptographically secure pseudo-random number generator.
-    let mut csprng: OsRng = OsRng {};
-    ed25519_dalek::Keypair::generate(&mut csprng)
-}
-
 pub fn construct_from_secret_key(private_key: &SecretKey) -> Keypair {
     let sk: SecretKey = SecretKey::from_bytes(&(private_key.to_bytes())).unwrap();
     let pk: PublicKey = (&sk).into();
@@ -111,28 +105,28 @@ mod tests {
 
     #[test]
     fn it_creates_a_keypair() {
-        let keypair = ed25519::keypair::create_keypair();
+        let keypair = ed25519::keypair::Ed25519Keypair::new();
 
-        let serialized_private_key = ed25519::private::serialize_private_key(&(keypair.secret));
+        let serialized_private_key = keypair.get_private_key().serialize();
         println!("{}", serialized_private_key);
 
-        let serialized_public_key = ed25519::public::serialize_public_key(&(keypair.public));
+        let serialized_public_key = keypair.get_public_key().serialize();
         println!("{}", serialized_public_key);
 
         let deserialized_private_key =
-            ed25519::private::deserialize_private_key(&serialized_private_key);
+            ed25519::private::Ed25519PrivateKey::deserialize(&serialized_private_key);
         assert_eq!(deserialized_private_key.is_ok(), true);
         assert_eq!(
-            keypair.secret.to_bytes(),
-            deserialized_private_key.unwrap().to_bytes()
+            keypair.get_private_key().raw.to_bytes(),
+            deserialized_private_key.unwrap().raw.to_bytes()
         );
 
         let deserialized_public_key =
-            ed25519::public::deserialize_public_key(&serialized_public_key);
+            ed25519::public::Ed25519PublicKey::deserialize(&serialized_public_key);
         assert_eq!(deserialized_public_key.is_ok(), true);
         assert_eq!(
-            keypair.public.to_bytes(),
-            deserialized_public_key.unwrap().to_bytes()
+            keypair.get_public_key().raw.to_bytes(),
+            deserialized_public_key.unwrap().raw.to_bytes()
         );
     }
 }
