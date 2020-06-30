@@ -122,5 +122,11 @@ namespace NtgeCore.Net
 
         [DllImport(LIB_NAME)]
         public static extern StringHandle messageTimestamp(IntPtr message);
+        
+        [DllImport(LIB_NAME)]
+        public static extern StringHandle base58_encode([In] byte[] input);
+        
+        [DllImport(LIB_NAME)]
+        public static extern StringHandle base58_decode([In] byte[] input);
     }
 }
