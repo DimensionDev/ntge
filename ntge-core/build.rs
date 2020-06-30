@@ -14,11 +14,7 @@ fn write_headers() {
         Ok(gen) => gen,
         Err(e) => match e {
             // Ignore syntax errors because those will be handled later on by cargo build.
-            cbindgen::Error::ParseSyntaxError {
-                crate_name: _,
-                src_path: _,
-                error: _,
-            } => return,
+            cbindgen::Error::ParseSyntaxError { .. } => return,
             _ => panic!("{:?}", e),
         },
     }
