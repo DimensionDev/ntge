@@ -129,4 +129,16 @@ mod tests {
             deserialized_public_key.unwrap().raw.to_bytes()
         );
     }
+
+    #[test]
+    fn it_sign_and_verify_signature() {
+        let message = b"Hello, World!";
+        let keypair = ed25519::keypair::Ed25519Keypair::new();
+        let private_key = keypair.get_private_key();
+        let public_key = keypair.get_public_key();
+
+        let signature = &private_key.sign(&message[..]);
+        let verify_result = public_key.verify(&message[..], &signature[..]).is_ok();
+        assert_eq!(verify_result, true);
+    }
 }

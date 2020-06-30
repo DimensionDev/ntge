@@ -9,6 +9,9 @@ use crate::strings;
 #[cfg(target_os = "ios")]
 use std::os::raw::c_char;
 
+#[cfg(target_os = "ios")]
+use crate::buffer::Buffer;
+
 use crate::{
     ed25519::keypair::Ed25519Keypair, ed25519::public::Ed25519PublicKey,
     ed25519::CURVE_NAME_ED25519, error,
@@ -186,6 +189,22 @@ pub unsafe extern "C" fn c_ed25519_private_key_deserialize(
         Ok(key) => Box::into_raw(Box::new(key)),
         Err(_) => std::ptr::null_mut(),
     }
+}
+
+#[no_mangle]
+#[cfg(target_os = "ios")]
+pub unsafe extern "C" fn c_ed25519_private_key_sign(
+    private_key: *mut Ed25519PrivateKey,
+    message_buffer: Buffer,
+) -> Buffer {
+    let private_key = &mut *private_key;
+    let message_bytes = message_buffer.to_bytes();
+    let signature_bytes = &private_key.sign(&message_bytes);
+    let slice = signature_bytes.to_vec().into_boxed_slice();
+    let data = slice.as_ptr();
+    let len = slice.len();
+    std::mem::forget(slice);
+    Buffer { data, len }
 }
 
 #[cfg(test)]

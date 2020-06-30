@@ -11,6 +11,9 @@ use crate::strings;
 #[cfg(target_os = "ios")]
 use std::os::raw::c_char;
 
+#[cfg(target_os = "ios")]
+use crate::buffer::Buffer;
+
 #[derive(Debug)]
 pub struct Ed25519PublicKey {
     pub raw: ed25519_dalek::PublicKey,
@@ -192,6 +195,24 @@ pub unsafe extern "C" fn c_ed25519_public_key_key_id(
     let public_key = &mut *public_key;
     let key_id = public_key.key_id();
     strings::string_to_c_char(key_id)
+}
+
+#[no_mangle]
+#[cfg(target_os = "ios")]
+pub unsafe extern "C" fn c_ed25519_public_key_verify(
+    public_key: *mut Ed25519PublicKey,
+    message_buffer: Buffer,
+    signature_buffer: Buffer,
+) -> i32 {
+    let public_key = &mut *public_key;
+    let message_bytes = message_buffer.to_bytes();
+    let signature_bytes = signature_buffer.to_bytes();
+
+    // verify signature
+    match public_key.verify(&message_bytes, &signature_bytes) {
+        Ok(_) => 0,
+        Err(_) => 1,
+    }
 }
 
 #[cfg(test)]
