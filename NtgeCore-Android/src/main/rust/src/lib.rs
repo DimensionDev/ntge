@@ -487,7 +487,11 @@ pub mod android {
             .into();
         let data = plaintext_buffer.as_bytes();
         let extra_data = extra_plaintext_buffer.as_bytes();
-        let message = (*encryptor).encrypt_with_extra(&data[..], Some(&extra_data[..]), signature_key.as_ref());
+        let message = (*encryptor).encrypt_with_extra(
+            &data[..],
+            Some(&extra_data[..]),
+            signature_key.as_ref(),
+        );
         Box::into_raw(Box::new(message))
     }
 
@@ -500,19 +504,55 @@ pub mod android {
         let message = message as *mut Message;
         match &(&*message).meta.timestamp {
             Some(text) => {
-                let output = _env
-                    .new_string(text)
-                    .expect("Couldn't create java string!");
+                let output = _env.new_string(text).expect("Couldn't create java string!");
                 output.into_inner()
             }
             None => {
-                let _ = _env.throw_new(
-                    "com/dimension/ntge/NtgeException",
-                    "Can not get timestamp",
-                );
+                let _ = _env.throw_new("com/dimension/ntge/NtgeException", "Can not get timestamp");
                 std::ptr::null_mut()
             }
         }
     }
-    
+    #[no_mangle]
+    pub unsafe extern "system" fn Java_com_dimension_ntge_Ntge_base58Encode(
+        _env: JNIEnv,
+        _class: JClass,
+        input_buffer: JString,
+    ) -> jstring {
+        let input_buffer: String = _env
+            .get_string(input_buffer)
+            .expect("Couldn't get java string!")
+            .into();
+        let data = input_buffer.as_bytes();
+        match base58_monero::encode(&data) {
+            Ok(text) => _env
+                .new_string(text)
+                .expect("Couldn't create java string!")
+                .into_inner(),
+            Err(_) => {
+                let _ = _env.throw_new("com/dimension/ntge/NtgeException", "Can not decode");
+                std::ptr::null_mut()
+            }
+        }
+    }
+
+    #[no_mangle]
+    pub unsafe extern "system" fn Java_com_dimension_ntge_Ntge_base58Decode(
+        _env: JNIEnv,
+        _class: JClass,
+        encoded_input: JString,
+    ) -> jbyteArray {
+        let input_buffer: String = _env
+            .get_string(encoded_input)
+            .expect("Couldn't get java string!")
+            .into();
+        let data = input_buffer;
+        match base58_monero::decode(&data) {
+            Ok(bytes) => _env.byte_array_from_slice(&bytes).unwrap(),
+            Err(_) => {
+                let _ = _env.throw_new("com/dimension/ntge/NtgeException", "Can not decode");
+                std::ptr::null_mut()
+            }
+        }
+    }
 }
