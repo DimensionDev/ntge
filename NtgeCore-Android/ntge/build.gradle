@@ -8,14 +8,12 @@ buildscript {
     }
     dependencies {
         classpath 'gradle.plugin.org.mozilla.rust-android-gradle:plugin:0.8.3'
-        classpath "androidx.benchmark:benchmark-gradle-plugin:1.0.0"
     }
 }
 
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
-apply plugin: "androidx.benchmark"
 apply plugin: 'org.mozilla.rust-android-gradle.rust-android'
 apply plugin: 'maven-publish'
 
@@ -29,8 +27,7 @@ android {
         versionCode 1
         versionName "1.0"
 
-        testInstrumentationRunner "androidx.benchmark.junit4.AndroidBenchmarkRunner"
-        testInstrumentationRunnerArgument 'androidx.benchmark.suppressErrors', 'EMULATOR,UNLOCKED'
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
     }
     testBuildType "release"
@@ -65,7 +62,6 @@ dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
     testImplementation("junit:junit:4.13")
-    androidTestImplementation("androidx.benchmark:benchmark-junit4:1.0.0")
     androidTestImplementation("androidx.test.ext:junit:1.1.1")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.2.0")
 }
@@ -81,6 +77,11 @@ tasks['clean'].dependsOn("cargoClean")
 
 afterEvaluate {
     publishing {
+        repositories {
+            maven {
+                url = uri("$buildDir/maven")
+            }
+        }
         publications {
             release(MavenPublication) {
                 from components.release
