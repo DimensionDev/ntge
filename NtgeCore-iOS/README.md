@@ -25,8 +25,8 @@ $ cargo install cargo-lipo
 $ cargo install --force cbindgen
 
 $ wget https://github.com/getditto/rust-bitcode/releases/download/v1.43.0/rust-ios-arm64-1.43.0.zip
-$ unzip rust-ios-arm64-1.40.0.zip
-$ cd rust-ios-arm64-1.40.0
+$ unzip rust-ios-arm64-1.43.0.zip
+$ cd rust-ios-arm64-1.43.0
 $ ./install.sh
 ```
 
