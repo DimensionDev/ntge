@@ -1,0 +1,2 @@
+include ':ntge'
+rootProject.name = "NtgeCore-Android"

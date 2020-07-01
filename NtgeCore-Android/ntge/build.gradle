@@ -1,0 +1,93 @@
+buildscript {
+    repositories {
+        google()
+        jcenter()
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+    }
+    dependencies {
+        classpath 'gradle.plugin.org.mozilla.rust-android-gradle:plugin:0.8.3'
+        classpath "androidx.benchmark:benchmark-gradle-plugin:1.0.0"
+    }
+}
+
+apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
+apply plugin: "androidx.benchmark"
+apply plugin: 'org.mozilla.rust-android-gradle.rust-android'
+apply plugin: 'maven-publish'
+
+
+android {
+    compileSdkVersion 30
+
+    defaultConfig {
+        minSdkVersion 21
+        targetSdkVersion 30
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner "androidx.benchmark.junit4.AndroidBenchmarkRunner"
+        testInstrumentationRunnerArgument 'androidx.benchmark.suppressErrors', 'EMULATOR,UNLOCKED'
+        consumerProguardFiles "consumer-rules.pro"
+    }
+    testBuildType "release"
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    kotlinOptions {
+        jvmTarget = JavaVersion.VERSION_1_8.toString()
+    }
+
+    buildTypes {
+        release {
+            isDefault.set(true)
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig = signingConfigs.debug
+        }
+    }
+}
+
+cargo {
+    module = "./src/main/rust"
+    targets = ["arm", "x86", "arm64", "x86_64"]
+    libname = "ntgedroid"
+    profile = "release"
+}
+
+dependencies {
+    implementation fileTree(dir: "libs", include: ["*.jar"])
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+    testImplementation("junit:junit:4.13")
+    androidTestImplementation("androidx.benchmark:benchmark-junit4:1.0.0")
+    androidTestImplementation("androidx.test.ext:junit:1.1.1")
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.2.0")
+}
+
+task cargoClean(type: Exec) {
+    executable "cargo"
+    args = ["clean"]
+    workingDir("$projectDir/${cargo.module}")
+}
+
+tasks['preBuild'].dependsOn("cargoBuild")
+tasks['clean'].dependsOn("cargoClean")
+
+afterEvaluate {
+    publishing {
+        publications {
+            release(MavenPublication) {
+                from components.release
+                groupId = 'com.dimension'
+                artifactId = 'ntge'
+                version = '0.1.0'
+            }
+        }
+    }
+}

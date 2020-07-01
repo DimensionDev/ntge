@@ -25,9 +25,6 @@ jobs:
           java-version: 1.8
       - name: add rust target
         run: rustup target add aarch64-linux-android armv7-linux-androideabi i686-linux-android x86_64-linux-android
-      - name: grant execute permission for gradlew
-        working-directory: ./NtgeCore-Android
-        run: chmod +x ./gradlew
       - name: build
         working-directory: ./NtgeCore-Android
         run: ./gradlew clean build
@@ -37,10 +34,10 @@ jobs:
           working-directory: ./NtgeCore-Android
           api-level: 29
           script: ./gradlew connectedCheck
-      - name: deploy to github packages
-        working-directory: ./NtgeCore-Android
-        if: github.event_name == 'push' && github.event.ref_type == 'tag'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: ./gradlew publish -PversionName="${GITHUB_REF:10}" -Ptoken=${GITHUB_TOKEN} -Puser=DimensionDev -Psource="https://maven.pkg.github.com/DimensionDev"
+      # - name: deploy to github packages
+      #   working-directory: ./NtgeCore-Android
+      #   if: github.event_name == 'push' && github.event.ref_type == 'tag'
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #   run: ./gradlew publish -PversionName="${GITHUB_REF:10}" -Ptoken=${GITHUB_TOKEN} -Puser=DimensionDev -Psource="https://maven.pkg.github.com/DimensionDev"
 
