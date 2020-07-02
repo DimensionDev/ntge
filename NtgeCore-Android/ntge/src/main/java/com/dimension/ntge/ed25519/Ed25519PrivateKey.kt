@@ -25,6 +25,8 @@ class Ed25519PrivateKey internal constructor(
         return Ntge.serializeEd25519PrivateKey(ptr)
     }
 
+    fun sign(message: String) = Ntge.ed25519PrivateKeySign(ptr, message);
+
     fun toX25519(): X25519PrivateKey {
         return X25519PrivateKey(Ntge.ed25519PrivateKeyToX25519(ptr))
     }
