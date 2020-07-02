@@ -10,7 +10,7 @@ edition = "2018"
 crate-type = ["cdylib"]
 
 [dependencies]
-ntge-core = { path = "../../../../ntge-core" }
+ntge-core = { path = "../../../../../ntge-core" }
 jni = "0.16.0"
 
 [workspace]
