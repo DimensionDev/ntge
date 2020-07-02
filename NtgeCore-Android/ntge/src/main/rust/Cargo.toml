@@ -12,5 +12,6 @@ crate-type = ["cdylib"]
 [dependencies]
 ntge-core = { path = "../../../../../ntge-core" }
 jni = "0.16.0"
+base58-monero = "0.2.0"
 
 [workspace]

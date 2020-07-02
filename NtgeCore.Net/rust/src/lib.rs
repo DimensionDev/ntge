@@ -320,4 +320,24 @@ pub mod net_core {
             None => std::ptr::null_mut(),
         }
     }
+    
+    #[no_mangle]
+    pub unsafe extern "C" fn base58_encode(
+        input_buffer: *const c_char,
+    ) -> *const c_char {
+        let data = CStr::from_ptr(input_buffer).to_bytes();
+        match base58_monero::encode(&data) {
+            Ok(v) => CString::new(v).unwrap().into_raw(),
+            Err(_) => std::ptr::null_mut(),
+        }
+    }
+
+    #[no_mangle]
+    pub unsafe extern "C" fn base58_decode(encoded_input: *const c_char) -> *const c_char {
+        let encoded = std::str::from_utf8(CStr::from_ptr(encoded_input).to_bytes()).unwrap();
+        match base58_monero::decode(&encoded) {
+            Ok(v) => CString::new(v).unwrap().into_raw(),
+            Err(_) => std::ptr::null_mut(),
+        }
+    }
 }
