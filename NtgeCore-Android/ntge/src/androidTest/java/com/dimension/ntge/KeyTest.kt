@@ -130,5 +130,15 @@ class KeyTest {
             assertFalse(publicKey.keyId.isNullOrEmpty())
         }
     }
+
+    @Test
+    fun it_sign_and_verify_signature() {
+        val message = "Hello, World!"
+        Ed25519Keypair.new().use { keypair ->
+            val signature = keypair.privateKey.sign(message);
+            assertFalse(signature.isNullOrEmpty())
+            assertTrue(keypair.publicKey.verify(message, signature))
+        }
+    }
 }
 

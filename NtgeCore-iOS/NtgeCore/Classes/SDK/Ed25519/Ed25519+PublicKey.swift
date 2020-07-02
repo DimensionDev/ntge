@@ -59,6 +59,29 @@ extension Ed25519.PublicKey {
 
 extension Ed25519.PublicKey {
     
+    public func verify(message: Data, signature: Data) -> Bool {
+        var messageData = message
+        var signatureData = signature
+        
+        let result = messageData.withUnsafeMutableBytes { (messagePointer: UnsafeMutableRawBufferPointer) -> Bool in
+            let messageBufferPointer = messagePointer.bindMemory(to: UInt8.self)
+            let messageBuffer = Buffer(data: messageBufferPointer.baseAddress, len: UInt(message.count))
+            
+            return signatureData.withUnsafeMutableBytes { (signaturePointer: UnsafeMutableRawBufferPointer) -> Bool in
+                let signatureBufferPointer = signaturePointer.bindMemory(to: UInt8.self)
+                let signatureBuffer = Buffer(data: signatureBufferPointer.baseAddress, len: UInt(signature.count))
+                
+                return c_ed25519_public_key_verify(raw, messageBuffer, signatureBuffer) == 0
+            }
+        }
+        
+        return result
+    }
+    
+}
+
+extension Ed25519.PublicKey {
+    
     public var x25519: X25519.PublicKey {
         X25519.PublicKey(raw: c_key_utils_ed25519_public_key_to_x25519(raw))
     }

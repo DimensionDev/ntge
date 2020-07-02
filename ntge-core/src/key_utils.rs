@@ -105,22 +105,32 @@ mod tests {
 
     #[test]
     fn it_validates_a_valid_keypair() {
-        let keypair = ed25519::keypair::create_keypair();
-        assert!(key_utils::keypair_validation(&keypair.secret, &keypair.public).is_ok());
+        let keypair = ed25519::keypair::Ed25519Keypair::new();
+        assert!(key_utils::keypair_validation(
+            &keypair.get_private_key().raw,
+            &keypair.get_public_key().raw
+        )
+        .is_ok());
     }
 
     #[test]
     fn it_validates_an_invalid_keypair() {
-        let keypair1 = ed25519::keypair::create_keypair();
-        let keypair2 = ed25519::keypair::create_keypair();
+        let keypair1 = ed25519::keypair::Ed25519Keypair::new();
+        let keypair2 = ed25519::keypair::Ed25519Keypair::new();
 
-        assert!(!(key_utils::keypair_validation(&keypair1.secret, &keypair2.public).is_ok()));
+        assert!(
+            !(key_utils::keypair_validation(
+                &keypair1.get_private_key().raw,
+                &keypair2.get_public_key().raw
+            )
+            .is_ok())
+        );
     }
 
     #[test]
     fn it_converts_an_ed25519_public_key_to_x25519() {
-        let keypair = ed25519::keypair::create_keypair();
-        let pubkey = key_utils::ed25519_public_key_to_x25519(&keypair.public);
+        let keypair = ed25519::keypair::Ed25519Keypair::new();
+        let pubkey = key_utils::ed25519_public_key_to_x25519(&keypair.get_public_key().raw);
 
         // no need to verify an X25519 key
         assert_ne!(pubkey.as_bytes(), &[0; 32]);
@@ -128,21 +138,21 @@ mod tests {
 
     #[test]
     fn it_converts_an_ed25519_private_key_to_x25519() {
-        let keypair = ed25519::keypair::create_keypair();
-        let private_key = key_utils::ed25519_private_key_to_x25519(&keypair.secret);
+        let keypair = ed25519::keypair::Ed25519Keypair::new();
+        let private_key = key_utils::ed25519_private_key_to_x25519(&keypair.get_private_key().raw);
 
         assert_ne!(private_key.to_bytes(), [0; 32]);
     }
 
     #[test]
     fn it_conducts_diffie_hellman_on_two_ed25519_keypairs() {
-        let alice = ed25519::keypair::create_keypair();
-        let alice_private = key_utils::ed25519_private_key_to_x25519(&alice.secret);
-        let alice_public = key_utils::ed25519_public_key_to_x25519(&alice.public);
+        let alice = ed25519::keypair::Ed25519Keypair::new();
+        let alice_private = key_utils::ed25519_private_key_to_x25519(&alice.get_private_key().raw);
+        let alice_public = key_utils::ed25519_public_key_to_x25519(&alice.get_public_key().raw);
 
-        let bob = ed25519::keypair::create_keypair();
-        let bob_private = key_utils::ed25519_private_key_to_x25519(&bob.secret);
-        let bob_public = key_utils::ed25519_public_key_to_x25519(&bob.public);
+        let bob = ed25519::keypair::Ed25519Keypair::new();
+        let bob_private = key_utils::ed25519_private_key_to_x25519(&bob.get_private_key().raw);
+        let bob_public = key_utils::ed25519_public_key_to_x25519(&bob.get_public_key().raw);
 
         //Alice -> Bob
         let alice_private_ephemeral = EphemeralSecret::new(&mut OsRng);

@@ -3,6 +3,7 @@ pub mod net_core {
     use ntge_core::ed25519::keypair::Ed25519Keypair;
     use ntge_core::ed25519::private::Ed25519PrivateKey;
     use ntge_core::ed25519::public::Ed25519PublicKey;
+    use ntge_core::hmac_utils::hmac256_calculate_using;
     use ntge_core::key_utils::{ed25519_private_key_to_x25519, ed25519_public_key_to_x25519};
     use ntge_core::message::decryptor::Decryptor;
     use ntge_core::message::encryptor::Encryptor;
@@ -320,11 +321,8 @@ pub mod net_core {
             None => std::ptr::null_mut(),
         }
     }
-    
     #[no_mangle]
-    pub unsafe extern "C" fn base58_encode(
-        input_buffer: *const c_char,
-    ) -> *const c_char {
+    pub unsafe extern "C" fn base58_encode(input_buffer: *const c_char) -> *const c_char {
         let data = CStr::from_ptr(input_buffer).to_bytes();
         match base58_monero::encode(&data) {
             Ok(v) => CString::new(v).unwrap().into_raw(),
@@ -339,5 +337,44 @@ pub mod net_core {
             Ok(v) => CString::new(v).unwrap().into_raw(),
             Err(_) => std::ptr::null_mut(),
         }
+    }
+
+    #[no_mangle]
+    pub unsafe extern "C" fn ed25519_private_key_sign(
+        private_key: *mut Ed25519PrivateKey,
+        message_buffer: *const c_char,
+    ) -> *const c_char {
+        let private_key = &mut *private_key;
+        let message_bytes = CStr::from_ptr(message_buffer).to_bytes();
+        let signature_bytes = &private_key.sign(&message_bytes);
+        CString::new(hex::encode(signature_bytes.to_vec())).unwrap().into_raw()
+    }
+
+    #[no_mangle]
+    pub unsafe extern "C" fn ed25519_public_key_verify(
+        public_key: *mut Ed25519PublicKey,
+        message_buffer: *const c_char,
+        signature_buffer: *const c_char,
+    ) -> i32 {
+        let public_key = &mut *public_key;
+        let message_bytes = CStr::from_ptr(message_buffer).to_bytes();
+        let signature_bytes = hex::decode(CStr::from_ptr(signature_buffer).to_str().unwrap().to_owned()).unwrap();
+
+        // verify signature
+        match public_key.verify(&message_bytes, &signature_bytes) {
+            Ok(_) => 0,
+            Err(_) => 1,
+        }
+    }
+
+    #[no_mangle]
+    pub unsafe extern "C" fn hmac_utils_hmac256_calculate_using(
+        public_key: *mut Ed25519PublicKey,
+        data_buffer: *const c_char,
+    ) -> *const c_char {
+        let public_key = &mut *public_key;
+        let data_bytes = CStr::from_ptr(data_buffer).to_bytes();
+        let bytes = hmac256_calculate_using(&public_key, &data_bytes).to_vec();
+        CString::new(hex::encode(bytes)).unwrap().into_raw()
     }
 }

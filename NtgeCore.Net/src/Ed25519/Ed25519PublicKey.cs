@@ -1,5 +1,6 @@
 using System;
 using System.Text;
+using NtgeCore.Net.Message;
 using NtgeCore.Net.X25519;
 
 namespace NtgeCore.Net.Ed25519
@@ -43,6 +44,12 @@ namespace NtgeCore.Net.Ed25519
         public X25519PublicKey ToX25519()
         {
             return new X25519PublicKey(Native.ed25519PublicKeyToX25519(Ptr));
+        }
+
+        public bool Verify(string message, string signature)
+        {
+            var result = Native.ed25519_public_key_verify(Ptr, Encoding.UTF8.GetBytes(message), Encoding.UTF8.GetBytes(signature));
+            return result == 0;
         }
 
         public override void Dispose()

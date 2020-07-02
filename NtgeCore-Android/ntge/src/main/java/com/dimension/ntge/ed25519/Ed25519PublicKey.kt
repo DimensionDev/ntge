@@ -25,6 +25,8 @@ class Ed25519PublicKey internal constructor(
         return X25519PublicKey(Ntge.ed25519PublicKeyToX25519(ptr))
     }
 
+    fun verify(message: String, signature: String) = Ntge.ed25519PublicKeyVerify(ptr, message, signature)
+
     override fun toString(): String {
         return serialize()
     }

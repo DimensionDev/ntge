@@ -57,9 +57,9 @@ fn main() {
         )
         .get_matches();
 
-    let keypair = ed25519::keypair::create_keypair();
-    let public_key_content = ed25519::public::serialize_public_key(&(keypair.public));
-    let private_key_content = ed25519::private::serialize_private_key(&(keypair.secret));
+    let keypair = ed25519::keypair::Ed25519Keypair::new();
+    let public_key_content = keypair.get_public_key().serialize();
+    let private_key_content = keypair.get_private_key().serialize();
     if matches.is_present("console") {
         println!("{}", public_key_content);
         println!("{}", private_key_content);
