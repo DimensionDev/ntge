@@ -1,5 +1,6 @@
 using System;
 using System.Text;
+using NtgeCore.Net.Message;
 using NtgeCore.Net.X25519;
 
 namespace NtgeCore.Net.Ed25519
@@ -47,6 +48,12 @@ namespace NtgeCore.Net.Ed25519
         public X25519PrivateKey ToX25519()
         {
             return new X25519PrivateKey(Native.ed25519PrivateKeyToX25519(Ptr));
+        }
+
+        public string Sign(string message)
+        {
+            using var result = Native.ed25519_private_key_sign(Ptr, Encoding.UTF8.GetBytes(message));
+            return result.AsString();
         }
 
         public override void Dispose()

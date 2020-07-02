@@ -1,5 +1,6 @@
 using System;
 using NtgeCore.Net.Ed25519;
+using NtgeCore.Net.Message;
 using Xunit;
 
 namespace NtgeCore.Net.Test
@@ -95,6 +96,18 @@ namespace NtgeCore.Net.Test
         {
             using var publicKey = Ed25519PublicKey.Deserialize(test_publicKey);
             Assert.True(!string.IsNullOrEmpty(publicKey.KeyId));
+        }
+
+        [Fact]
+        public void TestSignAndVerifySignature()
+        {
+            var message = "Hello, World!";
+            using var keypair = Ed25519Keypair.New();
+            using var privateKey = keypair.PrivateKey;
+            using var publicKey = keypair.PublicKey;
+            var signature = privateKey.Sign(message);
+            Assert.True(!string.IsNullOrEmpty(signature));
+            Assert.True(publicKey.Verify(message, signature));
         }
     }
 }
