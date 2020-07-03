@@ -518,13 +518,9 @@ pub mod android {
     pub unsafe extern "system" fn Java_com_dimension_ntge_Ntge_base58Encode(
         _env: JNIEnv,
         _class: JClass,
-        input_buffer: JString,
+        input_buffer: jbyteArray,
     ) -> jstring {
-        let input_buffer: String = _env
-            .get_string(input_buffer)
-            .expect("Couldn't get java string!")
-            .into();
-        let data = input_buffer.as_bytes();
+        let data = _env.convert_byte_array(input_buffer).unwrap();
         match base58_monero::encode(&data) {
             Ok(text) => _env
                 .new_string(text)
