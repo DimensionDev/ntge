@@ -10,11 +10,11 @@ import org.junit.runner.RunWith
 class Base58Test {
     @Test
     fun it_encode() {
-        assertTrue(Base58.encode("Hello, World!") == "D7LMXYjYZ7cDaGe8bS")
+        assertTrue(Base58.encode("Hello, World!".toByteArray(Charsets.UTF_8)) == "D7LMXYjYZ7cDaGe8bS")
     }
     
     @Test
     fun it_decode() {
-        assertTrue(Base58.decode("D7LMXYjYZ7cDaGe8bS") == "Hello, World!")
+        assertTrue(Base58.decode("D7LMXYjYZ7cDaGe8bS").toString(Charsets.UTF_8) == "Hello, World!")
     }
 }
