@@ -29,6 +29,18 @@ extension Ed25519 {
     
 }
 
+extension Ed25519.PublicKey: Hashable {
+    
+    public static func == (lhs: Ed25519.PublicKey, rhs: Ed25519.PublicKey) -> Bool {
+        lhs.keyID == rhs.keyID
+    }
+    
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(keyID)
+    }
+
+}
+
 extension Ed25519.PublicKey {
     
     public func serialize() -> String {
