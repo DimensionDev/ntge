@@ -53,7 +53,7 @@ extension Message {
 
 extension Message {
     
-    public func serialize() throws -> String? {
+    public func serialize() throws -> String {
         var armor: UnsafeMutablePointer<Int8>? = nil
         
         _ = c_message_serialize_to_armor(raw, &armor)
@@ -64,7 +64,7 @@ extension Message {
         }
         
         guard let text = armor else {
-            return nil
+            throw NtgeCoreError.messageSerialization
         }
         
         return String(cString: text)
@@ -74,6 +74,26 @@ extension Message {
         return armor
             .withCString { cstring in c_message_deserialize_from_armor(cstring) }
             .flatMap { pointer in Message(raw: pointer) }
+    }
+    
+}
+
+public enum NtgeCoreError: LocalizedError {
+    case messageSerialization
+    
+    public var errorDescription: String? {
+        switch self {
+        case .messageSerialization:
+            return "Message Serialzation Failed"
+        }
+    }
+    
+    public var failureReason: String? {
+        return "Internal error."
+    }
+    
+    public var recoverySuggestion: String? {
+        return "Please try again."
     }
     
 }
