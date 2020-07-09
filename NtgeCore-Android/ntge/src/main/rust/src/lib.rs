@@ -472,22 +472,14 @@ pub mod android {
         _env: JNIEnv,
         _class: JClass,
         encryptor: jlong,
-        plaintext_buffer: JString,
-        extra_plaintext_buffer: JString,
+        plaintext_buffer: jbyteArray,
+        extra_plaintext_buffer: jbyteArray,
         signature_key: jlong,
     ) -> *mut Message {
         let encryptor = encryptor as *mut Encryptor;
         let signature_key = signature_key as *mut Ed25519PrivateKey;
-        let plaintext_buffer: String = _env
-            .get_string(plaintext_buffer)
-            .expect("Couldn't get java string!")
-            .into();
-        let extra_plaintext_buffer: String = _env
-            .get_string(extra_plaintext_buffer)
-            .expect("Couldn't get java string!")
-            .into();
-        let data = plaintext_buffer.as_bytes();
-        let extra_data = extra_plaintext_buffer.as_bytes();
+        let data = _env.convert_byte_array(plaintext_buffer).unwrap();
+        let extra_data = _env.convert_byte_array(extra_plaintext_buffer).unwrap();
         let message = (*encryptor).encrypt_with_extra(
             &data[..],
             Some(&extra_data[..]),

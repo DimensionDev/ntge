@@ -39,7 +39,7 @@ internal object Ntge {
     external fun encryptPlaintext(input: String, encryptor_ptr: Long, signature_key_ptr: Long): Long
     external fun publicKeyKeyId(public_key: Long): String
     external fun decryptMessageExtra(decryptor_ptr: Long, file_key_ptr: Long): ByteArray
-    external fun encryptPlaintextWithExtra(encryptor_ptr: Long, input: String, extra: String, signature_key_ptr: Long): Long
+    external fun encryptPlaintextWithExtra(encryptor_ptr: Long, input: ByteArray, extra: ByteArray, signature_key_ptr: Long): Long
     external fun messageTimestamp(message_ptr: Long): String
     external fun base58Encode(input: ByteArray): String
     external fun base58Decode(input: String): ByteArray

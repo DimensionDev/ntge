@@ -151,7 +151,7 @@ class MessageTest {
                 ed25519PrivateKey.publicKey.use { ed25519PublicKey ->
                     ed25519PublicKey.toX25519().use { x25519PublicKey ->
                         Encryptor.new(x25519PublicKey).use { encryptor ->
-                            encryptor.encryptPlaintextWithExtra(message_to_enc, extra_message_to_enc).use { message ->
+                            encryptor.encryptPlaintextWithExtra(message_to_enc.toByteArray(Charsets.UTF_8), extra_message_to_enc.toByteArray(Charsets.UTF_8)).use { message ->
                                 assertTrue(message.ptr != 0L)
                                 val msgString = message.serialize()
                                 assertTrue(msgString.isNotEmpty())
