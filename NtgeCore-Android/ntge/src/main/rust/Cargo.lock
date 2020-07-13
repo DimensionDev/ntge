@@ -600,7 +600,6 @@ name = "ntgedroid"
 version = "0.1.0"
 dependencies = [
  "base58-monero",
- "hex 0.4.2",
  "jni",
  "ntge-core",
 ]

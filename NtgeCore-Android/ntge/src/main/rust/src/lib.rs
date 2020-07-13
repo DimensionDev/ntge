@@ -550,19 +550,13 @@ pub mod android {
         _env: JNIEnv,
         _class: JClass,
         private_key: jlong,
-        message_buffer: JString,
-    ) -> jstring {
+        message_buffer: jbyteArray,
+    ) -> jbyteArray {
         let private_key = private_key as *mut Ed25519PrivateKey;
         let private_key = &mut *private_key;
-        let message_buffer: String = _env
-            .get_string(message_buffer)
-            .expect("Couldn't get java string!")
-            .into();
-        let message_bytes = message_buffer.as_bytes();
+        let message_bytes = _env.convert_byte_array(message_buffer).unwrap();
         let signature_bytes = &private_key.sign(&message_bytes);
-        _env.new_string(hex::encode(signature_bytes.to_vec()))
-            .expect("Couldn't create java string!")
-            .into_inner()
+        _env.byte_array_from_slice(signature_bytes).unwrap()
     }
 
     #[no_mangle]
@@ -570,22 +564,13 @@ pub mod android {
         _env: JNIEnv,
         _class: JClass,
         public_key: jlong,
-        message_buffer: JString,
-        signature_buffer: JString,
+        message_buffer: jbyteArray,
+        signature_buffer: jbyteArray,
     ) -> jboolean {
         let public_key = public_key as *mut Ed25519PublicKey;
         let public_key = &mut *public_key;
-        let message_buffer: String = _env
-            .get_string(message_buffer)
-            .expect("Couldn't get java string!")
-            .into();
-        let message_bytes = message_buffer.as_bytes();
-        let signature_buffer: String = _env
-            .get_string(signature_buffer)
-            .expect("Couldn't get java string!")
-            .into();
-        let signature_bytes = hex::decode(signature_buffer).unwrap();
-
+        let message_bytes = _env.convert_byte_array(message_buffer).unwrap();
+        let signature_bytes = _env.convert_byte_array(signature_buffer).unwrap();
         // verify signature
         match public_key.verify(&message_bytes, &signature_bytes) {
             Ok(_) => true as u8,
@@ -598,18 +583,12 @@ pub mod android {
         _env: JNIEnv,
         _class: JClass,
         public_key: jlong,
-        data_buffer: JString,
-    ) -> jstring {
+        input_buffer: jbyteArray,
+    ) -> jbyteArray {
         let public_key = public_key as *mut Ed25519PublicKey;
         let public_key = &mut *public_key;
-        let data_buffer: String = _env
-            .get_string(data_buffer)
-            .expect("Couldn't get java string!")
-            .into();
-        let data_bytes = data_buffer.as_bytes();
+        let data_bytes = _env.convert_byte_array(input_buffer).unwrap();
         let bytes = hmac256_calculate_using(&public_key, &data_bytes).to_vec();
-        _env.new_string(hex::encode(bytes))
-            .expect("Couldn't create java string!")
-            .into_inner()
+        _env.byte_array_from_slice(&bytes).unwrap()
     }
 }
