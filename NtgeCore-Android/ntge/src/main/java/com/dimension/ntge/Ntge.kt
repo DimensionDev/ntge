@@ -45,6 +45,6 @@ internal object Ntge {
     external fun base58Decode(input: String): ByteArray
     external fun ed25519PrivateKeySign(private_key_ptr: Long, message: String): String
     external fun ed25519PublicKeyVerify(public_key_ptr: Long, message: String, signature: String): Boolean
-    external fun hmac256Calculate(public_key_ptr: Long, input: String): String
+    external fun hmac256Calculate(public_key_ptr: Long, input: ByteArray): ByteArray
 }
 

@@ -598,18 +598,12 @@ pub mod android {
         _env: JNIEnv,
         _class: JClass,
         public_key: jlong,
-        data_buffer: JString,
-    ) -> jstring {
+        input_buffer: jbyteArray,
+    ) -> jbyteArray {
         let public_key = public_key as *mut Ed25519PublicKey;
         let public_key = &mut *public_key;
-        let data_buffer: String = _env
-            .get_string(data_buffer)
-            .expect("Couldn't get java string!")
-            .into();
-        let data_bytes = data_buffer.as_bytes();
+        let data_bytes = _env.convert_byte_array(input_buffer).unwrap();
         let bytes = hmac256_calculate_using(&public_key, &data_bytes).to_vec();
-        _env.new_string(hex::encode(bytes))
-            .expect("Couldn't create java string!")
-            .into_inner()
+        _env.byte_array_from_slice(&bytes).unwrap()
     }
 }
