@@ -133,10 +133,10 @@ class KeyTest {
 
     @Test
     fun it_sign_and_verify_signature() {
-        val message = "Hello, World!"
+        val message = "Hello, World!".toByteArray(Charsets.UTF_8)
         Ed25519Keypair.new().use { keypair ->
             val signature = keypair.privateKey.sign(message);
-            assertFalse(signature.isNullOrEmpty())
+            assertTrue(signature.any())
             assertTrue(keypair.publicKey.verify(message, signature))
         }
     }
