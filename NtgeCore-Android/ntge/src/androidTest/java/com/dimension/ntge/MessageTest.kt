@@ -92,7 +92,7 @@ class MessageTest {
                 Ed25519PrivateKey.deserialize(hello_privateKey).use { ed25519PrivateKey ->
                     ed25519PrivateKey.toX25519().use { x25519PrivateKey ->
                         decryptor.getFileKey(x25519PrivateKey).use { x25519FileKey ->
-                            val result = decryptor.decryptPayload(x25519FileKey)
+                            val result = decryptor.decryptPayload(x25519FileKey).toString(Charsets.UTF_8)
                             assertTrue(result == message_to_enc)
                         }
                     }
@@ -115,7 +115,7 @@ class MessageTest {
                                 Message.deserialize(msgString).use { dec_message ->
                                     Decryptor.new(dec_message).use { decryptor ->
                                         decryptor.getFileKey(x25519PrivateKey).use { x25519FileKey ->
-                                            val result = decryptor.decryptPayload(x25519FileKey)
+                                            val result = decryptor.decryptPayload(x25519FileKey).toString(Charsets.UTF_8)
                                             assertTrue(result == message_to_enc)
                                         }
                                     }
@@ -158,8 +158,8 @@ class MessageTest {
                                 Message.deserialize(msgString).use { dec_message ->
                                     Decryptor.new(dec_message).use { decryptor ->
                                         decryptor.getFileKey(x25519PrivateKey).use { x25519FileKey ->
-                                            val result = decryptor.decryptPayload(x25519FileKey)
-                                            val extraResult = decryptor.decryptPayloadExtra(x25519FileKey)
+                                            val result = decryptor.decryptPayload(x25519FileKey).toString(Charsets.UTF_8)
+                                            val extraResult = decryptor.decryptPayloadExtra(x25519FileKey).toString(Charsets.UTF_8)
                                             assertTrue(result == message_to_enc)
                                             assertTrue(extraResult == extra_message_to_enc)
                                         }
@@ -192,7 +192,7 @@ class MessageTest {
 //                Ed25519PrivateKey.deserialize(test_privateKey).use { ed25519PrivateKey ->
 //                    ed25519PrivateKey.toX25519().use { x25519PrivateKey ->
 //                        decryptor.getFileKey(x25519PrivateKey).use { x25519FileKey ->
-//                            val result = decryptor.decryptPayload(x25519FileKey)
+//                            val result = decryptor.decryptPayload(x25519FileKey).toString(Charsets.UTF_8)
 //                            assertTrue(result == message_to_enc)
 //                        }
 //                    }

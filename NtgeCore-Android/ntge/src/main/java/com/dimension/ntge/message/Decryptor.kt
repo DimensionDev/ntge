@@ -22,12 +22,12 @@ class Decryptor internal constructor(
         return X25519FileKey(Ntge.messageDecryptorDecryptFileKey(ptr, privateKey.ptr))
     }
 
-    fun decryptPayload(fileKey: X25519FileKey): String {
-        return Ntge.messageDecryptorDecryptPayload(ptr, fileKey.ptr).toString(Charsets.UTF_8)
+    fun decryptPayload(fileKey: X25519FileKey): ByteArray {
+        return Ntge.messageDecryptorDecryptPayload(ptr, fileKey.ptr)
     }
 
-    fun decryptPayloadExtra(fileKey: X25519FileKey): String {
-        return Ntge.decryptMessageExtra(ptr, fileKey.ptr).toString(Charsets.UTF_8)
+    fun decryptPayloadExtra(fileKey: X25519FileKey): ByteArray {
+        return Ntge.decryptMessageExtra(ptr, fileKey.ptr)
     }
 
     override fun close() {
