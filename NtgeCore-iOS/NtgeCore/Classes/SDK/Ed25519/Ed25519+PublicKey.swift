@@ -29,6 +29,18 @@ extension Ed25519 {
     
 }
 
+extension Ed25519.PublicKey: Hashable {
+    
+    public static func == (lhs: Ed25519.PublicKey, rhs: Ed25519.PublicKey) -> Bool {
+        lhs.keyID == rhs.keyID
+    }
+    
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(keyID)
+    }
+
+}
+
 extension Ed25519.PublicKey {
     
     public func serialize() -> String {
@@ -53,6 +65,29 @@ extension Ed25519.PublicKey {
         }
         
         return String(cString: text!)
+    }
+    
+}
+
+extension Ed25519.PublicKey {
+    
+    public func verify(message: Data, signature: Data) -> Bool {
+        var messageData = message
+        var signatureData = signature
+        
+        let result = messageData.withUnsafeMutableBytes { (messagePointer: UnsafeMutableRawBufferPointer) -> Bool in
+            let messageBufferPointer = messagePointer.bindMemory(to: UInt8.self)
+            let messageBuffer = Buffer(data: messageBufferPointer.baseAddress, len: UInt(message.count))
+            
+            return signatureData.withUnsafeMutableBytes { (signaturePointer: UnsafeMutableRawBufferPointer) -> Bool in
+                let signatureBufferPointer = signaturePointer.bindMemory(to: UInt8.self)
+                let signatureBuffer = Buffer(data: signatureBufferPointer.baseAddress, len: UInt(signature.count))
+                
+                return c_ed25519_public_key_verify(raw, messageBuffer, signatureBuffer) == 0
+            }
+        }
+        
+        return result
     }
     
 }

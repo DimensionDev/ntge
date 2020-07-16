@@ -1,10 +1,9 @@
-use ed25519_dalek::Signature;
 use hkdf::Hkdf;
 use secrecy::ExposeSecret;
 use sha2::Sha256;
 
 use crate::{
-    aead, ed25519,
+    aead,
     ed25519::public::Ed25519PublicKey,
     message::{self, encryptor::Encryptor},
     x25519::filekey::FileKey,
@@ -92,12 +91,9 @@ impl Decryptor {
             None => return false,
         };
 
-        let signature: Signature = match Signature::from_bytes(&signature_bytes[..]) {
-            Ok(sig) => sig,
-            Err(_) => return false,
-        };
-
-        ed25519::public::verify(&public_key.raw, &message.payload.ciphertext, &signature).is_ok()
+        public_key
+            .verify(&message.payload.ciphertext, &signature_bytes)
+            .is_ok()
     }
 }
 

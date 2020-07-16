@@ -61,6 +61,29 @@ extension Ed25519.PrivateKey {
 
 extension Ed25519.PrivateKey {
     
+    public func sign(message: Data) -> Data? {
+        var messageData = message
+        let signature = messageData.withUnsafeMutableBytes { (pointer: UnsafeMutableRawBufferPointer) -> Data? in
+            let bufferPointer = pointer.bindMemory(to: UInt8.self)
+            let buffer = Buffer(data: bufferPointer.baseAddress, len: UInt(message.count))
+            let signature_buffer = c_ed25519_private_key_sign(raw, buffer)
+            guard signature_buffer.len > 0 else {
+                return nil
+            }
+            
+            defer {
+                c_buffer_destroy(signature_buffer)
+            }
+            return Data(bytes: signature_buffer.data, count: Int(signature_buffer.len))
+        }
+        
+        return signature
+    }
+    
+}
+
+extension Ed25519.PrivateKey {
+    
     public var x25519: X25519.PrivateKey {
         X25519.PrivateKey(raw: c_key_utils_ed25519_private_key_to_x25519(raw))
     }

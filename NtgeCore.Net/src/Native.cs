@@ -122,5 +122,20 @@ namespace NtgeCore.Net
 
         [DllImport(LIB_NAME)]
         public static extern StringHandle messageTimestamp(IntPtr message);
+        
+        [DllImport(LIB_NAME)]
+        public static extern StringHandle base58_encode([In] byte[] input);
+        
+        [DllImport(LIB_NAME)]
+        public static extern StringHandle base58_decode([In] byte[] input);
+
+        [DllImport(LIB_NAME)]
+        public static extern StringHandle ed25519_private_key_sign(IntPtr private_key_ptr, [In] byte[] message_buffer);
+        
+        [DllImport(LIB_NAME)]
+        public static extern int ed25519_public_key_verify(IntPtr public_key, [In] byte[] message_buffer, [In] byte[] signature_buffer);
+        
+        [DllImport(LIB_NAME)]
+        public static extern StringHandle hmac_utils_hmac256_calculate_using(IntPtr public_key, [In] byte[] data_buffer);
     }
 }

@@ -65,6 +65,32 @@ extension NtgeCoreTests_Ed25519 {
         XCTAssertEqual(keyID, keyID2)
     }
     
+    func testSignAndVerifySignature() {
+        let keypair = Ed25519.Keypair()
+        let privateKey = keypair.privateKey
+        let publicKey = keypair.publicKey
+        
+        // sign & verify
+        let message = Data("Hello, World!".utf8)
+        let signature = privateKey.sign(message: message)
+        XCTAssertNotNil(signature)
+        let verifyResultOfSignature = publicKey.verify(message: message, signature: signature!)
+        XCTAssertTrue(verifyResultOfSignature)
+        
+        // sign & verify for empty message
+        let emptyMessage = Data()
+        let signatureForEmptyMessage = privateKey.sign(message: emptyMessage)
+        XCTAssertNotNil(signatureForEmptyMessage)
+        let verifyResultOfSignatureForEmptyMessage = publicKey.verify(message: emptyMessage, signature: signatureForEmptyMessage!)
+        XCTAssertTrue(verifyResultOfSignatureForEmptyMessage)
+        
+        // use wrong message & signature
+        let wrongResult1 = publicKey.verify(message: message, signature: signatureForEmptyMessage!)
+        XCTAssertFalse(wrongResult1)
+        let wrongResult2 = publicKey.verify(message: emptyMessage, signature: signature!)
+        XCTAssertFalse(wrongResult2)
+    }
+    
 }
 
 extension NtgeCoreTests_Ed25519 {
