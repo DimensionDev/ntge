@@ -1,4 +1,4 @@
-<Window
+<FluentWindow
     xmlns="https://github.com/avaloniaui"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -6,53 +6,30 @@
     xmlns:viewModels="clr-namespace:NtgeApp.ViewModels"
     xmlns:models="clr-namespace:NtgeApp.Models"
     mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+    WindowStartupLocation="CenterScreen"       
+    Foreground="{StaticResource SystemBaseHighColor}"
+    Background="{x:Null}"
+    x:Name="MainWindow"
     x:Class="NtgeApp.MainWindow"
     Title="NtgeApp">
-    <Window.Styles>
-        <!-- <Style Selector="TabControl[TabStripPlacement=Left]">
-            <Setter Property="Padding" Value="0"/>
-        </Style>
-        <Style Selector="TabControl /template/ ItemsPresenter#PART_ItemsPresenter > WrapPanel">
-            <Setter Property="Background" Value="{DynamicResource PrimaryColorBrush}" />
-        </Style>
-        <Style Selector="TabItem">
-            <Setter Property="Background" Value="{DynamicResource PrimaryColorBrush}" />
-            <Setter Property="FontSize" Value="16" />
-            <Setter Property="Foreground" Value="#F0F0F0" />
-            <Setter Property="Opacity" Value="0.66" />
-            <Setter Property="Margin" Value="0 0 0 0" />
-            <Setter Property="Padding" Value="32 16" />
-            <Setter Property="Transitions">
-                <Transitions>
-                    <DoubleTransition Property="Opacity" Duration="0:0:0.2"/>
-                </Transitions>
-            </Setter>
-        </Style>
-        <Style Selector="TabItem:pointerover /template/ ContentPresenter#PART_ContentPresenter">
-            <Setter Property="Background" Value="#55000000" />
-        </Style>
-        <Style Selector="TabItem:pointerover">
-            <Setter Property="Opacity" Value="0.87" />
-        </Style>
-        <Style Selector="TabItem:focus">
-            <Setter Property="Opacity" Value="0.87" />
-        </Style>
-
-        <Style Selector="TabItem:selected">
-            <Setter Property="Opacity" Value="1" />
-            <Setter Property="Background" Value="#77000000" />
-        </Style>
-        <Style Selector="TabItem:selected /template/ ContentPresenter#PART_ContentPresenter">
-            <Setter Property="Background" Value="#f0f0f0" />
-        </Style> -->
-
-    </Window.Styles>
-
-    <Window.DataContext>
+    <FluentWindow.DataContext>
         <viewModels:MainViewModel />
-    </Window.DataContext>
-    <Grid>
-        <TabControl Items="{Binding Tabs}" TabStripPlacement="Left">
+    </FluentWindow.DataContext>
+    <Panel Margin="{Binding #MainWindow.OffScreenMargin}">
+        <DockPanel HorizontalAlignment="Stretch">
+          <ExperimentalAcrylicBorder DockPanel.Dock="Left" Width="240">
+            <ExperimentalAcrylicBorder.Material>
+              <ExperimentalAcrylicMaterial TintColor="Black" MaterialOpacity="0.85" TintOpacity="1" />
+            </ExperimentalAcrylicBorder.Material>
+          </ExperimentalAcrylicBorder>
+          <ExperimentalAcrylicBorder IsHitTestVisible="False">
+            <ExperimentalAcrylicBorder.Material>
+              <ExperimentalAcrylicMaterial TintColor="#222222" MaterialOpacity="0.85" TintOpacity="1" />
+            </ExperimentalAcrylicBorder.Material>
+            <TextBlock Text="{Binding #TabControl.SelectedItem.Header}" Margin="20" FontSize="32" FontWeight="Light" />
+          </ExperimentalAcrylicBorder>
+        </DockPanel>          
+        <TabControl Margin="0 20" x:Name="TabControl" Classes="sidebar" Items="{Binding Tabs}" TabStripPlacement="Left">
             <TabControl.ContentTemplate>
                 <DataTemplate DataType="models:TabItemModel">
                     <ContentPresenter Content="{Binding Content}" />
@@ -71,5 +48,5 @@
                 </DataTemplate>
             </TabControl.ItemTemplate>
         </TabControl>
-    </Grid>
-</Window>
+    </Panel>
+</FluentWindow>

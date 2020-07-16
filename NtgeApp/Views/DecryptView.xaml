@@ -24,7 +24,7 @@
             </Grid.RowDefinitions>
             <StackPanel Orientation="Horizontal">
                 <TextBlock Text="Decrypt with" VerticalAlignment="Center" Margin="8,0" />
-                <Button Margin="8,0,0,0" MinWidth="100" Click="OnSelectKeyClick">
+                <Button Margin="8,0,0,8" MinWidth="100" Classes="PrimaryButton" Click="OnSelectKeyClick">
                     <TextBlock Text="Select Key.." />
                 </Button>
             </StackPanel>

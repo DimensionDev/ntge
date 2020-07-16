@@ -22,7 +22,7 @@
         </Grid.RowDefinitions>
         <StackPanel Orientation="Horizontal">
             <TextBlock Text="Recipient" VerticalAlignment="Center" Margin="8,0" />
-            <Button Margin="8,0,0,0" MinWidth="100" Click="OnAddClick">
+            <Button Margin="8,0,0,8" MinWidth="100" Click="OnAddClick" Classes="PrimaryButton">
                 <TextBlock Text="+" />
             </Button>
         </StackPanel>

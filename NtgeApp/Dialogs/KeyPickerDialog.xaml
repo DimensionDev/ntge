@@ -48,10 +48,10 @@
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
-            <Button Margin="8" Click="OnCancelClicked">
+            <Button Margin="8" Click="OnCancelClicked" Classes="DialogButton">
                 <TextBlock Text="Cancel" />
             </Button>
-            <Button Margin="8" Click="OnOkClicked" Grid.Column="1" Classes="PrimaryButton">
+            <Button Margin="8" Click="OnOkClicked" Grid.Column="1" Classes="DialogButton PrimaryButton">
                 <TextBlock Text="Ok" />
             </Button>
         </Grid>

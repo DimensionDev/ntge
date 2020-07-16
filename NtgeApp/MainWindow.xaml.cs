@@ -5,7 +5,7 @@ using PropertyChanged;
 namespace NtgeApp
 {
     [DoNotNotify]
-    public class MainWindow : Window
+    public class MainWindow : FluentWindow
     {
         public MainWindow()
         {
