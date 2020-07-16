@@ -1,0 +1,56 @@
+<UserControl
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:viewModels="clr-namespace:NtgeApp.ViewModels"
+    xmlns:models="clr-namespace:NtgeApp.Models"
+    mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+    x:Class="NtgeApp.Views.EncryptView">
+
+    <UserControl.DataContext>
+        <viewModels:EncryptViewModel />
+    </UserControl.DataContext>
+
+    <Grid Margin="8">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="2*" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="2*" />
+        </Grid.RowDefinitions>
+        <StackPanel Orientation="Horizontal">
+            <TextBlock Text="Recipient" VerticalAlignment="Center" Margin="8,0" />
+            <Button Margin="8,0,0,8" MinWidth="100" Click="OnAddClick" Classes="PrimaryButton">
+                <TextBlock Text="+" />
+            </Button>
+        </StackPanel>
+        <ListBox ScrollViewer.HorizontalScrollBarVisibility="Disabled" Grid.Row="1" Items="{Binding Keys}">
+            <ListBox.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <WrapPanel />
+                </ItemsPanelTemplate>
+            </ListBox.ItemsPanel>
+            <ListBox.ItemTemplate>
+                <DataTemplate DataType="models:EncryptKeyModel">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Margin="8" Text="{Binding Content}" />
+                        <Button Classes="Transparent" Click="OnRemoveClick" DataContext="{Binding}">
+                            <Image Width="16" Height="16">
+                                <Image.Source>
+                                    <DrawingImage Drawing="{DynamicResource CloseCircleOutlineiOS}" />
+                                </Image.Source>
+                            </Image>
+                        </Button>
+                    </StackPanel>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+        <TextBox Text="{Binding Input, Mode=TwoWay}" Margin="8" Grid.Row="2" TextWrapping="Wrap" AcceptsReturn="True" />
+        <TextBlock Margin="8" Grid.Row="3" Text="Result" />
+        <TextBox TextWrapping="Wrap" Text="{Binding Output}" Margin="8" Grid.Row="4" IsReadOnly="True"
+                 AcceptsReturn="True" />
+    </Grid>
+
+</UserControl>

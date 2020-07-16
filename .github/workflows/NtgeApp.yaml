@@ -1,0 +1,79 @@
+name: NtgeApp
+
+on:
+  push:
+    paths:
+      - "ntge-core/**"
+      - "NtgeCore.Net/**"
+      - "NtgeApp/**"
+  pull_request:
+    paths:
+      - "ntge-core/**"
+      - "NtgeCore.Net/**"
+      - "NtgeApp/**"
+
+jobs:
+
+  linux:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 3.1.201
+    - name: Install dependencies
+      working-directory: ./NtgeApp
+      run: dotnet restore
+    - name: Publish
+      working-directory: ./NtgeApp
+      run: dotnet publish -c Release -r linux-x64 --self-contained true /p:PublishSingleFile=true
+    - name: Archive publish artifacts
+      uses: actions/upload-artifact@v1
+      with:
+        name: NtgeApp_linux-x64
+        path: NtgeApp/bin/Release/netcoreapp3.1/linux-x64/publish
+
+  win:
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 3.1.201
+    - name: Install dependencies
+      working-directory: ./NtgeApp
+      run: dotnet restore
+    - name: Publish
+      working-directory: ./NtgeApp
+      run: dotnet publish -c Release -r win-x64 --self-contained true /p:PublishSingleFile=true
+    - name: Archive publish artifacts
+      uses: actions/upload-artifact@v1
+      with:
+        name: NtgeApp_win-x64
+        path: NtgeApp/bin/Release/netcoreapp3.1/win-x64/publish
+
+  osx:
+    runs-on: macos-latest
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 3.1.201
+    - name: Install dependencies
+      working-directory: ./NtgeApp
+      run: dotnet restore
+    - name: Publish
+      working-directory: ./NtgeApp
+      run: dotnet publish -c Release -r osx-x64 --self-contained true /p:PublishSingleFile=true
+    - name: Archive publish artifacts
+      uses: actions/upload-artifact@v1
+      with:
+        name: NtgeApp_osx-x64
+        path: NtgeApp/bin/Release/netcoreapp3.1/osx-x64/publish

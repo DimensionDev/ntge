@@ -1,0 +1,52 @@
+<FluentWindow
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:viewModels="clr-namespace:NtgeApp.ViewModels"
+    xmlns:models="clr-namespace:NtgeApp.Models"
+    mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+    WindowStartupLocation="CenterScreen"       
+    Foreground="{StaticResource SystemBaseHighColor}"
+    Background="{x:Null}"
+    x:Name="MainWindow"
+    x:Class="NtgeApp.MainWindow"
+    Title="NtgeApp">
+    <FluentWindow.DataContext>
+        <viewModels:MainViewModel />
+    </FluentWindow.DataContext>
+    <Panel Margin="{Binding #MainWindow.OffScreenMargin}">
+        <DockPanel HorizontalAlignment="Stretch">
+          <ExperimentalAcrylicBorder DockPanel.Dock="Left" Width="240">
+            <ExperimentalAcrylicBorder.Material>
+              <ExperimentalAcrylicMaterial TintColor="Black" MaterialOpacity="0.85" TintOpacity="1" />
+            </ExperimentalAcrylicBorder.Material>
+          </ExperimentalAcrylicBorder>
+          <ExperimentalAcrylicBorder IsHitTestVisible="False">
+            <ExperimentalAcrylicBorder.Material>
+              <ExperimentalAcrylicMaterial TintColor="#222222" MaterialOpacity="0.85" TintOpacity="1" />
+            </ExperimentalAcrylicBorder.Material>
+            <TextBlock Text="{Binding #TabControl.SelectedItem.Header}" Margin="20" FontSize="32" FontWeight="Light" />
+          </ExperimentalAcrylicBorder>
+        </DockPanel>          
+        <TabControl Margin="0 20" x:Name="TabControl" Classes="sidebar" Items="{Binding Tabs}" TabStripPlacement="Left">
+            <TabControl.ContentTemplate>
+                <DataTemplate DataType="models:TabItemModel">
+                    <ContentPresenter Content="{Binding Content}" />
+                </DataTemplate>
+            </TabControl.ContentTemplate>
+            <TabControl.ItemTemplate>
+                <DataTemplate DataType="models:TabItemModel">
+                    <StackPanel Orientation="Horizontal">
+                        <Image Height="24" Width="24">
+                            <Image.Source>
+                                <DrawingImage Drawing="{Binding Icon}" />
+                            </Image.Source>
+                        </Image>
+                        <TextBlock VerticalAlignment="Center" Margin="8,0,0,0" Text="{Binding Title}" />
+                    </StackPanel>
+                </DataTemplate>
+            </TabControl.ItemTemplate>
+        </TabControl>
+    </Panel>
+</FluentWindow>

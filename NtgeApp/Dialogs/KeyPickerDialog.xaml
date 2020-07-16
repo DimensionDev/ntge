@@ -1,0 +1,59 @@
+<dialogs:Dialog
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:models="clr-namespace:NtgeApp.Models"
+    xmlns:viewModels="clr-namespace:NtgeApp.ViewModels"
+    xmlns:dialogs="clr-namespace:NtgeApp.Dialogs"
+    mc:Ignorable="d" d:DesignWidth="200" d:DesignHeight="450"
+    Height="450"
+    Width="400"
+    x:Class="NtgeApp.Dialogs.KeyPickerDialog"
+    Title="Pick key...">
+    <dialogs:Dialog.DataContext>
+        <viewModels:KeyPickerViewModel />
+    </dialogs:Dialog.DataContext>
+    <Grid Margin="8">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <TabControl Name="PickerTabControl">
+            <TabItem Header="Knwon Keys">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <AutoCompleteBox Margin="8" />
+                    <ListBox SelectedItem="{Binding SelectedModel, Mode=TwoWay}" Grid.Row="1" Items="{Binding Items}">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate DataType="models:KeyModel">
+                                <Grid DoubleTapped="OnItemDoubleTapped" Background="Transparent"
+                                      DataContext="{Binding}" Margin="8">
+                                    <TextBlock Text="{Binding Name}" />
+                                </Grid>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Import Custom">
+                <TextBox Margin="8" Text="{Binding CustomKeyContent, Mode=TwoWay}" />
+            </TabItem>
+        </TabControl>
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <Button Margin="8" Click="OnCancelClicked" Classes="DialogButton">
+                <TextBlock Text="Cancel" />
+            </Button>
+            <Button Margin="8" Click="OnOkClicked" Grid.Column="1" Classes="DialogButton PrimaryButton">
+                <TextBlock Text="Ok" />
+            </Button>
+        </Grid>
+    </Grid>
+</dialogs:Dialog>

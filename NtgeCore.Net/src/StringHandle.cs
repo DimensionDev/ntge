@@ -6,6 +6,11 @@ namespace NtgeCore.Net
 {
     internal class StringHandle : SafeHandle
     {
+        public StringHandle(IntPtr ptr) : this()
+        {
+            SetHandle(ptr);
+        }
+
         public StringHandle() : base(IntPtr.Zero, true)
         {
 

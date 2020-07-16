@@ -1,0 +1,46 @@
+<UserControl
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:viewModels="clr-namespace:NtgeApp.ViewModels"
+    xmlns:models="clr-namespace:NtgeApp.Models"
+    mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+    x:Class="NtgeApp.Views.KeysView">
+
+    <UserControl.DataContext>    
+        <viewModels:KeysViewModel />
+    </UserControl.DataContext>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <StackPanel Orientation="Horizontal" Margin="8,0">
+            <TextBlock VerticalAlignment="Center" Text="Manage your keys" Margin="8,0" />
+            <Button Click="OnCreateClicked" HorizontalAlignment="Right" Classes="PrimaryButton" Margin="8" MinWidth="100">
+                <TextBlock Text="Create" />
+            </Button>
+        </StackPanel>
+        <AutoCompleteBox Grid.Row="1" Margin="16" />
+        <DataGrid Grid.Row="2" Margin="16,0" CanUserSortColumns="True" Items="{Binding Items}">
+            <DataGrid.Columns>
+                <DataGridTextColumn 
+                    Header="Name" 
+                    CanUserSort="True"
+                    SortMemberPath="Name"
+                    Binding="{Binding Name}" 
+                    Width="*"/>
+                <DataGridTextColumn Header="CreationTime"
+                    CanUserResize="True"
+                    SortMemberPath="FileInfo.CreationTime"
+                    Binding="{Binding FileInfo.CreationTime}" 
+                    />
+            </DataGrid.Columns>
+            
+        </DataGrid>
+    </Grid>
+
+</UserControl>
