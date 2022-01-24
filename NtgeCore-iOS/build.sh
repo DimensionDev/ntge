@@ -8,7 +8,7 @@ echo "Building rust library..."
 cd ./ntge-core/
 touch build.rs
 cargo build --target x86_64-apple-ios --release --lib --features cbindgen-enable
-RUSTFLAGS="-Z embed-bitcode" cargo +ios-arm64 build --target aarch64-apple-ios --release --lib
+RUSTFLAGS="-C embed-bitcode=yes" cargo +ios-arm64-1.57.0 build --target aarch64-apple-ios --release --lib
 
 echo "lipo bitcode lib"
 cd ..

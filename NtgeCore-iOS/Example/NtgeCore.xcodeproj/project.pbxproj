@@ -211,10 +211,12 @@
 				TargetAttributes = {
 					607FACCF1AFB9204008FA782 = {
 						CreatedOnToolsVersion = 6.3.1;
+						DevelopmentTeam = 7LFDZ96332;
 						LastSwiftMigration = 0900;
 					};
 					607FACE41AFB9204008FA782 = {
 						CreatedOnToolsVersion = 6.3.1;
+						DevelopmentTeam = 7LFDZ96332;
 						LastSwiftMigration = 0900;
 						TestTargetID = 607FACCF1AFB9204008FA782;
 					};
@@ -464,6 +466,7 @@
 			baseConfigurationReference = 9DE684CA1F9169D76BF08CDB /* Pods-NtgeCore_Example.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				DEVELOPMENT_TEAM = 7LFDZ96332;
 				INFOPLIST_FILE = NtgeCore/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
@@ -480,6 +483,7 @@
 			baseConfigurationReference = A0A1BACC96F5099454026EC8 /* Pods-NtgeCore_Example.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				DEVELOPMENT_TEAM = 7LFDZ96332;
 				INFOPLIST_FILE = NtgeCore/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
@@ -495,6 +499,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 98091DD09C8FB2EAF1AF3E73 /* Pods-NtgeCore_Tests.debug.xcconfig */;
 			buildSettings = {
+				DEVELOPMENT_TEAM = 7LFDZ96332;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(PLATFORM_DIR)/Developer/Library/Frameworks",
 					"$(inherited)",
@@ -517,6 +522,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 46409C146F8C58792C11F7E3 /* Pods-NtgeCore_Tests.release.xcconfig */;
 			buildSettings = {
+				DEVELOPMENT_TEAM = 7LFDZ96332;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(PLATFORM_DIR)/Developer/Library/Frameworks",
 					"$(inherited)",

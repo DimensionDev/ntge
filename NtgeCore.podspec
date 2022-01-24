@@ -36,6 +36,9 @@ Not That Good Encryption is a general-purpose rust-based encryption tool. Our ma
   s.public_header_files = 'NtgeCore-iOS/NtgeCore/Classes/include/*.h'
   s.vendored_libraries = "NtgeCore-iOS/lib/libntge_core.a"
 
+  s.pod_target_xcconfig = { 'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'arm64' }
+  s.user_target_xcconfig = { 'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'arm64' }
+
   s.test_spec 'Tests' do |test_spec|
     test_spec.source_files = 'NtgeCore-iOS/NtgeCore/Tests/**'
   end
