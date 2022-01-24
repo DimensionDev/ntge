@@ -21,9 +21,9 @@ jobs:
         # install cargo-lipo
         cargo install cargo-lipo
         # install rust-bitcode
-        wget https://github.com/getditto/rust-bitcode/releases/download/v1.40.0/rust-ios-arm64-1.40.0.zip
-        unzip rust-ios-arm64-1.40.0.zip
-        cd rust-ios-arm64-1.40.0
+        wget https://github.com/getditto/rust-bitcode/releases/download/v1.57.0/rust-ios-arm64-1.57.0.zip
+        unzip rust-ios-arm64-1.57.0.zip
+        cd rust-ios-arm64-1.57.0
         ./install.sh
         cd ..
         # lint cocoapod library
